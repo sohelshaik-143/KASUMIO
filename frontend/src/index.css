@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 6.5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 6.5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 168 80% 40%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 168 80% 40%;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Card hover glow & glass effects */
+.kasumo-card {
+  @apply bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-sm transition-all duration-200;
+}
+
+.kasumo-card:hover {
+  @apply border-slate-700/80 shadow-md;
+}
+
+.kasumo-glass {
+  @apply bg-slate-900/80 backdrop-blur-xl border border-slate-800/80;
+}
+
+.kasumo-surface-subtle {
+  @apply bg-slate-925/90 border border-slate-850;
+}
+
+.tab-active {
+  @apply bg-teal-500/15 text-teal-300 border-teal-500/30;
+}

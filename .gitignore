@@ -1,0 +1,36 @@
+# === Java / Maven ===
+backend/target/
+*.class
+*.jar
+*.war
+*.log
+*.iml
+.idea/
+*.swp
+
+# === Node / Frontend ===
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Environment ===
+.env
+.env.local
+*.env
+
+# === IDE ===
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# === Misc ===
+*.tmp
+*.bak
