@@ -8,6 +8,10 @@ public class CareerActionResponseDto {
     private List<CareerActionDto> alternativeMoves;
     private String careerGoalTitle;
     private String primaryEcosystem;
+    private String confidenceLevel = "HIGH";
+    private boolean insufficientEvidence = false;
+    private String confidenceMessage;
+    private VisualFlowDto visualFlow;
 
     public CareerActionResponseDto() {}
 
@@ -17,6 +21,19 @@ public class CareerActionResponseDto {
         this.alternativeMoves = alternativeMoves;
         this.careerGoalTitle = careerGoalTitle;
         this.primaryEcosystem = primaryEcosystem;
+    }
+
+    public CareerActionResponseDto(CareerActionDto primaryNextMove, List<CareerActionDto> alternativeMoves,
+                                  String careerGoalTitle, String primaryEcosystem, String confidenceLevel,
+                                  boolean insufficientEvidence, String confidenceMessage, VisualFlowDto visualFlow) {
+        this.primaryNextMove = primaryNextMove;
+        this.alternativeMoves = alternativeMoves;
+        this.careerGoalTitle = careerGoalTitle;
+        this.primaryEcosystem = primaryEcosystem;
+        this.confidenceLevel = confidenceLevel;
+        this.insufficientEvidence = insufficientEvidence;
+        this.confidenceMessage = confidenceMessage;
+        this.visualFlow = visualFlow;
     }
 
     public CareerActionDto getPrimaryNextMove() {
@@ -49,5 +66,37 @@ public class CareerActionResponseDto {
 
     public void setPrimaryEcosystem(String primaryEcosystem) {
         this.primaryEcosystem = primaryEcosystem;
+    }
+
+    public String getConfidenceLevel() {
+        return confidenceLevel;
+    }
+
+    public void setConfidenceLevel(String confidenceLevel) {
+        this.confidenceLevel = confidenceLevel;
+    }
+
+    public boolean isInsufficientEvidence() {
+        return insufficientEvidence;
+    }
+
+    public void setInsufficientEvidence(boolean insufficientEvidence) {
+        this.insufficientEvidence = insufficientEvidence;
+    }
+
+    public String getConfidenceMessage() {
+        return confidenceMessage;
+    }
+
+    public void setConfidenceMessage(String confidenceMessage) {
+        this.confidenceMessage = confidenceMessage;
+    }
+
+    public VisualFlowDto getVisualFlow() {
+        return visualFlow;
+    }
+
+    public void setVisualFlow(VisualFlowDto visualFlow) {
+        this.visualFlow = visualFlow;
     }
 }

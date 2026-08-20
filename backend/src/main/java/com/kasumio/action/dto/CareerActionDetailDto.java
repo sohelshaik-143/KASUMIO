@@ -18,6 +18,7 @@ public class CareerActionDetailDto {
     private String successCriteria;
     private String suggestedPreparation;
     private String suggestedTemplateTitle;
+    private VisualFlowDto visualFlow;
 
     public CareerActionDetailDto() {}
 
@@ -39,6 +40,17 @@ public class CareerActionDetailDto {
         this.successCriteria = successCriteria;
         this.suggestedPreparation = suggestedPreparation;
         this.suggestedTemplateTitle = suggestedTemplateTitle;
+    }
+
+    public CareerActionDetailDto(String id, String title, String description, String whatToDo,
+                                 String whyItMatters, String reusedProject, String capabilityStrengthened,
+                                 List<String> targetedOpportunities, EvidenceRoi evidenceRoi,
+                                 String estimatedEffort, String successCriteria, String suggestedPreparation,
+                                 String suggestedTemplateTitle, VisualFlowDto visualFlow) {
+        this(id, title, description, whatToDo, whyItMatters, reusedProject, capabilityStrengthened,
+             targetedOpportunities, evidenceRoi, estimatedEffort, successCriteria, suggestedPreparation,
+             suggestedTemplateTitle);
+        this.visualFlow = visualFlow;
     }
 
     public String getId() {
@@ -143,5 +155,13 @@ public class CareerActionDetailDto {
 
     public void setSuggestedTemplateTitle(String suggestedTemplateTitle) {
         this.suggestedTemplateTitle = suggestedTemplateTitle;
+    }
+
+    public VisualFlowDto getVisualFlow() {
+        return visualFlow;
+    }
+
+    public void setVisualFlow(VisualFlowDto visualFlow) {
+        this.visualFlow = visualFlow;
     }
 }

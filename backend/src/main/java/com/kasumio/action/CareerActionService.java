@@ -167,7 +167,22 @@ public class CareerActionService {
 
         String primaryEcosystem = detectPrimaryEcosystem(studentEvidence, targetGoalTitle);
 
-        return new CareerActionResponseDto(primaryAction, alternatives, targetGoalTitle, primaryEcosystem);
+        boolean insufficientEvidence = studentEvidence.isEmpty();
+        String confidenceLevel = insufficientEvidence ? "LOW" : (studentEvidence.size() >= 3 ? "HIGH" : "MEDIUM");
+        String confidenceMessage = insufficientEvidence
+                ? "I don't have enough evidence to confidently recommend your next step yet."
+                : null;
+
+        String currentTechStr = studentEvidence.isEmpty() ? "Starting Profile" : studentEvidence.get(0).getSkill().getName();
+        String gapTechStr = primaryAction.getTargetSkillName();
+        String flowActionTitle = primaryAction.getTitle();
+        String expectedEvidenceStr = primaryAction.getTargetSkillName() + " Implementation Evidence";
+        String targetOutcomeStr = targetGoalTitle + " Opportunity Readiness";
+
+        VisualFlowDto visualFlow = new VisualFlowDto(currentTechStr, gapTechStr, flowActionTitle, expectedEvidenceStr, targetOutcomeStr);
+
+        return new CareerActionResponseDto(primaryAction, alternatives, targetGoalTitle, primaryEcosystem,
+                confidenceLevel, insufficientEvidence, confidenceMessage, visualFlow);
     }
 
     /**
@@ -211,6 +226,16 @@ public class CareerActionService {
         String prep = "Review official documentation for " + targetDto.getTargetSkillName() +
                 " and inspect sample repositories demonstrating best practice configuration.";
 
+        List<Evidence> studentEvidence = evidenceRepository.findByStudentOrderByCreatedAtDesc(student);
+        String currentTechStr = studentEvidence.isEmpty() ? "Starting Profile" : studentEvidence.get(0).getSkill().getName();
+        VisualFlowDto flow = new VisualFlowDto(
+                currentTechStr,
+                targetDto.getTargetSkillName(),
+                targetDto.getTitle(),
+                targetDto.getTargetSkillName() + " Evidence",
+                response.getCareerGoalTitle() + " Readiness"
+        );
+
         return new CareerActionDetailDto(
                 targetDto.getId(),
                 targetDto.getTitle(),
@@ -224,7 +249,8 @@ public class CareerActionService {
                 targetDto.getEstimatedEffort(),
                 successCriteria,
                 prep,
-                targetDto.getSuggestedTemplateTitle()
+                targetDto.getSuggestedTemplateTitle(),
+                flow
         );
     }
 
@@ -243,6 +269,25 @@ public class CareerActionService {
             CareerActionHistory hist = new CareerActionHistory(student, actionId, detail.getTitle(), detail.getCapabilityStrengthened(), "STARTED");
             historyRepository.save(hist);
         }
+    }
+
+    /**
+     * Marks action as SKIPPED in student history.
+     */
+    @Transactional
+    public void skipAction(Student student, String actionId) {
+        CareerActionHistory hist = historyRepository.findFirstByStudentAndActionIdOrderByCreatedAtDesc(student, actionId)
+                .orElse(new CareerActionHistory(student, actionId, "Skipped Action", actionId.replace("action-", ""), "SKIPPED"));
+        hist.setStatus("SKIPPED");
+        historyRepository.save(hist);
+    }
+
+    /**
+     * Retrieves chronological action history for student.
+     */
+    @Transactional(readOnly = true)
+    public List<CareerActionHistory> getStudentHistory(Student student) {
+        return historyRepository.findByStudentOrderByCreatedAtDesc(student);
     }
 
     /**

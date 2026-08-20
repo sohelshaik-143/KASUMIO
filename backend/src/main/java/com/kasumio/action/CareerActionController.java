@@ -69,6 +69,23 @@ public class CareerActionController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/actions/{id}/skip")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Record action as SKIPPED in student action history")
+    public ResponseEntity<Void> skipAction(@PathVariable String id) {
+        Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
+        actionService.skipAction(student, id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Get full chronological history of student career actions and outcomes")
+    public ResponseEntity<java.util.List<CareerActionHistory>> getActionHistory() {
+        Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
+        return ResponseEntity.ok(actionService.getStudentHistory(student));
+    }
+
     @GetMapping("/action-impact/{id}")
     @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Calculate readiness impact of completing a specific action")

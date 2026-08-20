@@ -25,6 +25,17 @@ export const actionApi = {
     });
   },
 
+  // Record action skipped
+  skipAction: async (id) => {
+    await api.post(`/student/career/actions/${id}/skip`);
+  },
+
+  // Get action history
+  getActionHistory: async () => {
+    const res = await api.get('/student/career/history');
+    return res.data;
+  },
+
   // Get readiness impact for an action
   getActionImpact: async (id) => {
     const res = await api.get(`/student/career/action-impact/${id}`);
