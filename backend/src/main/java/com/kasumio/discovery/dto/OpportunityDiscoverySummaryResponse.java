@@ -1,7 +1,9 @@
 package com.kasumio.discovery.dto;
 
+import com.kasumio.opportunity.EvidenceRoi;
 import com.kasumio.opportunity.OpportunityStatus;
 import com.kasumio.opportunity.OpportunityType;
+import com.kasumio.opportunity.ReadinessState;
 import com.kasumio.opportunity.WorkType;
 
 import java.time.Instant;
@@ -30,6 +32,11 @@ public class OpportunityDiscoverySummaryResponse {
     private boolean isSaved;
     private String saveStatus;
 
+    private ReadinessState readinessState;
+    private EvidenceRoi evidenceRoi;
+    private String nextBestAction;
+    private String whyNotRecommended;
+
     public OpportunityDiscoverySummaryResponse() {}
 
     public OpportunityDiscoverySummaryResponse(
@@ -38,7 +45,8 @@ public class OpportunityDiscoverySummaryResponse {
             Instant deadline, String compensation, String duration, String verificationStatus,
             int matchScore, String matchCategory, String whyRecommended, String deadlineNote,
             List<String> strongSkills, List<String> missingSkills, boolean hasExpressedInterest,
-            boolean isSaved, String saveStatus) {
+            boolean isSaved, String saveStatus, ReadinessState readinessState,
+            EvidenceRoi evidenceRoi, String nextBestAction, String whyNotRecommended) {
         this.id = id;
         this.title = title;
         this.organizationName = organizationName;
@@ -60,6 +68,10 @@ public class OpportunityDiscoverySummaryResponse {
         this.hasExpressedInterest = hasExpressedInterest;
         this.isSaved = isSaved;
         this.saveStatus = saveStatus;
+        this.readinessState = readinessState;
+        this.evidenceRoi = evidenceRoi;
+        this.nextBestAction = nextBestAction;
+        this.whyNotRecommended = whyNotRecommended;
     }
 
     public Long getId() { return id; }
@@ -83,4 +95,8 @@ public class OpportunityDiscoverySummaryResponse {
     public boolean isHasExpressedInterest() { return hasExpressedInterest; }
     public boolean isSaved() { return isSaved; }
     public String getSaveStatus() { return saveStatus; }
+    public ReadinessState getReadinessState() { return readinessState; }
+    public EvidenceRoi getEvidenceRoi() { return evidenceRoi; }
+    public String getNextBestAction() { return nextBestAction; }
+    public String getWhyNotRecommended() { return whyNotRecommended; }
 }

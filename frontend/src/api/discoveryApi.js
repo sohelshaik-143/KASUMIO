@@ -90,6 +90,17 @@ export const discoveryApi = {
 
   rejectCandidate: async (id) => {
     await api.post(`/discovery/candidates/${id}/reject`);
+  },
+
+  // Submit deterministic feedback on recommendation
+  submitFeedback: async (id, feedbackType, feedbackText = '') => {
+    await api.post(`/discovery/opportunities/${id}/feedback`, { feedbackType, feedbackText });
+  },
+
+  // Get system feedback quality analytics
+  getFeedbackAnalytics: async () => {
+    const res = await api.get('/discovery/analytics/feedback');
+    return res.data;
   }
 };
 

@@ -25,6 +25,7 @@ public class OpportunityDiscoveryController {
     private final OpportunityDiscoveryService discoveryService;
     private final CareerIntelligenceService careerIntelligenceService;
     private final TechnologyCandidateService candidateService;
+    private final FeedbackIntelligenceService feedbackIntelligenceService;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
 
@@ -32,11 +33,13 @@ public class OpportunityDiscoveryController {
             OpportunityDiscoveryService discoveryService,
             CareerIntelligenceService careerIntelligenceService,
             TechnologyCandidateService candidateService,
+            FeedbackIntelligenceService feedbackIntelligenceService,
             StudentRepository studentRepository,
             UserRepository userRepository) {
         this.discoveryService = discoveryService;
         this.careerIntelligenceService = careerIntelligenceService;
         this.candidateService = candidateService;
+        this.feedbackIntelligenceService = feedbackIntelligenceService;
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
     }
@@ -189,5 +192,23 @@ public class OpportunityDiscoveryController {
         User user = SecurityUtils.getCurrentUser(userRepository);
         candidateService.rejectCandidate(id, user);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/opportunities/{id}/feedback")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Submit deterministic recommendation feedback (e.g. RELEVANT, NOT_RELEVANT, WRONG_REQUIREMENT)")
+    public ResponseEntity<Void> submitFeedback(
+            @PathVariable Long id,
+            @RequestBody RecommendationFeedbackRequest request) {
+        Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
+        feedbackIntelligenceService.submitFeedback(student, id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/analytics/feedback")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RECRUITER') or hasRole('STUDENT')")
+    @Operation(summary = "Get internal recommendation system quality metrics")
+    public ResponseEntity<FeedbackAnalyticsDto> getFeedbackAnalytics() {
+        return ResponseEntity.ok(feedbackIntelligenceService.getFeedbackAnalytics());
     }
 }

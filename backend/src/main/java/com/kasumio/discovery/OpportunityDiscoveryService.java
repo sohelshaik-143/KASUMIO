@@ -37,6 +37,8 @@ public class OpportunityDiscoveryService {
     private final DeterministicMatchScorer matchScorer;
     private final TechnologyNormalizationService normalizationService;
     private final GapAnalysisService gapAnalysisService;
+    private final NextBestActionService nextBestActionService;
+    private final RecommendationRepository recommendationRepository;
 
     public OpportunityDiscoveryService(
             OpportunityRepository opportunityRepository,
@@ -48,7 +50,9 @@ public class OpportunityDiscoveryService {
             UserRepository userRepository,
             DeterministicMatchScorer matchScorer,
             TechnologyNormalizationService normalizationService,
-            GapAnalysisService gapAnalysisService) {
+            GapAnalysisService gapAnalysisService,
+            NextBestActionService nextBestActionService,
+            RecommendationRepository recommendationRepository) {
         this.opportunityRepository = opportunityRepository;
         this.interestRepository = interestRepository;
         this.savedRepository = savedRepository;
@@ -59,6 +63,8 @@ public class OpportunityDiscoveryService {
         this.matchScorer = matchScorer;
         this.normalizationService = normalizationService;
         this.gapAnalysisService = gapAnalysisService;
+        this.nextBestActionService = nextBestActionService;
+        this.recommendationRepository = recommendationRepository;
     }
 
     /**
@@ -116,6 +122,25 @@ public class OpportunityDiscoveryService {
                     .limit(3)
                     .collect(Collectors.toList());
 
+            List<Skill> missingSkillEntities = match.getMissingSkills().stream()
+                    .map(DeterministicMatchScorer.TechnologyMatchDetail::getSkill)
+                    .collect(Collectors.toList());
+
+            NextBestActionService.NextBestActionResult nba = nextBestActionService.determineNextAction(student, opp, missingSkillEntities);
+
+            // Persist recommendation record for tracking feedback loop
+            try {
+                Optional<Recommendation> recOpt = recommendationRepository.findByStudentAndOpportunity(student, opp);
+                if (recOpt.isEmpty()) {
+                    recommendationRepository.save(new Recommendation(
+                            student,
+                            opp,
+                            match.getReadinessState(),
+                            nba.getEvidenceRoi()
+                    ));
+                }
+            } catch (Exception ignored) {}
+
             results.add(new OpportunityDiscoverySummaryResponse(
                     opp.getId(),
                     opp.getTitle(),
@@ -137,7 +162,11 @@ public class OpportunityDiscoveryService {
                     missingSkills,
                     hasInterest,
                     isSaved,
-                    saveStatus
+                    saveStatus,
+                    match.getReadinessState(),
+                    nba.getEvidenceRoi(),
+                    nba.getRecommendedAction(),
+                    match.getWhyNotRecommended()
             ));
         }
 
@@ -208,6 +237,12 @@ public class OpportunityDiscoveryService {
                 ? opp.getRecruiter().getOrganization().getName() 
                 : "Verified Partner";
 
+        List<Skill> missingSkillEntities = match.getMissingSkills().stream()
+                .map(DeterministicMatchScorer.TechnologyMatchDetail::getSkill)
+                .collect(Collectors.toList());
+
+        NextBestActionService.NextBestActionResult nba = nextBestActionService.determineNextAction(student, opp, missingSkillEntities);
+
         return new OpportunityDiscoveryDetailResponse(
                 opp.getId(),
                 opp.getTitle(),
@@ -240,7 +275,12 @@ public class OpportunityDiscoveryService {
                 oppGaps,
                 hasInterest,
                 isSaved,
-                saveStatus
+                saveStatus,
+                match.getReadinessState(),
+                nba.getEvidenceRoi(),
+                nba.getRecommendedAction(),
+                nba.getReasoning(),
+                match.getWhyNotRecommended()
         );
     }
 
@@ -315,6 +355,12 @@ public class OpportunityDiscoveryService {
                     ? opp.getRecruiter().getOrganization().getName() 
                     : "Verified Partner";
 
+            List<Skill> missingSkillEntities = match.getMissingSkills().stream()
+                    .map(DeterministicMatchScorer.TechnologyMatchDetail::getSkill)
+                    .collect(Collectors.toList());
+
+            NextBestActionService.NextBestActionResult nba = nextBestActionService.determineNextAction(student, opp, missingSkillEntities);
+
             results.add(new OpportunityDiscoverySummaryResponse(
                     opp.getId(),
                     opp.getTitle(),
@@ -336,7 +382,11 @@ public class OpportunityDiscoveryService {
                     match.getMissingSkills().stream().map(m -> m.getSkill().getName()).limit(3).toList(),
                     hasInterest,
                     true,
-                    saved.getSaveStatus()
+                    saved.getSaveStatus(),
+                    match.getReadinessState(),
+                    nba.getEvidenceRoi(),
+                    nba.getRecommendedAction(),
+                    match.getWhyNotRecommended()
             ));
         }
 

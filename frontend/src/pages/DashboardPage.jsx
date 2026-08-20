@@ -30,6 +30,8 @@ import {
   Award
 } from 'lucide-react';
 
+import { NextMoveCard } from '../components/action/NextMoveCard';
+
 export const DashboardPage = () => {
   const { user, isStudent, isRecruiter, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -309,6 +311,9 @@ export const DashboardPage = () => {
       </div>
 
       <Alert type="error" message={error} onClose={() => setError(null)} />
+
+      {/* Feature 04: Personal Career Action & Adaptive Growth Engine */}
+      <NextMoveCard onActionUpdated={loadDashboardData} />
 
       {/* Connection Alert Banner for Student */}
       {pendingStudentRequests > 0 && (

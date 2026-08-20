@@ -1,7 +1,9 @@
 package com.kasumio.discovery.dto;
 
+import com.kasumio.opportunity.EvidenceRoi;
 import com.kasumio.opportunity.OpportunityStatus;
 import com.kasumio.opportunity.OpportunityType;
+import com.kasumio.opportunity.ReadinessState;
 import com.kasumio.opportunity.WorkType;
 
 import java.time.Instant;
@@ -40,6 +42,12 @@ public class OpportunityDiscoveryDetailResponse {
     private List<TechnologySkillEvaluationDto> skillEvaluations;
     private List<PrioritizedGapDto> gaps;
 
+    private ReadinessState readinessState;
+    private EvidenceRoi evidenceRoi;
+    private String nextBestAction;
+    private String evidenceRoiReasoning;
+    private String whyNotRecommended;
+
     // Student interaction states
     private boolean hasExpressedInterest;
     private boolean isSaved;
@@ -58,7 +66,9 @@ public class OpportunityDiscoveryDetailResponse {
             String eligibilityReason, String whyRecommended, String careerAlignmentNote,
             String deadlineNote, List<TechnologySkillEvaluationDto> skillEvaluations,
             List<PrioritizedGapDto> gaps, boolean hasExpressedInterest,
-            boolean isSaved, String saveStatus) {
+            boolean isSaved, String saveStatus, ReadinessState readinessState,
+            EvidenceRoi evidenceRoi, String nextBestAction, String evidenceRoiReasoning,
+            String whyNotRecommended) {
         this.id = id;
         this.title = title;
         this.organizationName = organizationName;
@@ -91,6 +101,11 @@ public class OpportunityDiscoveryDetailResponse {
         this.hasExpressedInterest = hasExpressedInterest;
         this.isSaved = isSaved;
         this.saveStatus = saveStatus;
+        this.readinessState = readinessState;
+        this.evidenceRoi = evidenceRoi;
+        this.nextBestAction = nextBestAction;
+        this.evidenceRoiReasoning = evidenceRoiReasoning;
+        this.whyNotRecommended = whyNotRecommended;
     }
 
     public Long getId() { return id; }
@@ -125,4 +140,9 @@ public class OpportunityDiscoveryDetailResponse {
     public boolean isHasExpressedInterest() { return hasExpressedInterest; }
     public boolean isSaved() { return isSaved; }
     public String getSaveStatus() { return saveStatus; }
+    public ReadinessState getReadinessState() { return readinessState; }
+    public EvidenceRoi getEvidenceRoi() { return evidenceRoi; }
+    public String getNextBestAction() { return nextBestAction; }
+    public String getEvidenceRoiReasoning() { return evidenceRoiReasoning; }
+    public String getWhyNotRecommended() { return whyNotRecommended; }
 }

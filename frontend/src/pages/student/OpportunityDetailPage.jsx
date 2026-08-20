@@ -32,6 +32,8 @@ import {
   Gauge
 } from 'lucide-react';
 
+import { NextMoveCard } from '../../components/action/NextMoveCard';
+
 export const OpportunityDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -270,6 +272,106 @@ export const OpportunityDetailPage = () => {
               <span>{opp.careerAlignmentNote}</span>
             </p>
           )}
+        </div>
+
+        {/* Why Not / Readiness Gap Explanation */}
+        {opp.whyNotRecommended && opp.matchCategory !== 'Strong Match' && (
+          <div className="bg-amber-950/25 border border-amber-800/40 rounded-2xl p-5 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Where You Currently Stand & What Is Missing</span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              {opp.whyNotRecommended}
+            </p>
+          </div>
+        )}
+
+        {/* Feature 04: Personal Career Action & Adaptive Growth Engine */}
+        <div className="pt-2">
+          <NextMoveCard onActionUpdated={fetchDetail} />
+        </div>
+        {opp.nextBestAction && (
+          <div className="bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-800/40 rounded-2xl p-5 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                <Zap className="w-4 h-4 text-indigo-400" />
+                <span>Most Useful Next Action</span>
+              </div>
+              {opp.evidenceRoi && (
+                <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${
+                  opp.evidenceRoi === 'HIGH'
+                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800/80'
+                    : opp.evidenceRoi === 'MEDIUM'
+                    ? 'bg-indigo-950/80 text-indigo-300 border-indigo-800/80'
+                    : 'bg-slate-800 text-slate-300 border-slate-700'
+                }`}>
+                  Evidence ROI: {opp.evidenceRoi}
+                </span>
+              )}
+            </div>
+
+            <p className="text-sm font-semibold text-white">
+              {opp.nextBestAction}
+            </p>
+
+            {opp.evidenceRoiReasoning && (
+              <p className="text-xs text-slate-400 leading-relaxed">
+                <strong className="text-slate-300">Why this action: </strong>
+                {opp.evidenceRoiReasoning}
+              </p>
+            )}
+
+            <div className="pt-2">
+              <button
+                onClick={() => navigate('/evidence')}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create & Upload Evidence Now</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Interactive Feedback Intelligence Widget */}
+        <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <Compass className="w-4 h-4 text-teal-400" />
+              <span>Did this recommendation make sense for you?</span>
+            </div>
+            <span className="text-[11px] text-slate-500">
+              Your feedback calibrates your future personalized feed
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'Relevant', val: 'RELEVANT', color: 'hover:bg-emerald-950/80 hover:text-emerald-300' },
+              { label: 'Helpful Next Step', val: 'HELPFUL', color: 'hover:bg-teal-950/80 hover:text-teal-300' },
+              { label: 'Not Relevant to Me', val: 'NOT_RELEVANT', color: 'hover:bg-rose-950/80 hover:text-rose-300' },
+              { label: 'Already Know This', val: 'ALREADY_KNOW_THIS', color: 'hover:bg-amber-950/80 hover:text-amber-300' },
+              { label: 'Wrong Requirement', val: 'WRONG_REQUIREMENT', color: 'hover:bg-purple-950/80 hover:text-purple-300' },
+              { label: 'Wrong Career Direction', val: 'NOT_MY_CAREER_DIRECTION', color: 'hover:bg-slate-800 hover:text-slate-200' },
+              { label: 'Location Issue', val: 'LOCATION_PROBLEM', color: 'hover:bg-slate-800 hover:text-slate-200' }
+            ].map(f => (
+              <button
+                key={f.val}
+                onClick={async () => {
+                  try {
+                    await discoveryApi.submitFeedback(opp.id, f.val);
+                    setAlert({ type: 'success', message: `Feedback recorded (${f.label}). Thank you for helping calibrate your recommendation feed!` });
+                  } catch (e) {
+                    setAlert({ type: 'error', message: 'Failed to record feedback.' });
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-medium text-slate-400 ${f.color} transition`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Graph 6: Opportunity Distance Stepper */}

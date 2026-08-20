@@ -4,6 +4,7 @@ import com.kasumio.goal.CareerGoal;
 import com.kasumio.goal.CareerGoalRepository;
 import com.kasumio.opportunity.EvidenceLevel;
 import com.kasumio.opportunity.Opportunity;
+import com.kasumio.opportunity.ReadinessState;
 import com.kasumio.opportunity.SkillRequirementType;
 import com.kasumio.opportunity.WorkType;
 import com.kasumio.skill.Skill;
@@ -82,18 +83,20 @@ public class DeterministicMatchScorer {
         private final List<TechnologyMatchDetail> partialSkills;
         private final List<TechnologyMatchDetail> missingSkills;
         private final String whyRecommended;
+        private final String whyNotRecommended;
         private final String careerAlignmentNote;
         private final String deadlineNote;
         private final double requiredCoverage;
         private final double preferredCoverage;
+        private final ReadinessState readinessState;
 
         public MatchResult(int overallScore, int readinessScore, int evidenceStrengthScore,
                            String matchCategory, boolean isEligible, String eligibilityReason,
                            int opportunityDistance, String opportunityDistanceExplanation,
                            List<TechnologyMatchDetail> matchedSkills, List<TechnologyMatchDetail> partialSkills,
                            List<TechnologyMatchDetail> missingSkills, String whyRecommended,
-                           String careerAlignmentNote, String deadlineNote,
-                           double requiredCoverage, double preferredCoverage) {
+                           String whyNotRecommended, String careerAlignmentNote, String deadlineNote,
+                           double requiredCoverage, double preferredCoverage, ReadinessState readinessState) {
             this.overallScore = overallScore;
             this.readinessScore = readinessScore;
             this.evidenceStrengthScore = evidenceStrengthScore;
@@ -106,10 +109,12 @@ public class DeterministicMatchScorer {
             this.partialSkills = partialSkills;
             this.missingSkills = missingSkills;
             this.whyRecommended = whyRecommended;
+            this.whyNotRecommended = whyNotRecommended;
             this.careerAlignmentNote = careerAlignmentNote;
             this.deadlineNote = deadlineNote;
             this.requiredCoverage = requiredCoverage;
             this.preferredCoverage = preferredCoverage;
+            this.readinessState = readinessState;
         }
 
         public int getOverallScore() { return overallScore; }
@@ -124,10 +129,12 @@ public class DeterministicMatchScorer {
         public List<TechnologyMatchDetail> getPartialSkills() { return partialSkills; }
         public List<TechnologyMatchDetail> getMissingSkills() { return missingSkills; }
         public String getWhyRecommended() { return whyRecommended; }
+        public String getWhyNotRecommended() { return whyNotRecommended; }
         public String getCareerAlignmentNote() { return careerAlignmentNote; }
         public String getDeadlineNote() { return deadlineNote; }
         public double getRequiredCoverage() { return requiredCoverage; }
         public double getPreferredCoverage() { return preferredCoverage; }
+        public ReadinessState getReadinessState() { return readinessState; }
     }
 
     /**
@@ -164,12 +171,12 @@ public class DeterministicMatchScorer {
             totalConfidenceSum += confidence;
             evaluatedCount++;
 
-            if (cap.getEvidenceLevel() == EvidenceLevel.VERIFIED || cap.getEvidenceLevel() == EvidenceLevel.STRONG_EVIDENCE) {
+            if (cap.getEvidenceLevel() == EvidenceLevel.VERIFIED || cap.getEvidenceLevel() == EvidenceLevel.STRONG || cap.getEvidenceLevel() == EvidenceLevel.STRONG_EVIDENCE) {
                 if (isReq) requiredMatched += 1.0;
                 else preferredMatched += 1.0;
                 matched.add(new TechnologyMatchDetail(skill, req.getRequirementType(), cap.getEvidenceLevel(), 1.0, "MATCHED", cap.getExplanation()));
-            } else if (cap.getEvidenceLevel() == EvidenceLevel.MODERATE_EVIDENCE || cap.getEvidenceLevel() == EvidenceLevel.INFERRED || cap.getEvidenceLevel() == EvidenceLevel.LIMITED_EVIDENCE) {
-                double partialCredit = cap.getEvidenceLevel() == EvidenceLevel.MODERATE_EVIDENCE ? 0.7 : 0.4;
+            } else if (cap.getEvidenceLevel() == EvidenceLevel.MODERATE || cap.getEvidenceLevel() == EvidenceLevel.INFERRED || cap.getEvidenceLevel() == EvidenceLevel.LIMITED_EVIDENCE) {
+                double partialCredit = cap.getEvidenceLevel() == EvidenceLevel.MODERATE ? 0.7 : 0.4;
                 if (isReq) requiredMatched += partialCredit;
                 else preferredMatched += partialCredit;
                 partial.add(new TechnologyMatchDetail(skill, req.getRequirementType(), cap.getEvidenceLevel(), partialCredit, "PARTIAL", cap.getExplanation()));
@@ -263,13 +270,27 @@ public class DeterministicMatchScorer {
         int opportunityDistance = missingRequiredCount;
         String distanceExplanation = buildDistanceExplanation(missingRequiredCount, missing, partial);
 
+        // Deterministic ReadinessState calculation
+        ReadinessState readinessState;
+        if (!isEligible) {
+            readinessState = ReadinessState.NOT_ELIGIBLE;
+        } else if (studentCaps.isEmpty()) {
+            readinessState = ReadinessState.INSUFFICIENT_EVIDENCE;
+        } else if (reqRatio >= 0.75 && avgConfidence >= 0.5) {
+            readinessState = ReadinessState.READY;
+        } else if (reqRatio >= 0.4) {
+            readinessState = ReadinessState.ALMOST_READY;
+        } else {
+            readinessState = ReadinessState.STRETCH;
+        }
+
         // Match Category
         String matchCategory;
         if (!isEligible) {
             matchCategory = "Not Eligible";
-        } else if (finalScore >= 75) {
+        } else if (readinessState == ReadinessState.READY || finalScore >= 75) {
             matchCategory = "Strong Match";
-        } else if (finalScore >= 50) {
+        } else if (readinessState == ReadinessState.ALMOST_READY || finalScore >= 50) {
             matchCategory = "Potential Match";
         } else {
             matchCategory = "Stretch Opportunity";
@@ -277,6 +298,9 @@ public class DeterministicMatchScorer {
 
         // Explainable Why Recommended
         String whyRecommended = buildExplanation(matched, partial, missing, careerAlignmentNote, finalScore);
+
+        // Constructive Why Not Recommended for weaker matches
+        String whyNotRecommended = buildWhyNotExplanation(readinessState, isEligible, eligibilityReason, missing);
 
         return new MatchResult(
                 finalScore,
@@ -291,11 +315,44 @@ public class DeterministicMatchScorer {
                 partial,
                 missing,
                 whyRecommended,
+                whyNotRecommended,
                 careerAlignmentNote,
                 deadlineNote,
                 reqRatio,
-                prefRatio
+                prefRatio,
+                readinessState
         );
+    }
+
+    private String buildWhyNotExplanation(ReadinessState state, boolean isEligible, String eligibilityReason, List<TechnologyMatchDetail> missing) {
+        if (!isEligible) {
+            return "This opportunity is currently unavailable because: " + eligibilityReason + ".";
+        }
+        if (state == ReadinessState.INSUFFICIENT_EVIDENCE) {
+            return "Not enough demonstrable evidence submitted yet to make a confident readiness recommendation.";
+        }
+        if (state == ReadinessState.STRETCH) {
+            List<String> missingReqs = missing.stream()
+                    .filter(m -> m.getRequirementType() == SkillRequirementType.REQUIRED)
+                    .map(m -> m.getSkill().getName())
+                    .limit(3)
+                    .toList();
+            if (!missingReqs.isEmpty()) {
+                return "This opportunity isn't one of your strongest matches right now because key requirements (" + formatList(missingReqs) + ") haven't been demonstrated with evidence yet.";
+            }
+            return "This opportunity has significant capability gaps compared to your current evidence.";
+        }
+        if (state == ReadinessState.ALMOST_READY) {
+            List<String> missingReqs = missing.stream()
+                    .filter(m -> m.getRequirementType() == SkillRequirementType.REQUIRED)
+                    .map(m -> m.getSkill().getName())
+                    .limit(2)
+                    .toList();
+            if (!missingReqs.isEmpty()) {
+                return "You're already close. Demonstrating evidence for " + formatList(missingReqs) + " will transition you to fully ready.";
+            }
+        }
+        return "You have strong alignment with this opportunity.";
     }
 
     private String buildDistanceExplanation(int gapCount, List<TechnologyMatchDetail> missing, List<TechnologyMatchDetail> partial) {
