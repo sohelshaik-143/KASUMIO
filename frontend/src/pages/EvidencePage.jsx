@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { evidenceApi } from '../api/evidenceApi';
 import { skillApi } from '../api/skillApi';
@@ -12,6 +13,7 @@ import { ShieldCheck, Plus, FileCode2, Filter } from 'lucide-react';
 
 export const EvidencePage = () => {
   const { user, isStudent, loading: authLoading } = useAuth();
+  const location = useLocation();
   const [evidenceList, setEvidenceList] = useState([]);
   const [skills, setSkills] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -60,6 +62,11 @@ export const EvidencePage = () => {
     }
   };
 
+  const targetSkillName = location.state?.targetSkill || null;
+  const preselectedSkill = targetSkillName
+    ? skills.find((s) => s.name.toLowerCase() === targetSkillName.toLowerCase() || s.name.toLowerCase().includes(targetSkillName.toLowerCase()))
+    : null;
+
   useEffect(() => {
     if (!authLoading && user && isStudent) {
       loadData();
@@ -67,6 +74,12 @@ export const EvidencePage = () => {
       setLoading(false);
     }
   }, [authLoading, user?.id, user?.role, isStudent]);
+
+  useEffect(() => {
+    if (!loading && (location.state?.targetSkill || location.state?.openForm)) {
+      setFormModalOpen(true);
+    }
+  }, [loading, location.state]);
 
   const handleOpenTemplatePicker = () => {
     setEditingEvidence(null);
@@ -244,6 +257,8 @@ export const EvidencePage = () => {
         skills={skills}
         initialData={editingEvidence}
         templateData={selectedTemplate}
+        preselectedSkillId={preselectedSkill?.id}
+        targetSkillName={targetSkillName}
       />
     </div>
   );

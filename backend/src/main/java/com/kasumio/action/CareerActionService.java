@@ -31,6 +31,7 @@ public class CareerActionService {
     private final CareerActionHistoryRepository historyRepository;
     private final CareerActionFeedbackRepository feedbackRepository;
     private final UserPreferenceRepository userPreferenceRepository;
+    private final OutcomeDecisionTraceRepository traceRepository;
 
     public CareerActionService(
             EvidenceRepository evidenceRepository,
@@ -40,7 +41,8 @@ public class CareerActionService {
             SkillRepository skillRepository,
             CareerActionHistoryRepository historyRepository,
             CareerActionFeedbackRepository feedbackRepository,
-            UserPreferenceRepository userPreferenceRepository) {
+            UserPreferenceRepository userPreferenceRepository,
+            OutcomeDecisionTraceRepository traceRepository) {
         this.evidenceRepository = evidenceRepository;
         this.careerGoalRepository = careerGoalRepository;
         this.opportunityRepository = opportunityRepository;
@@ -49,6 +51,7 @@ public class CareerActionService {
         this.historyRepository = historyRepository;
         this.feedbackRepository = feedbackRepository;
         this.userPreferenceRepository = userPreferenceRepository;
+        this.traceRepository = traceRepository;
     }
 
     /**
@@ -315,6 +318,21 @@ public class CareerActionService {
             hist.setEvidence(evidence);
         }
         historyRepository.save(hist);
+
+        OutcomeDecisionTrace trace = new OutcomeDecisionTrace(
+                student,
+                "ACTION_COMPLETED",
+                hist.getTargetSkillName() != null ? hist.getTargetSkillName() : "Career Goal Action",
+                "RECOMMENDED",
+                "COMPLETED",
+                evidence != null ? evidence.getId() : null,
+                null,
+                actionId,
+                1,
+                "ACTION_LIFECYCLE_COMPLETION",
+                "Completed action: '" + hist.getActionTitle() + "'. Demonstrated capability updated."
+        );
+        traceRepository.save(trace);
     }
 
     /**

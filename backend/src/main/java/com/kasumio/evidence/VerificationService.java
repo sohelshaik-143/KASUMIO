@@ -21,18 +21,21 @@ public class VerificationService {
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
     private final EvidenceService evidenceService;
+    private final com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService;
 
     public VerificationService(
             VerificationRepository verificationRepository,
             EvidenceRepository evidenceRepository,
             OrganizationRepository organizationRepository,
             UserRepository userRepository,
-            EvidenceService evidenceService) {
+            EvidenceService evidenceService,
+            com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService) {
         this.verificationRepository = verificationRepository;
         this.evidenceRepository = evidenceRepository;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.evidenceService = evidenceService;
+        this.outcomeIntelligenceService = outcomeIntelligenceService;
     }
 
     @Transactional
@@ -68,7 +71,9 @@ public class VerificationService {
         }
 
         Verification verification = new Verification(evidence, organization, verifier);
-        verificationRepository.save(verification);
+        verification = verificationRepository.save(verification);
+
+        outcomeIntelligenceService.recordEvidenceVerified(evidence.getStudent(), evidence, verification.getId(), organization.getName());
 
         return evidenceService.mapToResponse(evidence);
     }

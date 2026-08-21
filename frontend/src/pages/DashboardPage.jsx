@@ -6,7 +6,7 @@ import { evidenceApi } from '../api/evidenceApi';
 import { skillApi } from '../api/skillApi';
 import { opportunityApi } from '../api/opportunityApi';
 import { discoveryApi } from '../api/discoveryApi';
-import { connectionApi } from '../api/connectionApi';
+import { outcomeApi } from '../api/outcomeApi';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { Alert } from '../components/common/Alert';
 import { EmptyState } from '../components/common/EmptyState';
@@ -15,6 +15,7 @@ import { TemplatePickerModal } from '../components/evidence/TemplatePickerModal'
 import { EvidenceFormModal } from '../components/evidence/EvidenceFormModal';
 import { CapabilityDetailModal } from '../components/capability/CapabilityDetailModal';
 import { NextMoveCard } from '../components/action/NextMoveCard';
+import { OutcomeIntelligenceSection } from '../components/action/OutcomeIntelligenceSection';
 
 import { 
   ShieldCheck, 
@@ -57,6 +58,7 @@ export const DashboardPage = () => {
   const [connections, setConnections] = useState([]);
   const [opportunities, setOpportunities] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [outcomeData, setOutcomeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -79,7 +81,7 @@ export const DashboardPage = () => {
       setError(null);
 
       if (isStudent) {
-        const [dashMetrics, evidenceList, skillList, templateList, connList, recsList] = await Promise.all([
+        const [dashMetrics, evidenceList, skillList, templateList, connList, recsList, outcomeIntelligence] = await Promise.all([
           studentApi.getDashboard().catch((err) => {
             console.warn('Could not fetch student metrics:', err);
             return { totalEvidenceCount: 0, verifiedEvidenceCount: 0, careerGoalsCount: 0, profileComplete: false };
@@ -92,6 +94,7 @@ export const DashboardPage = () => {
           evidenceApi.getTemplates().catch(() => []),
           connectionApi.getStudentConnections().catch(() => []),
           discoveryApi.getRecommendations({ limit: 5 }).catch(() => []),
+          outcomeApi.getOutcomeIntelligence().catch(() => null),
         ]);
         setMetrics(dashMetrics);
         setRecentEvidence(evidenceList || []);
@@ -99,6 +102,7 @@ export const DashboardPage = () => {
         setTemplates(templateList || []);
         setConnections(connList || []);
         setRecommendations(recsList || []);
+        setOutcomeData(outcomeIntelligence);
       } else if (isRecruiter || isAdmin) {
         // Recruiter / Admin overview
         const [pendingList, skillList, connList, oppList] = await Promise.all([
@@ -149,6 +153,15 @@ export const DashboardPage = () => {
   const handleCreateEvidence = async (evidencePayload) => {
     await evidenceApi.createEvidence(evidencePayload);
     await loadDashboardData();
+  };
+
+  const handleRecalculateOutcome = async () => {
+    try {
+      const fresh = await outcomeApi.recalculate();
+      setOutcomeData(fresh);
+    } catch (err) {
+      console.error('Error recalculating outcome intelligence:', err);
+    }
   };
 
   const handleSearchSubmit = (e) => {
@@ -407,6 +420,9 @@ export const DashboardPage = () => {
 
       {/* 2. Today's Focus & Next Move Engine */}
       <NextMoveCard onActionUpdated={loadDashboardData} />
+
+      {/* Feature 05: Evidence -> Outcome Intelligence & Graphical Progression */}
+      <OutcomeIntelligenceSection outcomeData={outcomeData} onRecalculate={handleRecalculateOutcome} />
 
       {/* Incoming Connection Alert */}
       {pendingRequests > 0 && (

@@ -28,18 +28,21 @@ public class EvidenceService {
     private final SkillRepository skillRepository;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService;
 
     public EvidenceService(
             EvidenceRepository evidenceRepository,
             VerificationRepository verificationRepository,
             SkillRepository skillRepository,
             StudentRepository studentRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService) {
         this.evidenceRepository = evidenceRepository;
         this.verificationRepository = verificationRepository;
         this.skillRepository = skillRepository;
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
+        this.outcomeIntelligenceService = outcomeIntelligenceService;
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +72,7 @@ public class EvidenceService {
         );
 
         evidence = evidenceRepository.save(evidence);
+        outcomeIntelligenceService.recordEvidenceCreated(student, evidence);
         return mapToResponse(evidence);
     }
 
@@ -103,6 +107,7 @@ public class EvidenceService {
         evidence.setSkill(skill);
 
         evidence = evidenceRepository.save(evidence);
+        outcomeIntelligenceService.recordEvidenceCreated(student, evidence);
         return mapToResponse(evidence);
     }
 
@@ -113,6 +118,8 @@ public class EvidenceService {
         Evidence evidence = evidenceRepository.findByIdAndStudent(id, student)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evidence not found or access denied"));
 
+        String skillName = evidence.getSkill().getName();
+        outcomeIntelligenceService.recordEvidenceDeleted(student, skillName, id);
         evidenceRepository.delete(evidence);
     }
 

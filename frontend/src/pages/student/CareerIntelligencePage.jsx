@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { discoveryApi } from '../../api/discoveryApi';
+import { outcomeApi } from '../../api/outcomeApi';
+import { OutcomeIntelligenceSection } from '../../components/action/OutcomeIntelligenceSection';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { Alert } from '../../components/common/Alert';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -34,10 +36,11 @@ export const CareerIntelligencePage = () => {
   const [intelligence, setIntelligence] = useState(null);
   const [graphData, setGraphData] = useState(null);
   const [catalog, setCatalog] = useState([]);
+  const [outcomeData, setOutcomeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ type: null, message: null });
 
-  // Navigation tab within Career Intelligence: 'HUB' | 'GRAPH' | 'WHAT_IF' | 'CLUSTERS' | 'ROI'
+  // Navigation tab within Career Intelligence: 'HUB' | 'OUTCOME' | 'GRAPH' | 'WHAT_IF' | 'CLUSTERS' | 'ROI'
   const [activeTab, setActiveTab] = useState('HUB');
 
   // What-If Simulator State
@@ -54,14 +57,16 @@ export const CareerIntelligencePage = () => {
     if (!user) return;
     try {
       setLoading(true);
-      const [intelRes, graphRes, catRes] = await Promise.all([
+      const [intelRes, graphRes, catRes, outcomeRes] = await Promise.all([
         discoveryApi.getCareerIntelligence(),
         discoveryApi.getTechnologyGraph(),
-        discoveryApi.getTechnologyCatalog()
+        discoveryApi.getTechnologyCatalog(),
+        outcomeApi.getOutcomeIntelligence().catch(() => null)
       ]);
       setIntelligence(intelRes);
       setGraphData(graphRes);
       setCatalog(catRes || []);
+      setOutcomeData(outcomeRes);
 
       // Default what-if skill to highest leverage if available
       if (intelRes?.highestLeverageSkills?.length > 0) {
@@ -75,6 +80,15 @@ export const CareerIntelligencePage = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRecalculateOutcome = async () => {
+    try {
+      const fresh = await outcomeApi.recalculate();
+      setOutcomeData(fresh);
+    } catch (err) {
+      console.error('Error recalculating outcome intelligence:', err);
     }
   };
 
@@ -220,6 +234,18 @@ export const CareerIntelligencePage = () => {
         </button>
 
         <button
+          onClick={() => setActiveTab('OUTCOME')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 ${
+            activeTab === 'OUTCOME'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span>Evidence → Outcome Progression</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('GRAPH')}
           className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 ${
             activeTab === 'GRAPH'
@@ -278,6 +304,11 @@ export const CareerIntelligencePage = () => {
           <span>Evidence ROI Blueprints</span>
         </button>
       </div>
+
+      {/* TAB 0: OUTCOME INTELLIGENCE & PROGRESSION */}
+      {activeTab === 'OUTCOME' && (
+        <OutcomeIntelligenceSection outcomeData={outcomeData} onRecalculate={handleRecalculateOutcome} />
+      )}
 
       {/* TAB 1: HUB (Market Demand, Skill Leverage, Quick Stats) */}
       {activeTab === 'HUB' && (

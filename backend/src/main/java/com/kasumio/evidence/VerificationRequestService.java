@@ -32,6 +32,7 @@ public class VerificationRequestService {
     private final CandidateAliasService candidateAliasService;
     private final MatchingEngineService matchingEngineService;
     private final OpportunityInterestRepository interestRepository;
+    private final com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService;
 
     public VerificationRequestService(
             VerificationRequestRepository verificationRequestRepository,
@@ -41,7 +42,8 @@ public class VerificationRequestService {
             UserRepository userRepository,
             CandidateAliasService candidateAliasService,
             MatchingEngineService matchingEngineService,
-            OpportunityInterestRepository interestRepository) {
+            OpportunityInterestRepository interestRepository,
+            com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService) {
         this.verificationRequestRepository = verificationRequestRepository;
         this.opportunityRepository = opportunityRepository;
         this.evidenceRepository = evidenceRepository;
@@ -50,6 +52,7 @@ public class VerificationRequestService {
         this.candidateAliasService = candidateAliasService;
         this.matchingEngineService = matchingEngineService;
         this.interestRepository = interestRepository;
+        this.outcomeIntelligenceService = outcomeIntelligenceService;
     }
 
     @Transactional
@@ -230,6 +233,12 @@ public class VerificationRequestService {
         }
 
         vr = verificationRequestRepository.save(vr);
+        outcomeIntelligenceService.recordEvidenceVerified(
+                vr.getStudent(),
+                vr.getEvidence(),
+                vr.getId(),
+                vr.getRecruiter().getOrganization() != null ? vr.getRecruiter().getOrganization().getName() : "Partner Recruiter"
+        );
         String alias = candidateAliasService.getOrCreateAlias(vr.getStudent());
         boolean hasInterest = interestRepository.existsByOpportunityIdAndStudentIdAndStatus(
                 vr.getOpportunity().getId(), vr.getStudent().getId(), InterestStatus.INTERESTED);
@@ -258,6 +267,7 @@ public class VerificationRequestService {
         }
 
         vr = verificationRequestRepository.save(vr);
+        outcomeIntelligenceService.recordVerificationRejected(vr.getStudent(), vr.getEvidence(), vr.getRecruiterComment());
         String alias = candidateAliasService.getOrCreateAlias(vr.getStudent());
         boolean hasInterest = interestRepository.existsByOpportunityIdAndStudentIdAndStatus(
                 vr.getOpportunity().getId(), vr.getStudent().getId(), InterestStatus.INTERESTED);

@@ -9,6 +9,8 @@ export const EvidenceFormModal = ({
   skills = [],
   initialData = null,
   templateData = null,
+  preselectedSkillId = null,
+  targetSkillName = null,
 }) => {
   const [formData, setFormData] = useState({
     skillId: '',
@@ -21,6 +23,8 @@ export const EvidenceFormModal = ({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (initialData) {
       setFormData({
         skillId: initialData.skillId || '',
@@ -40,23 +44,24 @@ export const EvidenceFormModal = ({
       }
 
       setFormData({
-        skillId: skills.length > 0 ? skills[0].id : '',
+        skillId: preselectedSkillId || (skills.length > 0 ? skills[0].id : ''),
         title: fields.suggested_title || templateData.title || '',
         description: templateData.description || '',
         evidenceUrl: '',
         evidenceType: templateData.evidenceType || 'PROJECT',
       });
     } else {
+      const defaultSkillId = preselectedSkillId || (skills.length > 0 ? skills[0].id : '');
       setFormData({
-        skillId: skills.length > 0 ? skills[0].id : '',
-        title: '',
+        skillId: defaultSkillId,
+        title: targetSkillName ? `${targetSkillName} Project Evidence` : '',
         description: '',
         evidenceUrl: '',
         evidenceType: 'PROJECT',
       });
     }
     setError(null);
-  }, [initialData, templateData, skills, isOpen]);
+  }, [initialData, templateData, skills, preselectedSkillId, targetSkillName, isOpen]);
 
   if (!isOpen) return null;
 
@@ -65,7 +70,7 @@ export const EvidenceFormModal = ({
     setError(null);
 
     if (!formData.skillId) {
-      setError('Please select a skill from the platform taxonomy.');
+      setError('Please select an associated skill from the taxonomy dropdown.');
       return;
     }
     if (!formData.title.trim()) {
@@ -77,11 +82,15 @@ export const EvidenceFormModal = ({
       return;
     }
 
-    // Basic URL validation
+    let formattedUrl = formData.evidenceUrl.trim();
+    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+      formattedUrl = 'https://' + formattedUrl;
+    }
+
     try {
-      new URL(formData.evidenceUrl);
+      new URL(formattedUrl);
     } catch (_) {
-      setError('Please enter a valid URL (including https://).');
+      setError('Please enter a valid URL (e.g. https://github.com/username/project).');
       return;
     }
 
@@ -89,13 +98,17 @@ export const EvidenceFormModal = ({
       setSubmitting(true);
       await onSubmit({
         ...formData,
+        evidenceUrl: formattedUrl,
         skillId: Number(formData.skillId),
       });
       onClose();
     } catch (err) {
-      const errMsg = err.response?.data?.message || err.response?.data?.validationErrors 
-        ? Object.values(err.response.data.validationErrors).join(', ') 
-        : 'Failed to save evidence. Please verify your inputs.';
+      let errMsg = 'Failed to save evidence. Please verify your inputs.';
+      if (err.response?.data?.validationErrors) {
+        errMsg = Object.values(err.response.data.validationErrors).join(', ');
+      } else if (err.response?.data?.message) {
+        errMsg = err.response.data.message;
+      }
       setError(errMsg);
     } finally {
       setSubmitting(false);
@@ -193,10 +206,10 @@ export const EvidenceFormModal = ({
               Evidence Link / Proof URL <span className="text-teal-400">*</span>
             </label>
             <input
-              type="url"
+              type="text"
               required
               maxLength={1024}
-              placeholder="https://github.com/username/project or https://domain.com/cert"
+              placeholder="github.com/username/project or https://domain.com/cert"
               value={formData.evidenceUrl}
               onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
               className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 font-mono text-xs transition"
@@ -239,3 +252,5 @@ export const EvidenceFormModal = ({
     </div>
   );
 };
+
+export default EvidenceFormModal;
