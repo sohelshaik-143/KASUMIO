@@ -35,6 +35,16 @@ export const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (!formData.email || !formData.email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -49,9 +59,19 @@ export const RegisterPage = () => {
       await register(payload);
       navigate('/');
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.validationErrors
-        ? Object.values(err.response.data.validationErrors).join(', ')
-        : 'Registration failed. Please check your information.';
+      let msg = 'Registration failed. Please check your information.';
+      if (err.response?.data) {
+        if (typeof err.response.data.message === 'string' && err.response.data.message.trim()) {
+          msg = err.response.data.message;
+        } else if (err.response.data.validationErrors && typeof err.response.data.validationErrors === 'object') {
+          const vals = Object.values(err.response.data.validationErrors);
+          if (vals.length > 0) {
+            msg = vals.join(', ');
+          }
+        }
+      } else if (err.message) {
+        msg = err.message;
+      }
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -59,43 +79,39 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Subtle background glow effect */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 via-teal-500 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-2xl mx-auto mb-4 shadow-xl shadow-teal-500/20 border border-teal-300/30">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-2xl mx-auto mb-4 shadow-sm">
             K
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Create your account
           </h2>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-400 font-medium max-w-xs mx-auto">
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 font-medium max-w-xs mx-auto">
             Build your verifiable evidence footprint
           </p>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-slate-900/90 border border-slate-800/90 py-8 px-6 sm:px-10 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl">
+        <div className="bg-white border border-slate-200 py-8 px-6 sm:px-10 rounded-3xl shadow-xs space-y-6">
           <Alert type="error" message={error} onClose={() => setError(null)} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Role Switcher */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Account Type
               </label>
-              <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, role: 'STUDENT', organizationId: '' })}
+                  onClick={() => setFormData({ ...formData, role: 'STUDENT', organizationName: '' })}
                   className={`py-2 px-3 rounded-lg text-xs font-semibold text-center transition ${
                     formData.role === 'STUDENT'
-                      ? 'bg-teal-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Student / Candidate
@@ -105,8 +121,8 @@ export const RegisterPage = () => {
                   onClick={() => setFormData({ ...formData, role: 'RECRUITER' })}
                   className={`py-2 px-3 rounded-lg text-xs font-semibold text-center transition ${
                     formData.role === 'RECRUITER'
-                      ? 'bg-teal-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Recruiter / Verifier
@@ -116,11 +132,11 @@ export const RegisterPage = () => {
 
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -129,18 +145,18 @@ export const RegisterPage = () => {
                   placeholder="e.g. Alex Chen"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full bg-slate-850 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -150,61 +166,51 @@ export const RegisterPage = () => {
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
                   type="password"
                   required
-                  minLength={6}
                   autoComplete="new-password"
-                  placeholder="At least 6 characters"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                 />
               </div>
             </div>
 
-            {/* Company / Organization Input for Recruiters */}
+            {/* Recruiter Organization */}
             {formData.role === 'RECRUITER' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Company / Organization Name <span className="text-teal-400">*</span>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Organization Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <Building className="w-4 h-4" />
                   </div>
                   <input
                     type="text"
                     required
-                    list="org-suggestions"
-                    placeholder="e.g. Google, Acme Corp, Horizon Tech"
+                    placeholder="e.g. Stripe, Acme Corp"
                     value={formData.organizationName}
                     onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                   />
-                  <datalist id="org-suggestions">
-                    {organizations.map((org) => (
-                      <option key={org.id} value={org.name} />
-                    ))}
-                  </datalist>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Type your company name. Your evidence verifications and opportunity postings will be branded under this company.
-                </p>
               </div>
             )}
 
@@ -213,22 +219,23 @@ export const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-teal-600 hover:bg-teal-500 active:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all shadow-md disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none transition-all shadow-xs disabled:opacity-50 active:scale-98"
               >
-                <span>{submitting ? 'Creating account...' : 'Create Account'}</span>
+                <span>{submitting ? 'Creating account...' : 'Register Account'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </form>
 
-          <div className="pt-4 border-t border-slate-800 text-center">
-            <p className="text-xs text-slate-400">
+          {/* Login Redirect */}
+          <div className="pt-4 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-500">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-teal-400 hover:text-teal-300 transition underline underline-offset-2"
+                className="font-semibold text-indigo-600 hover:text-indigo-700 transition underline underline-offset-2"
               >
-                Sign In
+                Sign in
               </Link>
             </p>
           </div>

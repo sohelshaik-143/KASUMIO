@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class SkillRequirementDto {
 
-    @NotNull(message = "Skill ID is required")
     private Long skillId;
-
     private String skillName;
     private String skillCategory;
 

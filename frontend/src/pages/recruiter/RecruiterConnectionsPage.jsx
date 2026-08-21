@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { connectionApi } from '../../api/connectionApi';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -12,10 +11,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Eye, 
-  Mail, 
   Users,
   Briefcase,
-  ExternalLink,
   GraduationCap
 } from 'lucide-react';
 
@@ -24,7 +21,7 @@ export const RecruiterConnectionsPage = () => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ type: null, message: null });
-  const [selectedFilter, setSelectedFilter] = useState('ALL'); // 'ALL', 'ACCEPTED', 'PENDING', 'PAST'
+  const [selectedFilter, setSelectedFilter] = useState('ALL');
 
   // Disclosed modal state
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -92,35 +89,35 @@ export const RecruiterConnectionsPage = () => {
     switch (status) {
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60">
-            <Clock className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="w-3 h-3 text-amber-600" />
             Waiting for Candidate Consent
           </span>
         );
       case 'ACCEPTED':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/80">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
             Connected
           </span>
         );
       case 'DECLINED':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-            <XCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+            <XCircle className="w-3 h-3 text-slate-400" />
             Candidate Declined
           </span>
         );
       case 'EXPIRED':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-850 text-slate-500 border border-slate-750">
+          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
             <Clock className="w-3 h-3" />
             Request Expired
           </span>
         );
       case 'CANCELLED':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">
+          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
             Disconnected
           </span>
         );
@@ -132,39 +129,39 @@ export const RecruiterConnectionsPage = () => {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Trusted Candidate Connections
             </h1>
             {connectedCount > 0 && (
-              <span className="ml-1 px-2.5 py-0.5 text-[11px] font-bold rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-800/80">
+              <span className="ml-1 px-2.5 py-0.5 text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
                 {connectedCount} Connected
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Mutually consented connections with candidates discovered through demonstrable evidence matching.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Candidates who consented to share their profile based on your opportunity requirements.
           </p>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl p-1 shrink-0">
+        <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl p-1 shrink-0 shadow-xs">
           {['ALL', 'ACCEPTED', 'PENDING', 'PAST'].map((filter) => (
             <button
               key={filter}
               onClick={() => setSelectedFilter(filter)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
                 selectedFilter === filter
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              {filter === 'ALL' ? 'All Records' : filter.charAt(0) + filter.slice(1).toLowerCase()}
+              {filter === 'ALL' ? 'All Connections' : filter.charAt(0) + filter.slice(1).toLowerCase()}
             </button>
           ))}
         </div>
@@ -176,109 +173,57 @@ export const RecruiterConnectionsPage = () => {
         onClose={() => setAlert({ type: null, message: null })}
       />
 
-      {/* List */}
+      {/* Connection Cards */}
       {filteredConnections.length === 0 ? (
         <EmptyState
           icon={Users}
           title="No candidate connections found"
-          description="When you discover evidence-matched candidates in your opportunities and express interest, their connection status and consented contact details will appear here."
+          description="Request connection with candidate matches from your opportunities tab. When candidates consent, their contact details appear here."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           {filteredConnections.map((conn) => (
             <div
               key={conn.id}
-              className="bg-slate-900/90 border border-slate-800/90 hover:border-slate-700/80 rounded-2xl p-5 shadow-xl transition flex flex-col justify-between space-y-4"
+              className="bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl p-5 sm:p-6 shadow-xs transition space-y-4"
             >
-              <div className="space-y-3">
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-mono font-bold text-white bg-slate-850 px-2.5 py-1 rounded-lg border border-slate-700/80">
-                      {conn.disclosedProfile?.fullName || conn.candidateAlias}
+              {/* Top Row */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      {conn.opportunityTitle}
                     </span>
-                    {conn.status === 'ACCEPTED' ? (
-                      <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-mono font-semibold">
-                        Identity Consented
-                      </span>
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">
-                        Anonymous
-                      </span>
-                    )}
+                    {renderStatusBadge(conn.status)}
                   </div>
-                  {renderStatusBadge(conn.status)}
+
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-indigo-600" />
+                    <span>Candidate #{conn.studentId}</span>
+                  </h3>
                 </div>
 
-                {/* Opportunity Link */}
-                <div className="text-xs">
-                  <span className="text-slate-500">Opportunity:</span>{' '}
-                  <Link
-                    to={`/recruiter/opportunities/${conn.opportunityId}`}
-                    className="font-semibold text-teal-300 hover:text-teal-200 underline underline-offset-2 transition"
-                  >
-                    {conn.opportunityTitle}
-                  </Link>
+                {/* Actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {conn.status === 'ACCEPTED' && (
+                    <>
+                      <button
+                        onClick={() => handleOpenProfile(conn)}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Inspect Profile</span>
+                      </button>
+                      <button
+                        onClick={() => handleCancelConnection(conn.id)}
+                        className="px-3 py-2 bg-white border border-slate-200 text-slate-500 hover:text-rose-600 text-xs font-semibold rounded-xl transition"
+                      >
+                        Disconnect
+                      </button>
+                    </>
+                  )}
                 </div>
-
-                {/* Status-specific context */}
-                {conn.status === 'ACCEPTED' && conn.disclosedProfile && (
-                  <div className="bg-slate-850/80 rounded-xl p-3.5 border border-slate-800 text-xs space-y-2">
-                    {conn.disclosedProfile.email && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-slate-300 font-mono text-[11px]">{conn.disclosedProfile.email}</span>
-                        <a
-                          href={`mailto:${conn.disclosedProfile.email}?subject=Opportunity: ${encodeURIComponent(conn.opportunityTitle)}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-lg text-[11px] transition shadow-sm active:scale-98"
-                        >
-                          <Mail className="w-3 h-3" />
-                          <span>Email</span>
-                        </a>
-                      </div>
-                    )}
-                    {conn.disclosedProfile.university && (
-                      <div className="flex items-center gap-1.5 text-slate-300 text-[11px]">
-                        <GraduationCap className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                        <span>
-                          {conn.disclosedProfile.university}
-                          {conn.disclosedProfile.graduationYear ? ` ('${conn.disclosedProfile.graduationYear.toString().slice(-2)})` : ''}
-                        </span>
-                      </div>
-                    )}
-                    {conn.disclosedProfile.customMessage && (
-                      <p className="text-[11px] text-slate-300 italic pt-1 border-t border-slate-800">
-                        "{conn.disclosedProfile.customMessage}"
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {conn.status === 'PENDING' && (
-                  <div className="bg-slate-850/60 rounded-xl p-3 border border-slate-800 text-xs text-slate-400 space-y-1">
-                    <p className="text-slate-300 text-[11px]">
-                      Interest sent to candidate. Waiting for candidate to accept and select permitted contact info.
-                    </p>
-                    {conn.recruiterNote && (
-                      <p className="text-[11px] italic text-slate-400">
-                        Your note: "{conn.recruiterNote}"
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Footer Actions */}
-              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
-                <span className="font-mono text-[11px]">Requested: {new Date(conn.createdAt).toLocaleDateString()}</span>
-                {conn.status === 'ACCEPTED' && (
-                  <button
-                    onClick={() => handleOpenProfile(conn)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-teal-300 text-xs font-semibold rounded-xl border border-slate-700/80 transition"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>View Permitted Info</span>
-                  </button>
-                )}
               </div>
             </div>
           ))}
@@ -293,7 +238,6 @@ export const RecruiterConnectionsPage = () => {
           setSelectedConnection(null);
         }}
         connection={selectedConnection}
-        onCancelConnection={handleCancelConnection}
       />
     </div>
   );

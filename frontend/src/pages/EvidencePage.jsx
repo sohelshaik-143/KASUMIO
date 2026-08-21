@@ -128,15 +128,15 @@ export const EvidencePage = () => {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Evidence Footprint</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Evidence Footprint</h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-500">
             Demonstrable, traceable proof of practical competency across standardized taxonomy skills.
           </p>
         </div>
@@ -144,15 +144,15 @@ export const EvidencePage = () => {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={handleOpenTemplatePicker}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-850 hover:bg-slate-800 border border-slate-700/80 text-slate-200 text-xs font-semibold rounded-xl transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
           >
-            <FileCode2 className="w-4 h-4 text-teal-400" />
+            <FileCode2 className="w-4 h-4 text-indigo-600" />
             <span>Use Template</span>
           </button>
 
           <button
             onClick={handleOpenDirectAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-98"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-xs transition active:scale-98"
           >
             <Plus className="w-4 h-4" />
             <span>Submit Evidence</span>
@@ -169,16 +169,16 @@ export const EvidencePage = () => {
       {/* Filter by skill */}
       {evidenceList.length > 0 && (
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="text-slate-400 flex items-center gap-1 shrink-0 font-medium mr-1">
-            <Filter className="w-3.5 h-3.5 text-teal-400" />
+          <span className="text-slate-500 flex items-center gap-1 shrink-0 font-medium mr-1">
+            <Filter className="w-3.5 h-3.5 text-indigo-600" />
             Filter Skill:
           </span>
           <button
             onClick={() => setSelectedSkillFilter('ALL')}
             className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition shrink-0 ${
               selectedSkillFilter === 'ALL'
-                ? 'bg-teal-600 border-teal-500 text-white shadow-sm'
-                : 'bg-slate-850 border-slate-750 text-slate-400 hover:text-white'
+                ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs'
+                : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
             }`}
           >
             All Skills ({evidenceList.length})
@@ -192,8 +192,8 @@ export const EvidencePage = () => {
                 onClick={() => setSelectedSkillFilter(String(skill.id))}
                 className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition shrink-0 ${
                   selectedSkillFilter === String(skill.id)
-                    ? 'bg-teal-600 border-teal-500 text-white shadow-sm'
-                    : 'bg-slate-850 border-slate-750 text-slate-400 hover:text-white'
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
                 }`}
               >
                 {skill.name} ({count})

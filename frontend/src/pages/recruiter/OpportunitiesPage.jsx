@@ -59,22 +59,22 @@ export const OpportunitiesPage = () => {
     switch (status) {
       case 'PUBLISHED':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/80">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
             PUBLISHED
           </span>
         );
       case 'DRAFT':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60">
-            <Clock className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="w-3 h-3 text-amber-600" />
             DRAFT
           </span>
         );
       case 'CLOSED':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-            <XCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+            <XCircle className="w-3 h-3 text-slate-400" />
             CLOSED
           </span>
         );
@@ -86,24 +86,24 @@ export const OpportunitiesPage = () => {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Role Opportunities & Matching
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-500">
             Define precise capability requirements and discover anonymous candidates with proven evidence.
           </p>
         </div>
 
         <Link
           to="/recruiter/opportunities/new"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-98"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-xs transition active:scale-98"
         >
           <Plus className="w-4 h-4" />
           <span>New Opportunity</span>
@@ -130,37 +130,37 @@ export const OpportunitiesPage = () => {
             <Link
               key={opp.id}
               to={`/recruiter/opportunities/${opp.id}`}
-              className="bg-slate-900/90 border border-slate-800/90 hover:border-slate-700/80 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-sm"
+              className="bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-xs"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-850 text-slate-300 border border-slate-700 uppercase tracking-wider">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200 uppercase tracking-wider">
                     {opp.type} • {opp.workType}
                   </span>
                   {statusBadge(opp.status)}
                 </div>
 
-                <h3 className="text-base font-bold text-white group-hover:text-teal-300 transition-colors mb-2 tracking-tight">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-2 tracking-tight">
                   {opp.title}
                 </h3>
 
                 {opp.location && (
-                  <p className="text-xs text-slate-400 flex items-center gap-1 mb-4">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mb-4">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
                     <span>{opp.location}</span>
                   </p>
                 )}
               </div>
 
-              <div className="pt-3 border-t border-slate-800/80 mt-2 flex items-center justify-between text-xs text-slate-400">
+              <div className="pt-3 border-t border-slate-100 mt-2 flex items-center justify-between text-xs text-slate-500">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1 text-slate-300">
-                    <Layers className="w-3.5 h-3.5 text-teal-400" />
+                  <span className="flex items-center gap-1 text-slate-600">
+                    <Layers className="w-3.5 h-3.5 text-indigo-600" />
                     <span>{opp.requiredSkillsCount} req / {opp.preferredSkillsCount} pref</span>
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 text-teal-400 font-semibold group-hover:translate-x-0.5 transition-transform">
+                <div className="flex items-center gap-1 text-indigo-600 font-semibold group-hover:translate-x-0.5 transition-transform">
                   <Users className="w-3.5 h-3.5" />
                   <span>{opp.matchedCandidatesCount} Matched</span>
                   <ArrowRight className="w-3 h-3 ml-0.5" />

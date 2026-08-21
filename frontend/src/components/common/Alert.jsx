@@ -5,17 +5,17 @@ export const Alert = ({ type = 'info', message, onClose }) => {
   if (!message) return null;
 
   const styles = {
-    info: 'bg-slate-900/90 border-slate-800 text-slate-200 shadow-sm',
-    error: 'bg-rose-950/40 border-rose-900/60 text-rose-200 shadow-sm',
-    warning: 'bg-amber-950/40 border-amber-900/60 text-amber-200 shadow-sm',
-    success: 'bg-emerald-950/40 border-emerald-900/60 text-emerald-200 shadow-sm',
+    info: 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-xs',
+    error: 'bg-rose-50 border-rose-200 text-rose-900 shadow-xs',
+    warning: 'bg-amber-50 border-amber-200 text-amber-900 shadow-xs',
+    success: 'bg-emerald-50 border-emerald-200 text-emerald-900 shadow-xs',
   };
 
   const icons = {
-    info: <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
-    error: <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />,
-    warning: <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />,
-    success: <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />,
+    info: <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />,
+    error: <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />,
+    warning: <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />,
+    success: <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />,
   };
 
   return (
@@ -27,7 +27,7 @@ export const Alert = ({ type = 'info', message, onClose }) => {
       {onClose && (
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-white transition-colors shrink-0 p-0.5 rounded hover:bg-slate-800/60"
+          className="text-slate-400 hover:text-slate-700 transition-colors shrink-0 p-0.5 rounded hover:bg-slate-100"
           aria-label="Close notification"
         >
           <X className="w-4 h-4" />
@@ -36,4 +36,3 @@ export const Alert = ({ type = 'info', message, onClose }) => {
     </div>
   );
 };
-

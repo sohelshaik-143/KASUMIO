@@ -12,7 +12,6 @@ import {
   ExternalLink, 
   Calendar, 
   Briefcase, 
-  Sparkles, 
   Layers, 
   X 
 } from 'lucide-react';
@@ -21,7 +20,7 @@ export const VerificationPage = () => {
   const { user, isRecruiter, isAdmin, loading: authLoading } = useAuth();
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('ALL'); // ALL, REQUESTED, VERIFIED, REJECTED, EXPIRED
+  const [filter, setFilter] = useState('ALL');
   const [alert, setAlert] = useState({ type: null, message: null });
 
   // Modal review state
@@ -93,7 +92,6 @@ export const VerificationPage = () => {
         setAlert({ type: 'info', message: `Verification rejected for candidate ${selectedRequest.candidateAlias}.` });
       }
 
-      // Update in queue list
       setQueue((prev) =>
         prev.map((item) => (item.id === updated.id ? { ...item, status: updated.status, recruiterComment: updated.recruiterComment, respondedAt: updated.respondedAt } : item))
       );
@@ -114,12 +112,11 @@ export const VerificationPage = () => {
   const pendingCount = queue.filter((i) => i.status === 'REQUESTED').length;
   const verifiedCount = queue.filter((i) => i.status === 'VERIFIED').length;
   const rejectedCount = queue.filter((i) => i.status === 'REJECTED').length;
-  const expiredCount = queue.filter((i) => i.status === 'EXPIRED').length;
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <LoadingSpinner size="lg" text="Loading verification queue telemetry..." />
+        <LoadingSpinner size="lg" text="Loading verification queue..." />
       </div>
     );
   }
@@ -127,23 +124,23 @@ export const VerificationPage = () => {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Verification Queue
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Contextual, candidate-specific evidence review for your active role opportunities.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Candidate-specific evidence audit and accredited verification for your active roles.
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-          <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
           <span className="font-mono">{pendingCount} Actionable Request{pendingCount !== 1 ? 's' : ''}</span>
         </div>
       </div>
@@ -155,13 +152,13 @@ export const VerificationPage = () => {
       />
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         <button
           onClick={() => setFilter('ALL')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
             filter === 'ALL'
-              ? 'bg-teal-600 text-white shadow-sm'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           All ({queue.length})
@@ -171,8 +168,8 @@ export const VerificationPage = () => {
           onClick={() => setFilter('REQUESTED')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
             filter === 'REQUESTED'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-amber-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
@@ -183,8 +180,8 @@ export const VerificationPage = () => {
           onClick={() => setFilter('VERIFIED')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
             filter === 'VERIFIED'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -195,274 +192,119 @@ export const VerificationPage = () => {
           onClick={() => setFilter('REJECTED')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
             filter === 'REJECTED'
-              ? 'bg-rose-600 text-white shadow-sm'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-rose-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
           }`}
         >
           <XCircle className="w-3.5 h-3.5" />
           <span>Rejected ({rejectedCount})</span>
         </button>
-
-        <button
-          onClick={() => setFilter('EXPIRED')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
-            filter === 'EXPIRED'
-              ? 'bg-slate-700 text-white shadow-sm'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
-          }`}
-        >
-          Expired ({expiredCount})
-        </button>
       </div>
 
-      {/* Queue List */}
+      {/* Queue Items */}
       {filteredQueue.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
           title="No verification requests"
-          description={
-            filter === 'ALL'
-              ? 'You have not requested verification for any candidate evidence yet. Open any matched candidate in your opportunities to request verification.'
-              : `No verification requests in '${filter}' status.`
-          }
+          description="Verification requests submitted by candidates for your opportunities will appear here for audit."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           {filteredQueue.map((item) => (
             <div
               key={item.id}
-              className="bg-slate-900/90 border border-slate-800/90 hover:border-slate-700/80 rounded-2xl p-5 space-y-4 shadow-xl transition flex flex-col justify-between"
+              className="bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl p-5 sm:p-6 shadow-xs transition space-y-4"
             >
-              <div className="space-y-3">
-                {/* Header: Candidate Alias & Status */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-teal-300 text-sm">
-                        {item.candidateAlias}
-                      </span>
-                      {item.hasExpressedInterest && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-300 border border-teal-800">
-                          <Sparkles className="w-3 h-3 text-teal-400" />
-                          <span>Candidate Interested</span>
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs font-semibold text-slate-300 mt-1 flex items-center gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{item.opportunityTitle}</span>
-                    </p>
-                  </div>
-
-                  {/* Status Badge */}
-                  {item.status === 'REQUESTED' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950/90 text-amber-300 border border-amber-800">
-                      <Clock className="w-3 h-3" />
-                      <span>Pending Review</span>
-                    </span>
-                  )}
-                  {item.status === 'VERIFIED' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-800">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Verified</span>
-                    </span>
-                  )}
-                  {item.status === 'REJECTED' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-950/90 text-rose-300 border border-rose-800">
-                      <XCircle className="w-3 h-3" />
-                      <span>Rejected</span>
-                    </span>
-                  )}
-                  {item.status === 'EXPIRED' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-                      <span>Expired</span>
-                    </span>
-                  )}
-                </div>
-
-                {/* Evidence Details */}
-                <div className="bg-slate-850/80 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
                       {item.skillName}
                     </span>
-                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                      {item.evidenceType}
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-50 text-slate-600 border border-slate-200">
+                      Candidate: {item.candidateAlias}
                     </span>
                   </div>
-                  <h4 className="text-sm font-semibold text-white">
-                    {item.evidenceTitle}
-                  </h4>
-                  {item.recruiterComment && (
-                    <p className="text-xs text-slate-400 italic pt-1 border-t border-slate-800">
-                      "{item.recruiterComment}"
-                    </p>
-                  )}
+                  <h3 className="text-base font-bold text-slate-900">{item.evidenceTitle}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Opportunity: <span className="font-semibold text-slate-800">{item.opportunityTitle}</span>
+                  </p>
                 </div>
-              </div>
 
-              {/* Card Footer */}
-              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-1 font-mono text-[11px]">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Requested {new Date(item.requestedAt).toLocaleDateString()}</span>
-                </span>
-
-                <button
-                  onClick={() => handleOpenReview(item.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-teal-300 hover:text-teal-200 text-xs font-semibold rounded-xl border border-slate-700/80 transition active:scale-98"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{item.status === 'REQUESTED' ? 'Review & Action' : 'View Details'}</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleOpenReview(item.id)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
+                  >
+                    Review & Audit
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Review Modal */}
-      {reviewModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in-50 duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                    Review Evidence Verification
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Confirm demonstrated capability for role opportunity.
-                  </p>
-                </div>
+      {/* Audit Modal */}
+      {reviewModalOpen && selectedRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={() => setReviewModalOpen(false)} />
+          <div className="relative w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-xl p-6 space-y-5 z-10 my-auto">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Audit Verification Request</h3>
+                <p className="text-xs text-slate-500">Candidate: {selectedRequest.candidateAlias}</p>
               </div>
-              <button
-                onClick={() => setReviewModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-                aria-label="Close dialog"
-              >
-                <X className="w-4 h-4" />
+              <button onClick={() => setReviewModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
-              {loadingDetail || !selectedRequest ? (
-                <LoadingSpinner size="md" text="Loading verification dossier..." />
-              ) : (
-                <div className="space-y-4">
-                  {/* Metadata Row */}
-                  <div className="grid grid-cols-2 gap-3 bg-slate-850/80 p-3.5 rounded-xl border border-slate-800 text-xs">
-                    <div>
-                      <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block">
-                        Candidate
-                      </span>
-                      <span className="font-mono font-bold text-teal-300 text-sm">
-                        {selectedRequest.candidateAlias}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block">
-                        Opportunity
-                      </span>
-                      <span className="font-semibold text-white">
-                        {selectedRequest.opportunityTitle}
-                      </span>
-                    </div>
-                  </div>
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                <span className="font-bold text-slate-900 block">{selectedRequest.evidenceTitle}</span>
+                <p className="text-slate-600 leading-relaxed">{selectedRequest.evidenceDescription}</p>
+                {selectedRequest.evidenceUrl && (
+                  <a
+                    href={selectedRequest.evidenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-indigo-600 font-semibold pt-1"
+                  >
+                    <span>Inspect Evidence Source</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
 
-                  {/* Evidence Dossier */}
-                  <div className="bg-slate-850/80 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">
-                        {selectedRequest.skillName}
-                      </span>
-                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                        {selectedRequest.evidenceType}
-                      </span>
-                    </div>
-
-                    <h4 className="text-base font-bold text-white tracking-tight">
-                      {selectedRequest.evidenceTitle}
-                    </h4>
-
-                    {selectedRequest.evidenceDescription && (
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        {selectedRequest.evidenceDescription}
-                      </p>
-                    )}
-
-                    {selectedRequest.evidenceUrl && (
-                      <div className="pt-2">
-                        <a
-                          href={selectedRequest.evidenceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-teal-400 hover:text-teal-300 font-semibold underline underline-offset-2"
-                        >
-                          <span>Inspect Live / External Proof</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Recruiter Comment Field */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                      Recruiter Note / Assessment Comment <span className="text-slate-500 font-normal">(Optional)</span>
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="e.g. Demonstrated required concurrency logic and clean architecture."
-                      value={recruiterComment}
-                      onChange={(e) => setRecruiterComment(e.target.value)}
-                      className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 resize-none transition"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Private assessment note recorded for verification audit trail.
-                    </p>
-                  </div>
-                </div>
-              )}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Audit Notes / Feedback</label>
+                <textarea
+                  rows={3}
+                  value={recruiterComment}
+                  onChange={(e) => setRecruiterComment(e.target.value)}
+                  placeholder="Enter audit rationale for verification decision..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500"
+                />
+              </div>
             </div>
 
-            {/* Modal Actions */}
-            {selectedRequest && (
-              <div className="p-4 sm:p-6 border-t border-slate-800 bg-slate-900/80 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setReviewModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 rounded-xl transition"
-                >
-                  Close
-                </button>
-
-                <button
-                  type="button"
-                  disabled={submittingAction}
-                  onClick={() => handleAction('REJECT')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-semibold rounded-xl transition disabled:opacity-50 active:scale-98"
-                >
-                  <XCircle className="w-4 h-4" />
-                  <span>Reject Verification</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={submittingAction}
-                  onClick={() => handleAction('VERIFY')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl shadow-sm transition disabled:opacity-50 active:scale-98"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Verify Evidence</span>
-                </button>
-              </div>
-            )}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                disabled={submittingAction}
+                onClick={() => handleAction('REJECT')}
+                className="px-4 py-2 bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-xl"
+              >
+                Reject Verification
+              </button>
+              <button
+                disabled={submittingAction}
+                onClick={() => handleAction('VERIFY')}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs"
+              >
+                Approve & Verify
+              </button>
+            </div>
           </div>
         </div>
       )}

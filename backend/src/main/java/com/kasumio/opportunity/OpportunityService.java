@@ -36,6 +36,8 @@ public class OpportunityService {
     private final VerificationRepository verificationRepository;
     private final com.kasumio.evidence.VerificationRequestRepository verificationRequestRepository;
 
+    private final com.kasumio.discovery.TechnologyNormalizationService technologyNormalizationService;
+
     public OpportunityService(
             OpportunityRepository opportunityRepository,
             OpportunitySkillRepository opportunitySkillRepository,
@@ -45,7 +47,8 @@ public class OpportunityService {
             CandidateAliasService candidateAliasService,
             EvidenceRepository evidenceRepository,
             VerificationRepository verificationRepository,
-            com.kasumio.evidence.VerificationRequestRepository verificationRequestRepository) {
+            com.kasumio.evidence.VerificationRequestRepository verificationRequestRepository,
+            com.kasumio.discovery.TechnologyNormalizationService technologyNormalizationService) {
         this.opportunityRepository = opportunityRepository;
         this.opportunitySkillRepository = opportunitySkillRepository;
         this.skillRepository = skillRepository;
@@ -55,6 +58,7 @@ public class OpportunityService {
         this.evidenceRepository = evidenceRepository;
         this.verificationRepository = verificationRepository;
         this.verificationRequestRepository = verificationRequestRepository;
+        this.technologyNormalizationService = technologyNormalizationService;
     }
 
     @Transactional
@@ -305,15 +309,32 @@ public class OpportunityService {
 
         Set<Long> seenSkillIds = new HashSet<>();
         for (SkillRequirementDto dto : skillDtos) {
-            if (seenSkillIds.contains(dto.getSkillId())) {
+            Skill skill = null;
+            if (dto.getSkillId() != null) {
+                skill = skillRepository.findById(dto.getSkillId()).orElse(null);
+            }
+            if (skill == null && StringUtils.hasText(dto.getSkillName())) {
+                String trimmedName = dto.getSkillName().trim();
+                Optional<Skill> resolved = technologyNormalizationService.resolve(trimmedName);
+                if (resolved.isPresent()) {
+                    skill = resolved.get();
+                } else {
+                    String category = StringUtils.hasText(dto.getSkillCategory()) ? dto.getSkillCategory().trim() : "Custom Skill";
+                    skill = skillRepository.save(new Skill(trimmedName, category));
+                }
+            }
+
+            if (skill == null) {
+                continue;
+            }
+
+            if (seenSkillIds.contains(skill.getId())) {
                 continue; // Prevent duplicate skills
             }
-            seenSkillIds.add(dto.getSkillId());
-
-            Skill skill = skillRepository.findById(dto.getSkillId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Skill ID " + dto.getSkillId() + " does not exist"));
+            seenSkillIds.add(skill.getId());
 
             OpportunitySkill oppSkill = new OpportunitySkill(opportunity, skill, dto.getSkillType());
+            oppSkill = opportunitySkillRepository.save(oppSkill);
             opportunity.getSkills().add(oppSkill);
         }
     }
