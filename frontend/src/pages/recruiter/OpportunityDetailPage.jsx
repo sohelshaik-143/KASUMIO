@@ -67,9 +67,11 @@ export const OpportunityDetailPage = () => {
         type: 'success',
         message: `Interest sent to candidate ${candidateAlias}. Waiting for their decision.`,
       });
+      return conn;
     } catch (err) {
       const errMsg = err.response?.data?.message || 'Failed to express interest and request connection.';
       setAlert({ type: 'error', message: errMsg });
+      throw err;
     }
   };
 
@@ -460,8 +462,10 @@ export const OpportunityDetailPage = () => {
           setConnectingCandidate(null);
         }}
         onConfirm={handleConfirmRequestConnection}
+        candidate={connectingCandidate}
         candidateAlias={connectingCandidate?.candidateAlias}
-        opportunityTitle={opportunity.title}
+        opportunity={opportunity}
+        opportunityTitle={opportunity?.title}
       />
 
       <DisclosedProfileModal
@@ -471,6 +475,7 @@ export const OpportunityDetailPage = () => {
           setActiveDisclosedConnection(null);
         }}
         connection={activeDisclosedConnection}
+        onCancelConnection={handleCancelDisclosedConnection}
       />
     </div>
   );

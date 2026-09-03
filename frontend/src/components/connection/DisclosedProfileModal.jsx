@@ -31,7 +31,9 @@ export const DisclosedProfileModal = ({
     }
     try {
       setRevoking(true);
-      await onCancelConnection(connection.id);
+      if (onCancelConnection) {
+        await onCancelConnection(connection.id);
+      }
       onClose();
     } catch (err) {
       console.error('Failed to cancel connection:', err);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, 
   Send, 
@@ -12,22 +12,45 @@ export const RequestConnectionModal = ({
   isOpen,
   onClose,
   opportunity,
+  opportunityTitle,
   candidate,
+  candidateAlias,
   onConfirm
 }) => {
-  if (!isOpen || !candidate) return null;
+  const resolvedCandidateAlias = 
+    candidate?.candidateAlias || 
+    candidateAlias || 
+    (typeof candidate === 'string' ? candidate : null);
+
+  const resolvedOpportunityTitle = 
+    opportunity?.title || 
+    opportunityTitle || 
+    'this opportunity';
+
+  if (!isOpen || !resolvedCandidateAlias) return null;
 
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setNote('');
+      setError(null);
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await onConfirm(candidate.candidateAlias, note.trim() || null);
+      setError(null);
+      await onConfirm(resolvedCandidateAlias, note.trim() || null);
       onClose();
     } catch (err) {
       console.error('Failed to request connection:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Failed to send connection request.';
+      setError(errMsg);
     } finally {
       setSubmitting(false);
     }
@@ -47,7 +70,7 @@ export const RequestConnectionModal = ({
                 Express Interest & Request Connection
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Connecting with candidate <span className="font-mono text-teal-300 font-semibold">{candidate.candidateAlias}</span>
+                Connecting with candidate <span className="font-mono text-teal-300 font-semibold">{resolvedCandidateAlias}</span>
               </p>
             </div>
           </div>
@@ -62,6 +85,13 @@ export const RequestConnectionModal = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-400 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Privacy Protocol Notice */}
           <div className="bg-slate-925/90 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300 space-y-1.5">
             <p className="font-semibold text-teal-400 flex items-center gap-1.5">
@@ -69,7 +99,7 @@ export const RequestConnectionModal = ({
               <span>KASUMIO Privacy Protocol</span>
             </p>
             <p className="text-slate-300/90 leading-relaxed text-[11px]">
-              The candidate will be notified of your interest in connection with <span className="text-white font-medium">{opportunity?.title}</span>. Their identity remains private until they choose to accept and share permitted contact details.
+              The candidate will be notified of your interest in connection with <span className="text-white font-medium">{resolvedOpportunityTitle}</span>. Their identity remains private until they choose to accept and share permitted contact details.
             </p>
           </div>
 
@@ -113,3 +143,4 @@ export const RequestConnectionModal = ({
     </div>
   );
 };
+
