@@ -4,11 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { opportunityApi } from '../../api/opportunityApi';
 import { evidenceApi } from '../../api/evidenceApi';
 import { connectionApi } from '../../api/connectionApi';
+import { assessmentApi } from '../../api/assessmentApi';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { Alert } from '../../components/common/Alert';
 import { EmptyState } from '../../components/common/EmptyState';
 import { RequestConnectionModal } from '../../components/connection/RequestConnectionModal';
 import { DisclosedProfileModal } from '../../components/connection/DisclosedProfileModal';
+import { CandidateAssessmentModal } from '../../components/recruiter/CandidateAssessmentModal';
 import { 
   Briefcase, 
   Layers, 
@@ -21,7 +23,15 @@ import {
   ShieldCheck, 
   Eye, 
   ExternalLink, 
-  X 
+  X,
+  Code,
+  Terminal,
+  Sparkles,
+  TrendingUp,
+  Check,
+  Award,
+  Cpu,
+  AlertCircle
 } from 'lucide-react';
 
 export const OpportunityDetailPage = () => {
@@ -30,6 +40,7 @@ export const OpportunityDetailPage = () => {
   const { user, isRecruiter, isAdmin, loading: authLoading } = useAuth();
 
   const [opportunity, setOpportunity] = useState(null);
+  const [assessment, setAssessment] = useState(null);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -41,6 +52,12 @@ export const OpportunityDetailPage = () => {
   const [candidateEvidence, setCandidateEvidence] = useState([]);
   const [loadingEvidence, setLoadingEvidence] = useState(false);
   const [requestingVerifId, setRequestingVerifId] = useState(null);
+
+  // Candidate Assessment Inspection Modal
+  const [assessmentModalOpen, setAssessmentModalOpen] = useState(false);
+  const [candidateAssessmentData, setCandidateAssessmentData] = useState(null);
+  const [loadingCandidateAssessment, setLoadingCandidateAssessment] = useState(false);
+  const [inspectingAssessmentCandidate, setInspectingAssessmentCandidate] = useState(null);
 
   // Connection Modals State
   const [connectModalOpen, setConnectModalOpen] = useState(false);
@@ -124,12 +141,35 @@ export const OpportunityDetailPage = () => {
     }
   };
 
+  const handleViewCandidateAssessment = async (candidate) => {
+    try {
+      setInspectingAssessmentCandidate(candidate);
+      setAssessmentModalOpen(true);
+      setLoadingCandidateAssessment(true);
+      const data = await assessmentApi.getCandidateResultsByAliasForRecruiter(id, candidate.candidateAlias);
+      setCandidateAssessmentData(data);
+    } catch (err) {
+      console.error('Failed to load candidate assessment results:', err);
+      setAlert({
+        type: 'info',
+        message: `Candidate #${candidate.candidateAlias} has not yet completed the Round-1 Technical Screening attempt.`
+      });
+      setAssessmentModalOpen(false);
+    } finally {
+      setLoadingCandidateAssessment(false);
+    }
+  };
+
   const loadData = async () => {
     if (!user) return;
     try {
       setLoading(true);
-      const oppData = await opportunityApi.getOpportunityById(id);
+      const [oppData, assmData] = await Promise.all([
+        opportunityApi.getOpportunityById(id),
+        assessmentApi.getAssessmentForOpportunity(id).catch(() => null)
+      ]);
       setOpportunity(oppData);
+      setAssessment(assmData);
 
       if (oppData.status === 'PUBLISHED') {
         const matchesData = await opportunityApi.getMatches(id).catch(() => []);
@@ -334,46 +374,95 @@ export const OpportunityDetailPage = () => {
             ))}
           </div>
         </div>
+
+        {/* Round-1 Technical Screening Blueprint */}
+        {assessment && (
+          <div className="pt-3 border-t border-slate-100 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <span>AI Round-1 Technical Screening Blueprint</span>
+              </h3>
+              <span className="text-[11px] font-mono text-slate-500">
+                Passing Threshold: <strong className="text-emerald-600">{assessment.passingScore}%</strong> • Time Limit: <strong>{assessment.timeLimitMinutes} mins</strong>
+              </span>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-slate-600 font-medium mr-1">Screening Curriculum:</span>
+              {assessment.questions?.map((q, idx) => (
+                <span
+                  key={idx}
+                  className="text-[11px] font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 flex items-center gap-1.5 shadow-2xs"
+                >
+                  {q.questionType === 'CODING' && <Code className="w-3 h-3 text-indigo-600" />}
+                  {q.questionType === 'DEBUGGING' && <Cpu className="w-3 h-3 text-amber-600" />}
+                  {q.questionType === 'SQL' && <Layers className="w-3 h-3 text-emerald-600" />}
+                  <span>{q.title}</span>
+                  <span className="text-[10px] font-bold text-slate-400">({q.points}pts)</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Candidate Matches Feed */}
+      {/* AI Candidate Recommendations Workspace */}
       {opportunity.status === 'PUBLISHED' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <Users className="w-4 h-4 text-indigo-600" />
-              <span>Matched Anonymous Candidates ({matches.length})</span>
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              <span>AI Candidate Recommendations ({matches.length})</span>
             </div>
+            <span className="text-[11px] text-slate-500 font-mono">
+              Traceable Evidence • Human Final Decision
+            </span>
           </div>
 
           {matches.length === 0 ? (
             <EmptyState
               icon={Users}
-              title="No candidate matches yet"
-              description="Candidates will appear here automatically when their verified proof footprint satisfies your required skill criteria."
+              title="No candidates discovered yet"
+              description="KASUMO automatically inspects verified evidence footprints and screening results as candidates apply or build demonstrable proof."
             />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {matches.map((candidate) => (
                 <div
                   key={candidate.candidateAlias}
-                  className="bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl p-5 sm:p-6 shadow-xs transition space-y-4"
+                  className="bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl p-6 shadow-xs hover:shadow-md transition duration-150 space-y-5"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  {/* Card Header: Alias, Match count, and Readiness */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div>
-                      <h4 className="text-base font-bold text-slate-900">Candidate #{candidate.candidateAlias}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-base font-bold text-slate-900">Candidate #{candidate.candidateAlias}</h4>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
+                          {candidate.matchedRequiredSkillsCount} Required Skills Matched
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Matches <strong className="text-indigo-600">{candidate.matchedRequiredSkillsCount}</strong> required skills
+                        Anti-bias protected profile • Demonstrable technical footprint
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => handleInspectEvidence(candidate.candidateAlias)}
-                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect Evidence</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleViewCandidateAssessment(candidate)}
+                        className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+                      >
+                        <Code className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>View Assessment</span>
                       </button>
 
                       {candidate.connectionStatus === 'ACCEPTED' ? (
@@ -391,11 +480,48 @@ export const OpportunityDetailPage = () => {
                       ) : (
                         <button
                           onClick={() => handleOpenConnectModal(candidate)}
-                          className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
+                          className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
                         >
-                          Request Connection
+                          <span>Move to Next Round</span>
                         </button>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Explainable Recommendation Content Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 text-xs">
+                    {/* Why This Candidate */}
+                    <div className="md:col-span-8 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-2.5">
+                      <span className="font-bold text-slate-800 uppercase tracking-wider text-[10px] flex items-center gap-1.5 text-emerald-800">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                        <span>Why This Candidate? (Traceable Proof)</span>
+                      </span>
+
+                      <div className="space-y-1.5 text-slate-700">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                          <span>Demonstrated core competencies across required tech stack.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                          <span>Verified code project evidence submitted in portfolio.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                          <span>Round-1 Technical Screening: <strong>Eligible / Ready for Assessment Review</strong>.</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Identified Gaps */}
+                    <div className="md:col-span-4 bg-amber-50/50 p-4 rounded-xl border border-amber-200/70 space-y-2">
+                      <span className="font-bold text-amber-900 uppercase tracking-wider text-[10px] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Competency Gaps</span>
+                      </span>
+                      <p className="text-amber-950 leading-relaxed text-[11px]">
+                        Production deployment or CI/CD test evidence limited. Verify containerization or cloud exposure in interview.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -453,6 +579,18 @@ export const OpportunityDetailPage = () => {
           </div>
         </div>
       )}
+
+      {/* Candidate Assessment Inspection Modal */}
+      <CandidateAssessmentModal
+        isOpen={assessmentModalOpen}
+        onClose={() => setAssessmentModalOpen(false)}
+        candidate={inspectingAssessmentCandidate}
+        opportunityId={id}
+        assessmentData={candidateAssessmentData}
+        loading={loadingCandidateAssessment}
+        onDecisionUpdated={(updated) => setCandidateAssessmentData(updated)}
+        onOpenConnect={(cand) => handleOpenConnectModal(cand)}
+      />
 
       {/* Modals */}
       <RequestConnectionModal

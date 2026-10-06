@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { authApi } from '../api/authApi';
 import { Alert } from '../components/common/Alert';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Sparkles, Building, GraduationCap } from 'lucide-react';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +16,34 @@ export const LoginPage = () => {
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/';
+
+  const handleQuickDemo = async (role) => {
+    setError(null);
+    setSubmitting(true);
+    const emailToUse = role === 'RECRUITER' ? 'recruiter@kasumo.internal' : 'student@kasumo.internal';
+    const pwd = 'password123';
+    try {
+      await login(emailToUse, pwd);
+      navigate(from, { replace: true });
+    } catch (err) {
+      // In-memory H2 fallback: auto-register and sign in
+      try {
+        await authApi.register({
+          email: emailToUse,
+          password: pwd,
+          fullName: role === 'RECRUITER' ? 'Sarah Jenkins (Lead Recruiter)' : 'Alex Mercer (Full-Stack Student)',
+          role: role,
+          organizationName: role === 'RECRUITER' ? 'Apex Systems' : 'Stanford University',
+        });
+        await login(emailToUse, pwd);
+        navigate(from, { replace: true });
+      } catch (regErr) {
+        setError('Failed to initiate quick demo session.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -116,6 +145,39 @@ export const LoginPage = () => {
               </button>
             </div>
           </form>
+
+          {/* Quick Demo Access */}
+          <div className="pt-2 space-y-2.5">
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-slate-200"></div>
+              <span className="flex-shrink mx-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                ⚡ Quick Demo Access
+              </span>
+              <div className="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => handleQuickDemo('RECRUITER')}
+                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-indigo-200 transition"
+              >
+                <Building className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Recruiter Demo</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => handleQuickDemo('STUDENT')}
+                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-indigo-200 transition"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-purple-600" />
+                <span>Student Demo</span>
+              </button>
+            </div>
+          </div>
 
           {/* Registration Redirect */}
           <div className="pt-4 border-t border-slate-100 text-center">

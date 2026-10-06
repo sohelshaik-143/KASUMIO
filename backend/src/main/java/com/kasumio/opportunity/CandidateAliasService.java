@@ -2,6 +2,7 @@ package com.kasumio.opportunity;
 
 import com.kasumio.student.Student;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -15,9 +16,9 @@ public class CandidateAliasService {
         this.candidateAliasRepository = candidateAliasRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String getOrCreateAlias(Student student) {
-        return candidateAliasRepository.findByStudent(student)
+        return candidateAliasRepository.findByStudentId(student.getId())
                 .map(CandidateAlias::getPublicAlias)
                 .orElseGet(() -> {
                     long count = candidateAliasRepository.count() + 1;

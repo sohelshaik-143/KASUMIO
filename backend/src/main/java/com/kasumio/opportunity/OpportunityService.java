@@ -37,6 +37,7 @@ public class OpportunityService {
     private final com.kasumio.evidence.VerificationRequestRepository verificationRequestRepository;
 
     private final com.kasumio.discovery.TechnologyNormalizationService technologyNormalizationService;
+    private final com.kasumio.assessment.AssessmentService assessmentService;
 
     public OpportunityService(
             OpportunityRepository opportunityRepository,
@@ -48,7 +49,8 @@ public class OpportunityService {
             EvidenceRepository evidenceRepository,
             VerificationRepository verificationRepository,
             com.kasumio.evidence.VerificationRequestRepository verificationRequestRepository,
-            com.kasumio.discovery.TechnologyNormalizationService technologyNormalizationService) {
+            com.kasumio.discovery.TechnologyNormalizationService technologyNormalizationService,
+            com.kasumio.assessment.AssessmentService assessmentService) {
         this.opportunityRepository = opportunityRepository;
         this.opportunitySkillRepository = opportunitySkillRepository;
         this.skillRepository = skillRepository;
@@ -59,6 +61,7 @@ public class OpportunityService {
         this.verificationRepository = verificationRepository;
         this.verificationRequestRepository = verificationRequestRepository;
         this.technologyNormalizationService = technologyNormalizationService;
+        this.assessmentService = assessmentService;
     }
 
     @Transactional
@@ -79,6 +82,11 @@ public class OpportunityService {
 
         opportunity = opportunityRepository.save(opportunity);
         attachSkills(opportunity, request.getSkills());
+
+        // Automatically instantiate the technical screening assessment
+        try {
+            assessmentService.getOrCreateAssessmentForOpportunity(opportunity.getId());
+        } catch (Exception ignored) {}
 
         return mapToResponse(opportunity, 0);
     }
@@ -190,6 +198,11 @@ public class OpportunityService {
         opp.setStatus(OpportunityStatus.PUBLISHED);
         opp = opportunityRepository.save(opp);
 
+        // Ensure technical screening assessment is generated
+        try {
+            assessmentService.getOrCreateAssessmentForOpportunity(opp.getId());
+        } catch (Exception ignored) {}
+
         long matchCount = matchingEngineService.findMatchesForOpportunity(opp).size();
         return mapToResponse(opp, matchCount);
     }
@@ -271,7 +284,7 @@ public class OpportunityService {
                 .map(e -> {
                     Optional<Verification> vOpt = verificationRepository.findByEvidenceId(e.getId());
                     boolean verified = vOpt.isPresent();
-                    String orgName = verified ? vOpt.get().getOrganization().getName() : null;
+                    String orgName = (verified && vOpt.get().getOrganization() != null) ? vOpt.get().getOrganization().getName() : null;
                     boolean recent = e.getCreatedAt().isAfter(sixMonthsAgo);
 
                     Optional<com.kasumio.evidence.VerificationRequest> reqOpt = verificationRequestRepository
@@ -320,7 +333,8 @@ public class OpportunityService {
                     skill = resolved.get();
                 } else {
                     String category = StringUtils.hasText(dto.getSkillCategory()) ? dto.getSkillCategory().trim() : "Custom Skill";
-                    skill = skillRepository.save(new Skill(trimmedName, category));
+                    skill = skillRepository.findByNameIgnoreCase(trimmedName)
+                            .orElseGet(() -> skillRepository.save(new Skill(trimmedName, category)));
                 }
             }
 

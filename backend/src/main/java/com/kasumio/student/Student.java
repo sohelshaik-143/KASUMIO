@@ -27,6 +27,9 @@ public class Student {
     @Column(name = "graduation_year")
     private Integer graduationYear;
 
+    @Column(name = "leaderboard_public", nullable = false)
+    private Boolean leaderboardPublic = true;
+
     public Student() {}
 
     public Student(User user, String fullName, String bio, String university, Integer graduationYear) {
@@ -35,6 +38,7 @@ public class Student {
         this.bio = bio;
         this.university = university;
         this.graduationYear = graduationYear;
+        this.leaderboardPublic = true;
     }
 
     public Long getId() {
@@ -83,5 +87,13 @@ public class Student {
 
     public void setGraduationYear(Integer graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public Boolean getLeaderboardPublic() {
+        return leaderboardPublic != null ? leaderboardPublic : true;
+    }
+
+    public void setLeaderboardPublic(Boolean leaderboardPublic) {
+        this.leaderboardPublic = leaderboardPublic;
     }
 }

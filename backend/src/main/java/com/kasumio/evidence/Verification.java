@@ -17,7 +17,7 @@ public class Verification {
     @JoinColumn(name = "evidence_id", nullable = false, unique = true)
     private Evidence evidence;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 

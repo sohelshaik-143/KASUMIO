@@ -115,7 +115,7 @@ public class OutcomeIntelligenceService {
             String verifierOrg = null;
             if (primaryEvOpt.isPresent()) {
                 Optional<Verification> vOpt = verificationRepository.findByEvidenceId(primaryEvOpt.get().getId());
-                if (vOpt.isPresent()) {
+                if (vOpt.isPresent() && vOpt.get().getOrganization() != null) {
                     verifierOrg = vOpt.get().getOrganization().getName();
                 }
             }

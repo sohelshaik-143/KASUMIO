@@ -17,7 +17,9 @@ import {
   LogOut,
   X,
   Building,
-  GraduationCap
+  GraduationCap,
+  Code,
+  Trophy
 } from 'lucide-react';
 
 export const KasumoSidebar = ({
@@ -52,9 +54,11 @@ export const KasumoSidebar = ({
       label: 'Intelligence & Roles',
       items: [
         { name: 'Discover Roles', path: '/student/discover', icon: Compass },
+        { name: 'Screening Tests', path: '/student/assessments', icon: Code, badge: 'Round-1' },
         { name: 'Career Capability', path: '/student/intelligence', icon: Sparkles, badge: 'What-If' },
         { name: 'Growth Roadmap', path: '/student/gaps', icon: TrendingUp },
-        { name: 'Matched Opportunities', path: '/student/opportunities', icon: Briefcase }
+        { name: 'Matched Opportunities', path: '/student/opportunities', icon: Briefcase },
+        { name: 'Capability Board', path: '/leaderboard', icon: Trophy }
       ]
     },
     {
@@ -84,8 +88,9 @@ export const KasumoSidebar = ({
       label: 'Talent & Opportunities',
       items: [
         { name: 'Opportunities', path: '/recruiter/opportunities', icon: Briefcase },
-        { name: 'Create Opportunity', path: '/recruiter/opportunities/new', icon: PlusCircle },
-        { name: 'Candidate Connections', path: '/recruiter/connections', icon: Users }
+        { name: 'Create Opportunity', path: '/recruiter/opportunities/new', icon: PlusCircle, badge: 'AI Agent' },
+        { name: 'Candidate Connections', path: '/recruiter/connections', icon: Users },
+        { name: 'Capability Board', path: '/leaderboard', icon: Trophy }
       ]
     },
     {

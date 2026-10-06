@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS students (
     bio TEXT NULL,
     university VARCHAR(255) NULL,
     graduation_year INT NULL,
+    leaderboard_public BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT fk_students_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -229,3 +230,121 @@ CREATE INDEX IF NOT EXISTS idx_trusted_conn_opportunity ON trusted_connections(o
 CREATE INDEX IF NOT EXISTS idx_skill_alias_name ON skill_aliases(alias_name);
 CREATE INDEX IF NOT EXISTS idx_opp_saved_student_status ON opportunity_saved(student_id, save_status);
 CREATE INDEX IF NOT EXISTS idx_tech_cand_status ON technology_candidates(status);
+
+-- Technical Screening and Assessment Tables
+CREATE TABLE IF NOT EXISTS assessments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    opportunity_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    time_limit_minutes INT NOT NULL DEFAULT 45,
+    passing_score INT NOT NULL DEFAULT 70,
+    blueprint_json TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_assessment_opportunity FOREIGN KEY (opportunity_id) REFERENCES opportunities(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS assessment_questions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    assessment_id BIGINT NOT NULL,
+    question_type VARCHAR(50) NOT NULL,
+    difficulty VARCHAR(50) NOT NULL DEFAULT 'MEDIUM',
+    skill_id BIGINT NULL,
+    title VARCHAR(255) NOT NULL,
+    prompt TEXT NOT NULL,
+    points INT NOT NULL DEFAULT 10,
+    order_index INT NOT NULL DEFAULT 0,
+    validation_status VARCHAR(50) NOT NULL DEFAULT 'VALIDATED',
+    competency_area VARCHAR(100) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_question_assessment FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
+    CONSTRAINT fk_question_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS question_options (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    question_id BIGINT NOT NULL,
+    option_text TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL DEFAULT FALSE,
+    explanation TEXT NULL,
+    order_index INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_option_question FOREIGN KEY (question_id) REFERENCES assessment_questions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS coding_problems (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    question_id BIGINT NOT NULL UNIQUE,
+    problem_statement TEXT NOT NULL,
+    starter_code_json TEXT NOT NULL,
+    constraints TEXT NULL,
+    allowed_languages VARCHAR(255) NOT NULL DEFAULT 'java,python,javascript,typescript,cpp,go,rust,kotlin',
+    time_limit_ms INT NOT NULL DEFAULT 4000,
+    memory_limit_mb INT NOT NULL DEFAULT 256,
+    CONSTRAINT fk_coding_question FOREIGN KEY (question_id) REFERENCES assessment_questions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS test_cases (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    coding_problem_id BIGINT NOT NULL,
+    input_data TEXT NOT NULL,
+    expected_output TEXT NOT NULL,
+    is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
+    explanation TEXT NULL,
+    order_index INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_testcase_problem FOREIGN KEY (coding_problem_id) REFERENCES coding_problems(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS assessment_attempts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    assessment_id BIGINT NOT NULL,
+    student_id BIGINT NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
+    score INT NOT NULL DEFAULT 0,
+    max_score INT NOT NULL DEFAULT 0,
+    adaptive_difficulty VARCHAR(50) NOT NULL DEFAULT 'MEDIUM',
+    feedback_summary TEXT NULL,
+    self_assessment_level VARCHAR(50) NULL,
+    demonstrated_level VARCHAR(50) NULL,
+    integrity_status VARCHAR(50) NOT NULL DEFAULT 'NORMAL',
+    integrity_signals_json TEXT NULL,
+    evidence_graph_json TEXT NULL,
+    recruiter_decision VARCHAR(50) NULL,
+    recruiter_notes TEXT NULL,
+    started_at TIMESTAMP NULL,
+    completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_attempt_assessment FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
+    CONSTRAINT fk_attempt_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS question_submissions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    attempt_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL,
+    language VARCHAR(50) NULL,
+    submitted_code TEXT NULL,
+    selected_option_id BIGINT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'PASSED',
+    execution_time_ms BIGINT NOT NULL DEFAULT 0,
+    memory_used_kb BIGINT NOT NULL DEFAULT 0,
+    test_cases_passed INT NOT NULL DEFAULT 0,
+    total_test_cases INT NOT NULL DEFAULT 0,
+    feedback_json TEXT NULL,
+    telemetry_json TEXT NULL,
+    code_analysis_json TEXT NULL,
+    similarity_score DOUBLE DEFAULT 0.0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_sub_attempt FOREIGN KEY (attempt_id) REFERENCES assessment_attempts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_question FOREIGN KEY (question_id) REFERENCES assessment_questions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_option FOREIGN KEY (selected_option_id) REFERENCES question_options(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS candidate_question_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL,
+    attempted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cqh_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    CONSTRAINT fk_cqh_question FOREIGN KEY (question_id) REFERENCES assessment_questions(id) ON DELETE CASCADE
+);
+
