@@ -327,10 +327,15 @@ public class IsolatedCodeExecutionEngine {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(sandboxDir.toFile());
 
-        // Restrict environment variables in sandbox
+        // Restrict environment variables in sandbox: strip all application secrets, database credentials, and tokens
         Map<String, String> env = pb.environment();
-        env.remove("AWS_SECRET_ACCESS_KEY");
-        env.remove("JWT_SECRET");
+        env.keySet().removeIf(key -> {
+            String upper = key.toUpperCase(Locale.ROOT);
+            return upper.contains("SECRET") || upper.contains("PASSWORD") || upper.contains("TOKEN")
+                    || upper.contains("KEY") || upper.contains("AUTH") || upper.contains("CREDENTIAL")
+                    || upper.contains("DB_") || upper.contains("MYSQL_") || upper.contains("SPRING_")
+                    || upper.contains("DATABASE") || upper.contains("JDBC");
+        });
 
         Process process = pb.start();
 

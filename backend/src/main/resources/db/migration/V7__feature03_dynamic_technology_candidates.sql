@@ -22,5 +22,5 @@ CREATE TABLE IF NOT EXISTS technology_candidates (
     CONSTRAINT fk_tech_cand_verifier FOREIGN KEY (verified_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_tech_cand_status ON technology_candidates(status);
-CREATE INDEX IF NOT EXISTS idx_tech_cand_norm_name ON technology_candidates(normalized_name);
+CREATE INDEX idx_tech_cand_status ON technology_candidates(status);
+CREATE INDEX idx_tech_cand_norm_name ON technology_candidates(normalized_name);

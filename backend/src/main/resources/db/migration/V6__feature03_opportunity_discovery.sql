@@ -4,25 +4,25 @@
 -- =============================================================================
 
 -- 1. Extend opportunities table
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS deadline TIMESTAMP NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS source VARCHAR(255) NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS source_url VARCHAR(1024) NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS posted_at TIMESTAMP NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS last_verified_at TIMESTAMP NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) NULL DEFAULT 'UNVERIFIED';
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS compensation VARCHAR(255) NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS duration VARCHAR(255) NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS eligibility TEXT NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS education_requirements TEXT NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS experience_requirements TEXT NULL;
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS tags JSON NULL;
+ALTER TABLE opportunities ADD COLUMN deadline TIMESTAMP NULL;
+ALTER TABLE opportunities ADD COLUMN source VARCHAR(255) NULL;
+ALTER TABLE opportunities ADD COLUMN source_url VARCHAR(1024) NULL;
+ALTER TABLE opportunities ADD COLUMN posted_at TIMESTAMP NULL;
+ALTER TABLE opportunities ADD COLUMN last_verified_at TIMESTAMP NULL;
+ALTER TABLE opportunities ADD COLUMN verification_status VARCHAR(50) NULL DEFAULT 'UNVERIFIED';
+ALTER TABLE opportunities ADD COLUMN compensation VARCHAR(255) NULL;
+ALTER TABLE opportunities ADD COLUMN duration VARCHAR(255) NULL;
+ALTER TABLE opportunities ADD COLUMN eligibility TEXT NULL;
+ALTER TABLE opportunities ADD COLUMN education_requirements TEXT NULL;
+ALTER TABLE opportunities ADD COLUMN experience_requirements TEXT NULL;
+ALTER TABLE opportunities ADD COLUMN tags JSON NULL;
 
 -- 2. Extend skills table
-ALTER TABLE skills ADD COLUMN IF NOT EXISTS subcategory VARCHAR(100) NULL;
-ALTER TABLE skills ADD COLUMN IF NOT EXISTS ecosystem VARCHAR(100) NULL;
-ALTER TABLE skills ADD COLUMN IF NOT EXISTS canonical_name VARCHAR(100) NULL;
-ALTER TABLE skills ADD COLUMN IF NOT EXISTS version_info VARCHAR(50) NULL;
-ALTER TABLE skills ADD COLUMN IF NOT EXISTS technology_status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE';
+ALTER TABLE skills ADD COLUMN subcategory VARCHAR(100) NULL;
+ALTER TABLE skills ADD COLUMN ecosystem VARCHAR(100) NULL;
+ALTER TABLE skills ADD COLUMN canonical_name VARCHAR(100) NULL;
+ALTER TABLE skills ADD COLUMN version_info VARCHAR(50) NULL;
+ALTER TABLE skills ADD COLUMN technology_status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE';
 
 -- 3. Create skill_aliases table
 CREATE TABLE IF NOT EXISTS skill_aliases (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS skill_aliases (
     CONSTRAINT fk_skill_alias_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
     CONSTRAINT uq_skill_alias UNIQUE (alias_name)
 );
-CREATE INDEX IF NOT EXISTS idx_skill_alias_name ON skill_aliases(alias_name);
+CREATE INDEX idx_skill_alias_name ON skill_aliases(alias_name);
 
 -- 4. Create skill_relationships table
 CREATE TABLE IF NOT EXISTS skill_relationships (
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS opportunity_saved (
     CONSTRAINT fk_opp_saved_opportunity FOREIGN KEY (opportunity_id) REFERENCES opportunities(id) ON DELETE CASCADE,
     CONSTRAINT uq_opp_saved_student UNIQUE (opportunity_id, student_id)
 );
-CREATE INDEX IF NOT EXISTS idx_opp_saved_student_status ON opportunity_saved(student_id, save_status);
+CREATE INDEX idx_opp_saved_student_status ON opportunity_saved(student_id, save_status);
 
 -- 6. Seed/Update Initial Taxonomy Skills with metadata
 UPDATE skills SET subcategory = 'Language', ecosystem = 'JVM', canonical_name = 'Java' WHERE name = 'Java';

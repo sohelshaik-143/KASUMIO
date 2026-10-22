@@ -1,0 +1,53 @@
+# =============================================================================
+# KASUMIO Production Profile (MySQL + Flyway + HikariCP Free-Tier Tuning)
+# =============================================================================
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:kasumio_db}?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: KasumioHikariCP
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+      minimum-idle: 2
+      idle-timeout: 300000       # 5 minutes
+      max-lifetime: 900000       # 15 minutes to avoid stale connection drop on free-tier DB
+      connection-timeout: 20000  # 20 seconds
+      leak-detection-threshold: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    defer-datasource-initialization: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  sql:
+    init:
+      mode: never
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+kasumio:
+  jwt:
+    # In production, JWT secret must be provided via environment variable
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours

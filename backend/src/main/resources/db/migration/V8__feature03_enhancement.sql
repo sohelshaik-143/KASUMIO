@@ -51,4 +51,4 @@ CREATE INDEX idx_user_preferences_student ON user_preferences(student_id);
 
 -- 4. Extend opportunities with detailed requirement text
 -- So the LLM logic or other deterministic logic can extract Eligibility vs Capability
-ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS extracted_requirements TEXT NULL;
+ALTER TABLE opportunities ADD COLUMN extracted_requirements TEXT NULL;

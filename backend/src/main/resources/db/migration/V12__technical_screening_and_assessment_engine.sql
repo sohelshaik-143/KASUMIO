@@ -3,7 +3,7 @@
 -- =============================================================================
 
 -- Add leaderboard privacy preference to students
-ALTER TABLE students ADD COLUMN IF NOT EXISTS leaderboard_public BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE students ADD COLUMN leaderboard_public BOOLEAN NOT NULL DEFAULT TRUE;
 
 -- 1. Assessments Table (Linked to Opportunity)
 CREATE TABLE IF NOT EXISTS assessments (

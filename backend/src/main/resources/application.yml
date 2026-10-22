@@ -9,6 +9,8 @@ server:
 spring:
   application:
     name: kasumio-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
     url: ${DB_URL:jdbc:h2:mem:kasumio_db;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
