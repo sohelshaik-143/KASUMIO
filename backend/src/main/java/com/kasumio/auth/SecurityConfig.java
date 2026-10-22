@@ -61,7 +61,7 @@ public class SecurityConfig {
                 // Public auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 // Public health check and docs
-                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/", "/api", "/api/health").permitAll()
                 .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // Public read-only taxonomy endpoints
                 .requestMatchers(HttpMethod.GET, "/api/skills/**").permitAll()

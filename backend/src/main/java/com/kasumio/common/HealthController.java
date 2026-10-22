@@ -12,10 +12,9 @@ import java.util.Map;
  * Public Health Check Endpoint for Cloud Hosting Probes (Render, Railway, Fly.io, Kubernetes)
  */
 @RestController
-@RequestMapping("/api/health")
 public class HealthController {
 
-    @GetMapping
+    @GetMapping({"/", "/api", "/api/health"})
     public ResponseEntity<Map<String, Object>> health() {
         return ResponseEntity.ok(Map.of(
             "status", "UP",

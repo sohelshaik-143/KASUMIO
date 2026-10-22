@@ -21,8 +21,12 @@ public class HealthControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("GET /api/health returns HTTP 200 with status UP without authentication")
+    @DisplayName("GET / and /api/health return HTTP 200 with status UP without authentication")
     void testHealthEndpoint() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
