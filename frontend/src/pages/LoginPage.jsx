@@ -2,20 +2,54 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/authApi';
+import { checkBackendHealth } from '../api/client';
 import { Alert } from '../components/common/Alert';
-import { Lock, Mail, ArrowRight, Sparkles, Building, GraduationCap } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Sparkles, Building, GraduationCap, RefreshCw, Server } from 'lucide-react';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [testingConn, setTestingConn] = useState(false);
+  const [connResult, setConnResult] = useState(null);
+  const [showEditUrl, setShowEditUrl] = useState(false);
+  const [customUrl, setCustomUrl] = useState('');
+  const activeUrl = typeof window !== 'undefined' ? (window.localStorage?.getItem('kasumio_api_url') || import.meta.env?.VITE_API_BASE_URL || '/api') : '/api';
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/';
+
+  const handleTestConnection = async () => {
+    setTestingConn(true);
+    setConnResult(null);
+    try {
+      const isUp = await checkBackendHealth();
+      if (isUp) {
+        setConnResult({ success: true, message: 'Online & Responding' });
+      } else {
+        setConnResult({ success: false, message: 'Unhealthy response' });
+      }
+    } catch {
+      setConnResult({ success: false, message: 'Unreachable (Server sleeping or URL invalid)' });
+    } finally {
+      setTestingConn(false);
+    }
+  };
+
+  const handleSaveUrl = () => {
+    if (customUrl && customUrl.trim()) {
+      let clean = customUrl.trim().replace(/\/+$/, '');
+      if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+        clean = 'https://' + clean;
+      }
+      localStorage.setItem('kasumio_api_url', clean);
+      window.location.reload();
+    }
+  };
 
   const handleQuickDemo = async (role) => {
     setError(null);
@@ -89,6 +123,66 @@ export const LoginPage = () => {
           </div>
 
           <Alert type="error" message={error} onClose={() => setError(null)} />
+
+          {error && (error.includes('backend server') || error.includes('free-tier') || error.includes('Network Error')) && (
+            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-2xl text-xs space-y-2">
+              <div className="flex items-center justify-between text-amber-900 font-medium">
+                <span className="flex items-center gap-1.5">
+                  <Server className="w-3.5 h-3.5 text-amber-600" />
+                  Target Backend:
+                </span>
+                <code className="bg-amber-100/80 text-amber-900 px-2 py-0.5 rounded font-mono text-[11px] truncate max-w-[200px]" title={activeUrl}>
+                  {activeUrl}
+                </code>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTestConnection}
+                    disabled={testingConn}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-amber-300 text-amber-900 hover:bg-amber-100/50 rounded-lg font-medium transition shadow-2xs"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${testingConn ? 'animate-spin' : ''}`} />
+                    {testingConn ? 'Testing...' : 'Test Connection'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditUrl(!showEditUrl)}
+                    className="text-amber-800 hover:text-amber-950 underline font-medium"
+                  >
+                    {showEditUrl ? 'Cancel' : 'Change URL'}
+                  </button>
+                </div>
+
+                {connResult && (
+                  <span className={`text-[11px] font-semibold ${connResult.success ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    {connResult.message}
+                  </span>
+                )}
+              </div>
+
+              {showEditUrl && (
+                <div className="flex items-center gap-1.5 pt-1.5">
+                  <input
+                    type="text"
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
+                    placeholder="https://kasumio-backend.onrender.com"
+                    className="flex-1 bg-white border border-amber-300 rounded-lg px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveUrl}
+                    className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
