@@ -88,28 +88,33 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        List<String> allowedOrigins = new ArrayList<>(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:5173"
+        List<String> originPatterns = new ArrayList<>(Arrays.asList(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.vercel.app",
+            "https://vercel.app",
+            "https://*.onrender.com"
         ));
         
         String frontendUrl = System.getenv("FRONTEND_URL");
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             for (String origin : frontendUrl.split(",")) {
-                String trimmed = origin.trim();
-                if (!trimmed.isEmpty() && !allowedOrigins.contains(trimmed)) {
-                    allowedOrigins.add(trimmed);
+                String trimmed = origin.trim().replaceAll("/+$", "");
+                if (!trimmed.isEmpty() && !originPatterns.contains(trimmed)) {
+                    originPatterns.add(trimmed);
                 }
             }
+        } else {
+            // Permissive fallback so any frontend deployment connects seamlessly without strict CORS block
+            originPatterns.add("*");
         }
 
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowedOriginPatterns(originPatterns);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
