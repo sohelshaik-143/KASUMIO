@@ -56,6 +56,8 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             )
             .authorizeHttpRequests(auth -> auth
+                // Allow all preflight OPTIONS requests from CORS
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 // Public health check and docs
