@@ -22,16 +22,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Make Maven Wrapper Executable
-        run: chmod +x backend/mvnw
-
       - name: Compile and Run Backend Tests
         working-directory: backend
-        run: ./mvnw clean test -B
+        run: mvn clean test -B
 
       - name: Package Backend Artifact
         working-directory: backend
-        run: ./mvnw package -DskipTests -B
+        run: mvn package -DskipTests -B
 
   frontend-quality-gate:
     name: Frontend Quality & Production Build (React 18 / Vite 5)

@@ -2,6 +2,7 @@
 backend/target/
 *.class
 *.jar
+!**/.mvn/wrapper/*.jar
 *.war
 *.log
 *.iml
