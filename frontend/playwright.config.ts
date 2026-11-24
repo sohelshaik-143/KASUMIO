@@ -9,16 +9,18 @@ export default defineConfig({
   globalTimeout: 30 * 60 * 1000,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 3 : 6,
-  reporter: 'html',
+  workers: 2,
+  reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    viewport: { width: 1366, height: 768 },
   },
-
-
-  // NB: only chromium will run in Docker (arm64).
+  webServer: {
+    command: 'npm run preview -- --port 3000',
+    port: 3000,
+    reuseExistingServer: true,
+    timeout: 120000,
+  },
   projects: [
     {
       name: 'chromium',
