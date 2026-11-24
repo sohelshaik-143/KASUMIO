@@ -34,7 +34,7 @@ public class StudentService {
         this.careerGoalRepository = careerGoalRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public StudentProfileResponse getCurrentProfile() {
         Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
         return mapToResponse(student);
@@ -85,7 +85,7 @@ public class StudentService {
         return mapToResponse(student);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public StudentDashboardResponse getDashboardMetrics() {
         Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
 

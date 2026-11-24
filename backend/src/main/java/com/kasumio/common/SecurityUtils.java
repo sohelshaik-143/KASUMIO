@@ -27,14 +27,19 @@ public final class SecurityUtils {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User account not found"));
     }
 
-    public static Student getCurrentStudent(StudentRepository studentRepository, UserRepository userRepository) {
+    public static synchronized Student getCurrentStudent(StudentRepository studentRepository, UserRepository userRepository) {
         User user = getCurrentUser(userRepository);
         return studentRepository.findByUser(user)
                 .orElseGet(() -> {
-                    Student s = new Student();
-                    s.setUser(user);
-                    s.setFullName(user.getFullName() != null && !user.getFullName().isBlank() ? user.getFullName() : "Student");
-                    return studentRepository.save(s);
+                    try {
+                        Student s = new Student();
+                        s.setUser(user);
+                        s.setFullName(user.getFullName() != null && !user.getFullName().isBlank() ? user.getFullName() : "Student");
+                        return studentRepository.save(s);
+                    } catch (Exception e) {
+                        return studentRepository.findByUser(user)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to initialize student profile"));
+                    }
                 });
     }
 }
