@@ -218,11 +218,11 @@ test.describe('KASUMO Upgrade Verification Suite', () => {
     await page.fill('input[type="email"]', 'student@kasumio.com');
     await page.fill('input[type="password"]', 'password123');
     await page.click('button[type="submit"]');
-    await page.waitForURL('**/');
+    await page.waitForURL('http://localhost:3000/');
 
     // Navigate to student assessments
     await page.goto('/student/assessments');
-    await page.waitForSelector('text=Demonstrate Your Engineering Capability');
+    await page.waitForSelector('text=Demonstrate Your Engineering Capability', { timeout: 10000 });
 
     // Locate the Take Test button
     const takeTestBtn = page.locator('button:has-text("Take Test")').first();
