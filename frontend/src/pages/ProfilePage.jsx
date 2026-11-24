@@ -43,8 +43,12 @@ export const ProfilePage = () => {
       }
     };
 
-    if (!authLoading && user && isStudent) {
-      fetchProfile();
+    if (!authLoading && user) {
+      if (isStudent) {
+        fetchProfile();
+      } else {
+        setLoading(false);
+      }
     } else if (!authLoading && !user) {
       setLoading(false);
     }

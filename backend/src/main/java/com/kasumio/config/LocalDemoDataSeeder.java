@@ -72,6 +72,18 @@ public class LocalDemoDataSeeder implements CommandLineRunner {
             userRepository.save(recruiter);
         }
 
+        // 2b. Recruiter secondary account (TechCorp)
+        if (userRepository.findByEmail("recruiter@techcorp.com").isEmpty()) {
+            User recruiter2 = new User();
+            recruiter2.setEmail("recruiter@techcorp.com");
+            recruiter2.setFullName("Sarah Jenkins");
+            recruiter2.setPasswordHash(passwordEncoder.encode("password123"));
+            recruiter2.setRole(Role.RECRUITER);
+            recruiter2.setStatus(UserStatus.ACTIVE);
+            recruiter2.setOrganization(acme);
+            userRepository.save(recruiter2);
+        }
+
         // 3. Student account
         if (userRepository.findByEmail("student@kasumio.com").isEmpty()) {
             User studentUser = new User();
@@ -89,6 +101,25 @@ public class LocalDemoDataSeeder implements CommandLineRunner {
             student.setUniversity("Berkeley University");
             student.setGraduationYear(2026);
             studentRepository.save(student);
+        }
+
+        // 3b. Student demo account (University)
+        if (userRepository.findByEmail("student@university.edu").isEmpty()) {
+            User student2User = new User();
+            student2User.setEmail("student@university.edu");
+            student2User.setFullName("Shaik Sohel");
+            student2User.setPasswordHash(passwordEncoder.encode("password123"));
+            student2User.setRole(Role.STUDENT);
+            student2User.setStatus(UserStatus.ACTIVE);
+            student2User = userRepository.save(student2User);
+
+            Student student2 = new Student();
+            student2.setUser(student2User);
+            student2.setFullName("Shaik Sohel");
+            student2.setBio("Undergraduate Computer Science & Systems Engineering Student.");
+            student2.setUniversity("RGUKT IIIT");
+            student2.setGraduationYear(2026);
+            studentRepository.save(student2);
         }
     }
 }

@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BarChart3, ArrowRight } from 'lucide-react';
 
 export const RecruiterInsightsCard = ({
-  candidateCount = '2,847',
-  growthPercent = '12%'
+  candidateCount = '0',
+  growthPercent = '0%'
 }) => {
   const navigate = useNavigate();
 

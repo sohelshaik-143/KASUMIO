@@ -72,10 +72,19 @@ export const KasumoSidebar = ({
     { name: 'Help & Support', path: '/recruiter/help', icon: HelpCircle },
   ];
 
-  const navItems = (isRecruiter || isAdmin) ? recruiterNavItems : studentNavItems;
+  const roleUpper = (user?.role || '').toUpperCase();
+  const isRecruiterRole = isRecruiter || roleUpper === 'RECRUITER' || roleUpper === 'ROLE_RECRUITER';
+  const isAdminRole = isAdmin || roleUpper === 'ADMIN' || roleUpper === 'ROLE_ADMIN';
+  const isStudentRole = isStudent || roleUpper === 'STUDENT' || roleUpper === 'ROLE_STUDENT';
 
-  const displayName = user?.fullName || (isStudent ? 'Shaik Sohel' : 'Arjun Reddy');
-  const displayRole = isStudent ? 'Student • E3 • EEE' : (user?.organizationName ? `${user.organizationName} • Recruiter` : 'Tech Recruiter');
+  const navItems = (isRecruiterRole || isAdminRole) ? recruiterNavItems : studentNavItems;
+
+  const displayName = user?.fullName || (isStudentRole ? 'Shaik Sohel' : 'Arjun Reddy');
+  const displayRole = isStudentRole
+    ? 'Student • E3 • EEE'
+    : user?.organizationName
+    ? `${user.organizationName} • Recruiter`
+    : 'Tech Recruiter';
   const avatarUrl = user?.avatarUrl;
 
   return (
@@ -150,7 +159,7 @@ export const KasumoSidebar = ({
         </nav>
 
         {/* Bottom Banner Card */}
-        {isRecruiter || isAdmin ? (
+        {isRecruiterRole || isAdminRole ? (
           /* Recruiter "Hire with Confidence" Card matching Reference Image */
           <div className="px-3.5 mb-3 shrink-0">
             <div className="relative rounded-2xl p-4 bg-gradient-to-b from-[#132347] via-[#0d1831] to-[#0a1122] border border-blue-500/20 overflow-hidden shadow-lg flex items-center justify-between gap-3">
@@ -226,7 +235,7 @@ export const KasumoSidebar = ({
           <div className="flex items-center justify-between gap-2.5">
             <div
               className="flex items-center gap-2.5 min-w-0 cursor-pointer"
-              onClick={() => navigate((isRecruiter || isAdmin) ? '/recruiter/settings' : '/profile')}
+              onClick={() => navigate((isRecruiterRole || isAdminRole) ? '/recruiter/settings' : '/profile')}
             >
               <div className="relative shrink-0">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-white/20">

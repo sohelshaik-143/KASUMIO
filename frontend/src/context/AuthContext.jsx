@@ -69,9 +69,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const isStudent = user?.role === 'STUDENT';
-  const isRecruiter = user?.role === 'RECRUITER';
-  const isAdmin = user?.role === 'ADMIN';
+  const roleUpper = (user?.role || '').toUpperCase();
+  const isStudent = roleUpper === 'STUDENT' || roleUpper === 'ROLE_STUDENT';
+  const isRecruiter = roleUpper === 'RECRUITER' || roleUpper === 'ROLE_RECRUITER';
+  const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'ROLE_ADMIN';
 
   return (
     <AuthContext.Provider

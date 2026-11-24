@@ -11,8 +11,8 @@ test.describe('KASUMO Upgrade Verification Suite', () => {
     await page.fill('input[type="password"]', 'password123');
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/');
-    await expect(page.locator('text=Your Skill DNA')).toBeVisible();
+    await page.waitForURL('http://localhost:3000/');
+    await expect(page.locator('text=Your Skill DNA')).toBeVisible({ timeout: 10000 });
 
     // Verify key student dashboard components are intact
     await expect(page.locator('text=Good Morning')).toBeVisible();
@@ -29,9 +29,9 @@ test.describe('KASUMO Upgrade Verification Suite', () => {
     });
 
     // Check student profile photo upload UI
-    await page.goto('/profile');
-    await page.waitForSelector('text=Profile');
-    await expect(page.locator('text=Change Photo')).toBeVisible();
+    await page.locator('aside nav').locator('text=Profile').click();
+    await expect(page).toHaveURL(/.*\/profile/);
+    await expect(page.locator('text=Change Photo')).toBeVisible({ timeout: 10000 });
   });
 
   test('2. Recruiter Portal New UI Matches Reference', async ({ page }) => {

@@ -19,7 +19,7 @@ export const LoginPage = () => {
   const from = location.state?.from?.pathname || '/';
 
   const handleQuickDemo = async (role) => {
-    const emailToUse = role === 'RECRUITER' ? 'recruiter@techcorp.com' : 'student@university.edu';
+    const emailToUse = role === 'RECRUITER' ? 'recruiter@kasumio.com' : 'student@kasumio.com';
     const demoPassword = 'password123';
 
     try {

@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { KasumoLayout } from './components/layout/KasumoLayout';
@@ -46,6 +46,27 @@ const PageLoader = () => (
   </div>
 );
 
+// Role-aware dispatchers so /profile and /settings cleanly route to the appropriate portal settings
+const ProfileDispatcher = () => {
+  const { user, isRecruiter, isAdmin, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  const roleUpper = (user?.role || '').toUpperCase();
+  if (isRecruiter || isAdmin || roleUpper === 'RECRUITER' || roleUpper === 'ADMIN' || roleUpper === 'ROLE_RECRUITER') {
+    return <Navigate to="/recruiter/settings" replace />;
+  }
+  return <ProfilePage />;
+};
+
+const SettingsDispatcher = () => {
+  const { user, isRecruiter, isAdmin, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  const roleUpper = (user?.role || '').toUpperCase();
+  if (isRecruiter || isAdmin || roleUpper === 'RECRUITER' || roleUpper === 'ADMIN' || roleUpper === 'ROLE_RECRUITER') {
+    return <Navigate to="/recruiter/settings" replace />;
+  }
+  return <Navigate to="/student/settings" replace />;
+};
+
 export function App() {
   return (
     <Router>
@@ -69,6 +90,8 @@ export function App() {
               {/* Shared Protected Routes */}
               <Route path="/" element={<DashboardPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/profile" element={<ProfileDispatcher />} />
+              <Route path="/settings" element={<SettingsDispatcher />} />
 
               {/* Student Protected Routes */}
               <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
@@ -78,7 +101,6 @@ export function App() {
                 <Route path="/student/gaps" element={<GapAnalysisPage />} />
                 <Route path="/student/opportunities" element={<StudentOpportunitiesPage />} />
                 <Route path="/student/connections" element={<StudentConnectionsPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/student/settings" element={<StudentSettingsPage />} />
                 <Route path="/career-goals" element={<CareerGoalsPage />} />
                 <Route path="/evidence" element={<EvidencePage />} />

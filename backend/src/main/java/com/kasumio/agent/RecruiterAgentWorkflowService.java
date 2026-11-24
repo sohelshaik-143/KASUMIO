@@ -230,7 +230,9 @@ public class RecruiterAgentWorkflowService {
         RecruiterAutomationPolicy policy = getOrCreatePolicy(recruiter);
         List<CandidateRecommendation> allRecs = recommendationRepository.findByJobOrderByOverallScoreDesc(job);
 
-        Set<String> approvedAliases = new HashSet<>(request.getApprovedAliases());
+        Set<String> approvedAliases = (request.getApprovedAliases() != null)
+                ? new HashSet<>(request.getApprovedAliases())
+                : new HashSet<>();
         // If approvedAliases is empty, default to approving all currently recommended candidates
         if (approvedAliases.isEmpty()) {
             approvedAliases = allRecs.stream().map(CandidateRecommendation::getCandidateAlias).collect(Collectors.toSet());

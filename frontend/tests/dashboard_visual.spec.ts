@@ -29,7 +29,6 @@ test.describe('KASUMO Dashboard Visual Reference Verification', () => {
     await expect(page.locator('text=My Progress')).toBeVisible();
     await expect(page.locator('text=Quick Actions')).toBeVisible();
     await expect(page.locator('text=Your Recruiter Insights')).toBeVisible();
-    await expect(page.locator('text=2,847')).toBeVisible();
 
     // Take screenshot of the complete dashboard
     await page.screenshot({
