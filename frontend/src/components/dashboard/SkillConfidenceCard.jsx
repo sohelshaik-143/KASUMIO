@@ -1,11 +1,11 @@
 import React from 'react';
-import { Info, TrendingUp } from 'lucide-react';
+import { Info } from 'lucide-react';
 
-export const SkillConfidenceCard = ({ confidenceScore = 87 }) => {
-  // SVG circular arc calculations for r=38
+export const SkillConfidenceCard = ({ confidenceScore = 0 }) => {
+  const isZero = !confidenceScore || confidenceScore === 0;
   const radius = 38;
   const circumference = 2 * Math.PI * radius; // ~238.76
-  const strokeDashoffset = circumference - (confidenceScore / 100) * circumference;
+  const strokeDashoffset = isZero ? circumference : circumference - (confidenceScore / 100) * circumference;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between min-h-[170px]">
@@ -36,7 +36,7 @@ export const SkillConfidenceCard = ({ confidenceScore = 87 }) => {
               cx="45"
               cy="45"
               r={radius}
-              stroke="#10B981"
+              stroke={isZero ? '#CBD5E1' : '#10B981'}
               strokeWidth="7"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
@@ -55,14 +55,18 @@ export const SkillConfidenceCard = ({ confidenceScore = 87 }) => {
 
         {/* Text Metric & Rating */}
         <div className="flex-1 space-y-0.5">
-          <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-            <span>↑ +5%</span>
+          <div className={`inline-flex items-center gap-1 text-[11px] font-bold ${isZero ? 'text-slate-400' : 'text-emerald-600'}`}>
+            <span>{isZero ? 'Baseline: 0%' : '↑ +5%'}</span>
           </div>
-          <h4 className="text-sm font-bold text-emerald-600 leading-tight">
-            Excellent!
+          <h4 className={`text-sm font-bold leading-tight ${isZero ? 'text-slate-700' : 'text-emerald-600'}`}>
+            {isZero ? 'Get Started!' : confidenceScore >= 80 ? 'Excellent!' : 'Good Progress'}
           </h4>
           <p className="text-[11px] text-slate-500 leading-snug">
-            You're in the top 15% of students
+            {isZero
+              ? 'Upload evidence to build skill confidence'
+              : confidenceScore >= 80
+              ? "You're in the top 15% of students"
+              : 'Add more evidence to reach top tier'}
           </p>
         </div>
 
@@ -75,24 +79,35 @@ export const SkillConfidenceCard = ({ confidenceScore = 87 }) => {
                 <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.0" />
               </linearGradient>
             </defs>
-            {/* Gradient fill */}
-            <path
-              d="M0 35 Q 20 28, 35 24 T 60 12 T 80 5 L 80 40 L 0 40 Z"
-              fill="url(#blueSpark)"
-            />
-            {/* Stroke line */}
-            <path
-              d="M0 35 Q 20 28, 35 24 T 60 12 T 80 5"
-              fill="none"
-              stroke="#3B82F6"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-            {/* End point dot */}
-            <circle cx="80" cy="5" r="3" fill="#2563EB" />
+            {isZero ? (
+              <>
+                <line x1="0" y1="36" x2="80" y2="36" stroke="#E2E8F0" strokeWidth="2" strokeDasharray="3 3" />
+                <circle cx="80" cy="36" r="3" fill="#94A3B8" />
+              </>
+            ) : (
+              <>
+                {/* Gradient fill */}
+                <path
+                  d="M0 35 Q 20 28, 35 24 T 60 12 T 80 5 L 80 40 L 0 40 Z"
+                  fill="url(#blueSpark)"
+                />
+                {/* Stroke line */}
+                <path
+                  d="M0 35 Q 20 28, 35 24 T 60 12 T 80 5"
+                  fill="none"
+                  stroke="#3B82F6"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                {/* End point dot */}
+                <circle cx="80" cy="5" r="3" fill="#2563EB" />
+              </>
+            )}
           </svg>
         </div>
       </div>
     </div>
   );
 };
+
+export default SkillConfidenceCard;

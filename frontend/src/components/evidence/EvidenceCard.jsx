@@ -6,7 +6,8 @@ import {
   Edit3, 
   Calendar, 
   Layers, 
-  Clock
+  Clock,
+  Image as ImageIcon
 } from 'lucide-react';
 import { EvidenceLadderBadge } from '../common/EvidenceLadderBadge';
 
@@ -25,6 +26,7 @@ export const EvidenceCard = ({
   });
 
   const level = evidence.verified ? 'VERIFIED' : 'EVIDENCED';
+  const photo = localStorage.getItem(`evidence_photo_${evidence.id}`) || evidence.photoUrl;
 
   return (
     <div className="kasumo-card p-5 sm:p-6 transition flex flex-col justify-between group">
@@ -56,6 +58,22 @@ export const EvidenceCard = ({
         <h3 className="text-base font-bold text-ink mb-2 font-serif tracking-tight">
           {evidence.title}
         </h3>
+
+        {/* Uploaded Photo Preview if available */}
+        {photo && (
+          <div className="mb-3 rounded-xl overflow-hidden border border-paper-border bg-paper-subtle relative max-h-48 group/img">
+            <img
+              src={photo}
+              alt={`Proof artifact for ${evidence.title}`}
+              className="w-full h-36 object-cover object-top transition duration-300 group-hover/img:scale-102"
+              loading="lazy"
+            />
+            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 backdrop-blur-xs text-[10px] text-white font-medium rounded flex items-center gap-1">
+              <ImageIcon className="w-3 h-3" />
+              <span>Verified Artifact Screenshot</span>
+            </div>
+          </div>
+        )}
 
         {/* Description */}
         {evidence.description && (

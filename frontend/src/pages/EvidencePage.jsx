@@ -128,10 +128,17 @@ export const EvidencePage = () => {
 
   const handleFormSubmit = async (payload) => {
     if (editingEvidence) {
-      await evidenceApi.updateEvidence(editingEvidence.id, payload);
+      const res = await evidenceApi.updateEvidence(editingEvidence.id, payload);
+      if (payload.photoUrl) {
+        localStorage.setItem(`evidence_photo_${editingEvidence.id}`, payload.photoUrl);
+      }
       setAlert({ type: 'success', message: 'Evidence record updated.' });
     } else {
-      await evidenceApi.createEvidence(payload);
+      const res = await evidenceApi.createEvidence(payload);
+      const targetId = res?.id;
+      if (payload.photoUrl && targetId) {
+        localStorage.setItem(`evidence_photo_${targetId}`, payload.photoUrl);
+      }
       setAlert({ type: 'success', message: 'New evidence successfully submitted.' });
     }
     await loadData();

@@ -113,7 +113,11 @@ export const DashboardPage = () => {
   };
 
   const handleCreateEvidence = async (evidencePayload) => {
-    await evidenceApi.createEvidence(evidencePayload);
+    const res = await evidenceApi.createEvidence(evidencePayload);
+    const targetId = res?.id;
+    if (evidencePayload.photoUrl && targetId) {
+      localStorage.setItem(`evidence_photo_${targetId}`, evidencePayload.photoUrl);
+    }
     await loadDashboardData();
   };
 

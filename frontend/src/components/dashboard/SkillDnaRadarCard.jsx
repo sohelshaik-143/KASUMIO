@@ -2,22 +2,67 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, ArrowRight } from 'lucide-react';
 
-export const SkillDnaRadarCard = () => {
-  const skillsList = [
-    { name: 'Java', score: 92, color: '#8B5CF6' },
-    { name: 'DSA', score: 88, color: '#3B82F6' },
-    { name: 'System Design', score: 81, color: '#10B981' },
-    { name: 'Database', score: 75, color: '#F59E0B' },
-    { name: 'Backend Development', score: 90, color: '#2563EB' },
+export const SkillDnaRadarCard = ({ evidence = [], skills = [] }) => {
+  const hasEvidence = evidence.length > 0;
+
+  // 5 standard core skills matching reference
+  const baseSkills = [
+    { name: 'Java', color: '#8B5CF6' },
+    { name: 'DSA', color: '#3B82F6' },
+    { name: 'System Design', color: '#10B981' },
+    { name: 'Database', color: '#F59E0B' },
+    { name: 'Backend Development', color: '#2563EB' },
   ];
 
-  // 5 Radar Vertices calculation around center (100, 100) with radius 70:
-  // Angles:
-  // 0: Java (top: -90 deg -> 100, 30)
-  // 1: DSA (top-right: -18 deg -> 166.5, 78.4)
-  // 2: System Design (bottom-right: 54 deg -> 141.1, 156.6)
-  // 3: Database (bottom-left: 126 deg -> 58.9, 156.6)
-  // 4: Backend (top-left: 198 deg -> 33.5, 78.4)
+  // Dynamically compute scores from user's actual uploaded evidence
+  const skillsList = baseSkills.map((base) => {
+    if (!hasEvidence) {
+      return { ...base, score: 0 };
+    }
+
+    // Find evidence matching this skill
+    const matching = evidence.filter((e) => {
+      const sName = (e.skillName || '').toLowerCase();
+      const title = (e.title || '').toLowerCase();
+      const bName = base.name.toLowerCase();
+      return sName.includes(bName) || title.includes(bName) || (bName === 'database' && (sName.includes('sql') || title.includes('sql')));
+    });
+
+    if (matching.length === 0) {
+      // If user has other uploaded evidence, assign modest baseline proportional to total evidence
+      return { ...base, score: Math.min(35, evidence.length * 10) };
+    }
+
+    const verifiedCount = matching.filter((e) => e.verified).length;
+    const totalCount = matching.length;
+    const calculatedScore = Math.min(100, 40 + verifiedCount * 30 + totalCount * 20);
+    return { ...base, score: calculatedScore };
+  });
+
+  // Calculate polygon points dynamically:
+  // Center is (100, 100), max radius is 70
+  // Angles: Java (-90°), DSA (-18°), System Design (54°), Database (126°), Backend (198°)
+  const polygonPoints = skillsList
+    .map((skill, i) => {
+      const angleDeg = -90 + i * 72;
+      const angleRad = (angleDeg * Math.PI) / 180;
+      const radius = (skill.score / 100) * 70;
+      const x = (100 + radius * Math.cos(angleRad)).toFixed(1);
+      const y = (100 + radius * Math.sin(angleRad)).toFixed(1);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  const vertices = skillsList.map((skill, i) => {
+    const angleDeg = -90 + i * 72;
+    const angleRad = (angleDeg * Math.PI) / 180;
+    const radius = (skill.score / 100) * 70;
+    return {
+      cx: (100 + radius * Math.cos(angleRad)).toFixed(1),
+      cy: (100 + radius * Math.sin(angleRad)).toFixed(1),
+      score: skill.score,
+    };
+  });
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between">
@@ -33,7 +78,7 @@ export const SkillDnaRadarCard = () => {
         </div>
 
         <Link
-          to="/student/intelligence"
+          to="/evidence"
           className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition"
         >
           <span>View Details</span>
@@ -58,21 +103,24 @@ export const SkillDnaRadarCard = () => {
             <line x1="100" y1="100" x2="58.9" y2="156.6" stroke="#E2E8F0" strokeWidth="1" />
             <line x1="100" y1="100" x2="33.5" y2="78.4" stroke="#E2E8F0" strokeWidth="1" />
 
-            {/* Plotted Skill Data Polygon: Java: 92%, DSA: 88%, System Design: 81%, Database: 75%, Backend: 90% */}
-            <polygon
-              points="100,35.6 158.5,81.0 133.3,145.8 69.2,142.4 40.2,80.5"
-              fill="#8B5CF6"
-              fillOpacity="0.2"
-              stroke="#6366F1"
-              strokeWidth="2"
-            />
-
-            {/* Vertices Dots */}
-            <circle cx="100" cy="35.6" r="3" fill="#6366F1" />
-            <circle cx="158.5" cy="81.0" r="3" fill="#6366F1" />
-            <circle cx="133.3" cy="145.8" r="3" fill="#6366F1" />
-            <circle cx="69.2" cy="142.4" r="3" fill="#6366F1" />
-            <circle cx="40.2" cy="80.5" r="3" fill="#6366F1" />
+            {/* Plotted Skill Data Polygon */}
+            {hasEvidence ? (
+              <>
+                <polygon
+                  points={polygonPoints}
+                  fill="#8B5CF6"
+                  fillOpacity="0.2"
+                  stroke="#6366F1"
+                  strokeWidth="2"
+                  className="transition-all duration-700"
+                />
+                {vertices.map((v, i) => (
+                  <circle key={i} cx={v.cx} cy={v.cy} r="3" fill="#6366F1" />
+                ))}
+              </>
+            ) : (
+              <circle cx="100" cy="100" r="3.5" fill="#94A3B8" />
+            )}
 
             {/* Outer Labels */}
             <text x="100" y="20" textAnchor="middle" className="text-[10px] font-bold fill-slate-700">Java</text>
@@ -109,3 +157,5 @@ export const SkillDnaRadarCard = () => {
     </div>
   );
 };
+
+export default SkillDnaRadarCard;

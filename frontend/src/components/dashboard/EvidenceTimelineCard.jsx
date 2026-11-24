@@ -1,49 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, ArrowRight, Check, Code2 } from 'lucide-react';
+import { Clock, ArrowRight, Check, Code2, PlusCircle, Image as ImageIcon } from 'lucide-react';
 
-export const EvidenceTimelineCard = ({ evidence = [] }) => {
-  // Use actual verified evidence if available, with full fidelity reference fallbacks
-  const defaultItems = [
-    {
-      id: 'item-1',
-      title: 'Java Backend Project',
-      type: 'GitHub Repository Verified',
-      time: '2 days ago',
-      iconType: 'github',
-      dotColor: '#8B5CF6'
-    },
-    {
-      id: 'item-2',
-      title: 'DSA Mastery (100 Problems)',
-      type: 'Assessment Completed',
-      time: '1 week ago',
-      iconType: 'check',
-      dotColor: '#10B981'
-    },
-    {
-      id: 'item-3',
-      title: 'System Design Project',
-      type: 'Project Added',
-      time: '2 weeks ago',
-      iconType: 'code',
-      dotColor: '#3B82F6'
+export const EvidenceTimelineCard = ({ evidence = [], onAddEvidence }) => {
+  const hasEvidence = evidence.length > 0;
+
+  // Format relative timestamp from created date
+  const getRelativeTime = (dateStr, idx) => {
+    if (!dateStr) {
+      return idx === 0 ? 'Recently' : `${idx + 1} days ago`;
     }
-  ];
+    const diffDays = Math.floor((new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return `${Math.floor(diffDays / 7)} weeks ago`;
+  };
 
-  const displayItems = evidence.length > 0
-    ? evidence.slice(0, 3).map((e, idx) => ({
-        id: e.id,
-        title: e.title,
-        type: e.verified ? 'Institutional Verified' : 'Evidence Submitted',
-        time: idx === 0 ? '2 days ago' : idx === 1 ? '1 week ago' : '2 weeks ago',
-        iconType: e.verified ? 'check' : 'code',
-        dotColor: e.verified ? '#10B981' : '#3B82F6'
-      }))
-    : defaultItems;
+  const displayItems = evidence.slice(0, 3).map((e, idx) => {
+    const photo = localStorage.getItem(`evidence_photo_${e.id}`) || e.photoUrl;
+    return {
+      id: e.id,
+      title: e.title,
+      type: e.verified ? 'Institutional Verified' : `${e.evidenceType || 'Project'} Evidence Submitted`,
+      time: getRelativeTime(e.createdAt, idx),
+      iconType: e.verified ? 'check' : 'code',
+      dotColor: e.verified ? '#10B981' : '#3B82F6',
+      photo,
+    };
+  });
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between">
+    <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between min-h-[260px]">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
@@ -64,47 +52,83 @@ export const EvidenceTimelineCard = ({ evidence = [] }) => {
         </Link>
       </div>
 
-      {/* Timeline Items */}
-      <div className="space-y-4 pt-3 relative">
-        {/* Continuous Connecting Line */}
-        <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-slate-200" />
-
-        {displayItems.map((item) => (
-          <div key={item.id} className="relative flex items-center justify-between gap-3 z-10">
-            <div className="flex items-center gap-3">
-              {/* Icon Circle */}
-              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-2xs"
-                   style={{
-                     backgroundColor: item.iconType === 'github' ? '#0F172A' : item.iconType === 'check' ? '#10B981' : '#EFF6FF',
-                     color: item.iconType === 'github' || item.iconType === 'check' ? '#FFFFFF' : '#2563EB'
-                   }}>
-                {item.iconType === 'github' && (
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                  </svg>
-                )}
-                {item.iconType === 'check' && <Check className="w-4 h-4 stroke-[3]" />}
-                {item.iconType === 'code' && <Code2 className="w-4 h-4" />}
-              </div>
-
-              {/* Title & Subtitle */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-900 leading-tight">
-                  {item.title}
-                </h4>
-                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                  {item.type}
-                </p>
-              </div>
-            </div>
-
-            {/* Time Stamp */}
-            <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">
-              {item.time}
-            </span>
+      {/* Main Content */}
+      {!hasEvidence ? (
+        <div className="py-6 flex flex-col items-center justify-center text-center space-y-3 my-auto">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-blue-600 flex items-center justify-center border border-blue-100">
+            <PlusCircle className="w-6 h-6" />
           </div>
-        ))}
-      </div>
+          <div className="space-y-1 max-w-[240px]">
+            <h4 className="text-xs font-bold text-slate-800">No Evidence Uploaded Yet</h4>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Add your first project or credential to build your verified timeline.
+            </p>
+          </div>
+          <Link
+            to="/evidence"
+            className="inline-flex items-center gap-1 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition"
+          >
+            <span>Upload Evidence</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3.5 pt-3 relative">
+          {/* Continuous Connecting Line */}
+          <div className="absolute left-[18px] top-6 bottom-6 w-0.5 bg-slate-200" />
+
+          {displayItems.map((item) => (
+            <div key={item.id} className="relative flex items-center justify-between gap-3 z-10">
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Thumbnail Photo or Icon Circle */}
+                {item.photo ? (
+                  <div className="relative w-9 h-9 shrink-0">
+                    <img
+                      src={item.photo}
+                      alt={item.title}
+                      className="w-9 h-9 rounded-lg object-cover border border-slate-200 shadow-2xs"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                      <Check className="w-2 h-2 text-white stroke-[3]" />
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-2xs"
+                    style={{
+                      backgroundColor: item.iconType === 'check' ? '#10B981' : '#EFF6FF',
+                      color: item.iconType === 'check' ? '#FFFFFF' : '#2563EB',
+                    }}
+                  >
+                    {item.iconType === 'check' ? (
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    ) : (
+                      <Code2 className="w-4 h-4" />
+                    )}
+                  </div>
+                )}
+
+                {/* Title & Subtitle */}
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-slate-900 leading-tight truncate">
+                    {item.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 leading-snug mt-0.5 truncate">
+                    {item.type}
+                  </p>
+                </div>
+              </div>
+
+              {/* Time Stamp */}
+              <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap shrink-0">
+                {item.time}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
+
+export default EvidenceTimelineCard;

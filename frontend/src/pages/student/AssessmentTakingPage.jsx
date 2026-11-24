@@ -53,6 +53,13 @@ export const AssessmentTakingPage = () => {
   const [largeChangesCount, setLargeChangesCount] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const previousCodeLengthRef = React.useRef(0);
+  const proctorVideoRef = React.useRef(null);
+
+  useEffect(() => {
+    if (proctorVideoRef.current && window.__proctorWebcamStream) {
+      proctorVideoRef.current.srcObject = window.__proctorWebcamStream;
+    }
+  }, [loadingQuestion]);
 
   useEffect(() => {
     const handleBlur = () => {
@@ -302,6 +309,32 @@ export const AssessmentTakingPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Live Proctored Feed Badge */}
+          <div className="flex items-center gap-2 bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-700">
+            {window.__proctorWebcamStream ? (
+              <video
+                ref={proctorVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-10 h-8 rounded object-cover bg-black border border-slate-600"
+              />
+            ) : (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+            )}
+            <div className="text-left">
+              <span className="text-[10px] font-bold text-emerald-400 block uppercase tracking-wider leading-none">
+                Live Proctored
+              </span>
+              <span className="text-[9px] text-slate-400 block leading-tight">
+                Cam & Screen Recorded
+              </span>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={handleAgentAutoSolve}

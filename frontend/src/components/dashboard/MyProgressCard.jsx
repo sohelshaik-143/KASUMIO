@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { Trophy, ArrowRight, Package, CheckCircle2, Users, Star, Target } from 'lucide-react';
 
 export const MyProgressCard = ({
-  projectsCount = 12,
-  assessmentsCount = 8,
-  connectionsCount = 25,
-  certificatesCount = 3,
-  learningGoalProgress = 70
+  projectsCount = 0,
+  assessmentsCount = 0,
+  connectionsCount = 0,
+  certificatesCount = 0,
+  learningGoalProgress = 0,
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between">
@@ -65,7 +65,7 @@ export const MyProgressCard = ({
             <Users className="w-3.5 h-3.5" />
           </div>
           <div className="text-sm font-extrabold text-slate-900 leading-none">
-            {connectionsCount}+
+            {connectionsCount > 0 ? `${connectionsCount}+` : '0'}
           </div>
           <div className="text-[10px] font-semibold text-slate-500 leading-none">
             Connections
@@ -98,7 +98,9 @@ export const MyProgressCard = ({
           </span>
         </div>
         <p className="text-[11px] text-slate-500 font-medium truncate">
-          Complete Advanced Java & System Design
+          {learningGoalProgress > 0
+            ? 'Complete Advanced Java & System Design'
+            : 'Upload evidence to activate your learning goals'}
         </p>
         <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div
@@ -110,3 +112,5 @@ export const MyProgressCard = ({
     </div>
   );
 };
+
+export default MyProgressCard;

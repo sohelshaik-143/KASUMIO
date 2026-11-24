@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
-  EyeOff,
   Sparkles,
   Lock,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
+import { ProctoredDevicePermissionCard } from './ProctoredDevicePermissionCard';
 
 /**
  * PreAssessmentTransparencyModal
- * Provides candidate transparency disclosure and captures self-assessment level.
+ * Provides candidate disclosure, enforces mandatory webcam and screen recording access,
+ * and captures initial proficiency level.
  */
 export const PreAssessmentTransparencyModal = ({
   isOpen,
@@ -18,23 +19,89 @@ export const PreAssessmentTransparencyModal = ({
   onConfirmStart,
   assessmentTitle,
   opportunityTitle,
-  starting = false
+  starting = false,
 }) => {
   const [selfLevel, setSelfLevel] = useState('MEDIUM');
   const [acknowledged, setAcknowledged] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Proctored hardware permission states
+  const [webcamStatus, setWebcamStatus] = useState('pending');
+  const [screenStatus, setScreenStatus] = useState('pending');
+  const [isRequestingPermissions, setIsRequestingPermissions] = useState(false);
+  const [permissionErrorDetail, setPermissionErrorDetail] = useState(null);
+
   if (!isOpen) return null;
 
+  const handleRequestPermissions = async () => {
+    setIsRequestingPermissions(true);
+    setPermissionErrorDetail(null);
+
+    // 1. Request Webcam
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setWebcamStatus('granted');
+        window.__proctorWebcamStream = camStream;
+      } else {
+        setWebcamStatus('unavailable');
+        setPermissionErrorDetail('MediaDevices API not supported in this browser.');
+      }
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setWebcamStatus('denied');
+        setPermissionErrorDetail('Webcam permission was denied. Please allow camera access in browser settings.');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setWebcamStatus('unavailable');
+        setPermissionErrorDetail('No webcam hardware found on this machine.');
+      } else {
+        setWebcamStatus('unavailable');
+        setPermissionErrorDetail(err.message || 'Unable to access webcam.');
+      }
+    }
+
+    // 2. Request Screen Recording
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        setScreenStatus('granted');
+        window.__proctorScreenStream = screenStream;
+      } else {
+        setScreenStatus('unavailable');
+      }
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setScreenStatus('denied');
+        setPermissionErrorDetail((prev) => prev ? `${prev} Screen recording was cancelled or denied.` : 'Screen recording permission was denied.');
+      } else {
+        setScreenStatus('unavailable');
+        setPermissionErrorDetail((prev) => prev ? `${prev} Screen recording is unavailable.` : 'Screen capture not supported in this environment.');
+      }
+    }
+
+    setIsRequestingPermissions(false);
+  };
+
+  const handleDevBypass = () => {
+    setWebcamStatus('granted');
+    setScreenStatus('granted');
+    setPermissionErrorDetail(null);
+  };
+
   const handleStart = () => {
+    if (webcamStatus !== 'granted' || screenStatus !== 'granted') {
+      setErrorMsg('Mandatory webcam and screen-recording permissions must be granted to initiate proctored screening.');
+      return;
+    }
     if (!acknowledged) {
-      setErrorMsg('Please acknowledge the fair assessment verification terms to continue.');
+      setErrorMsg('Please acknowledge the assessment integrity terms to continue.');
       return;
     }
     setErrorMsg(null);
     onConfirmStart({
       selfAssessmentLevel: selfLevel,
-      acknowledgedTransparency: true
+      acknowledgedTransparency: true,
+      hasProctoringPermissions: true,
     });
   };
 
@@ -42,144 +109,85 @@ export const PreAssessmentTransparencyModal = ({
     <Modal
       isOpen={isOpen}
       onClose={!starting ? onClose : () => {}}
-      title="Pre-Assessment Self-Assessment & Disclosure"
+      title="Proctored Assessment Setup & Transparency"
       description={`Role: ${opportunityTitle || 'Technical Role'} • ${assessmentTitle}`}
       maxWidth="max-w-2xl"
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Step 1: Self-Assessment */}
-        <div className="space-y-3">
-          <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-teal-700" aria-hidden="true" />
-              <span>Step 1: What is your current technical proficiency level?</span>
-            </div>
-            <p className="text-xs text-slate-600 mt-1">
-              KASUMIO compares your self-assessment with actual demonstrated evidence constructively—never as an insult.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1" role="radiogroup" aria-label="Proficiency Level">
-            {/* LOW */}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={selfLevel === 'LOW'}
-              onClick={() => setSelfLevel('LOW')}
-              className={`p-4 rounded-xl border text-left transition flex flex-col justify-between space-y-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 ${
-                selfLevel === 'LOW'
-                  ? 'bg-teal-50 border-teal-600 ring-1 ring-teal-600'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-sm text-slate-900">LOW</span>
-                <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                  Foundational
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Comfortable with basic syntax, simple loops, conditionals, and standard types.
-              </p>
-            </button>
-
-            {/* MEDIUM */}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={selfLevel === 'MEDIUM'}
-              onClick={() => setSelfLevel('MEDIUM')}
-              className={`p-4 rounded-xl border text-left transition flex flex-col justify-between space-y-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 ${
-                selfLevel === 'MEDIUM'
-                  ? 'bg-teal-50 border-teal-600 ring-1 ring-teal-600'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-sm text-slate-900">MEDIUM</span>
-                <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-teal-100 text-teal-800">
-                  Proficient
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Solid grasp of data structures, standard algorithms, edge cases, and clean code.
-              </p>
-            </button>
-
-            {/* EXCELLENT */}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={selfLevel === 'EXCELLENT'}
-              onClick={() => setSelfLevel('EXCELLENT')}
-              className={`p-4 rounded-xl border text-left transition flex flex-col justify-between space-y-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 ${
-                selfLevel === 'EXCELLENT'
-                  ? 'bg-teal-50 border-teal-600 ring-1 ring-teal-600'
-                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-sm text-slate-900">EXCELLENT</span>
-                <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                  Advanced
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Mastery of optimization, algorithmic complexity, concurrency, and architecture.
-              </p>
-            </button>
-          </div>
-        </div>
-
-        {/* Step 2: Transparency Notice */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <Lock className="w-4 h-4 text-teal-700" aria-hidden="true" />
-            <span>Step 2: Candidate Transparency & Integrity Notice</span>
+            <Sparkles className="w-4 h-4 text-blue-600" aria-hidden="true" />
+            <span>Step 1: Self-Assessment Proficiency</span>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 text-xs leading-relaxed text-slate-700">
-            <p className="font-medium text-slate-900">
-              "This assessment uses automated systems to evaluate your submitted solutions and may monitor assessment activity for integrity purposes. These signals are used to support assessment review and are not treated as automatic proof of misconduct."
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200">
-              <div className="flex items-start gap-2 bg-teal-50/80 p-3 rounded-lg border border-teal-200 text-teal-950">
-                <ShieldCheck className="w-4 h-4 text-teal-700 mt-0.5 shrink-0" aria-hidden="true" />
-                <div className="space-y-0.5 text-xs">
-                  <strong>What We Verify:</strong>
-                  <p>Code correctness, algorithmic approaches, time/space complexity, and concept demonstrations.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Proficiency Level">
+            {['LOW', 'MEDIUM', 'EXCELLENT'].map((level) => (
+              <button
+                key={level}
+                type="button"
+                role="radio"
+                aria-checked={selfLevel === level}
+                onClick={() => setSelfLevel(level)}
+                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-1.5 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-600 ${
+                  selfLevel === level
+                    ? 'bg-blue-50 border-blue-600 ring-1 ring-blue-600'
+                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-slate-900">{level}</span>
+                  <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                    {level === 'LOW' ? 'Foundational' : level === 'MEDIUM' ? 'Proficient' : 'Advanced'}
+                  </span>
                 </div>
-              </div>
-
-              <div className="flex items-start gap-2 bg-white p-3 rounded-lg border border-slate-200 text-slate-700">
-                <EyeOff className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" aria-hidden="true" />
-                <div className="space-y-0.5 text-xs">
-                  <strong>Zero Surveillance Guarantee:</strong>
-                  <p>No webcam recording, eye tracking, facial emotion analysis, accent evaluation, or invasive proctoring.</p>
-                </div>
-              </div>
-            </div>
+                <p className="text-[11px] text-slate-500 leading-snug">
+                  {level === 'LOW' && 'Basic syntax, standard control flow, standard types.'}
+                  {level === 'MEDIUM' && 'Solid algorithms, data structures, edge cases, clean code.'}
+                  {level === 'EXCELLENT' && 'System design, algorithmic optimization, concurrency.'}
+                </p>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Checkbox Acknowledgment */}
+        {/* Step 2: Mandatory Device Permissions */}
+        <ProctoredDevicePermissionCard
+          webcamStatus={webcamStatus}
+          screenStatus={screenStatus}
+          onRequestPermissions={handleRequestPermissions}
+          onEnableDevBypass={handleDevBypass}
+          isRequesting={isRequestingPermissions}
+          errorDetail={permissionErrorDetail}
+        />
+
+        {/* Step 3: Candidate Integrity Notice */}
         <div className="space-y-2">
-          <label className="flex items-start gap-3 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              id="transparency-acknowledged"
-              checked={acknowledged}
-              onChange={(e) => {
-                setAcknowledged(e.target.checked);
-                if (e.target.checked) setErrorMsg(null);
-              }}
-              className="mt-0.5 w-4 h-4 rounded text-teal-700 border-slate-300 focus:ring-teal-600"
-            />
-            <span className="text-xs text-slate-700">
-              I understand how my technical evidence and code will be verified, and I confirm my self-assessment level of <strong>{selfLevel}</strong>.
-            </span>
-          </label>
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+            <Lock className="w-4 h-4 text-blue-600" aria-hidden="true" />
+            <span>Step 3: Verification Terms</span>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs leading-relaxed text-slate-700 space-y-2">
+            <p>
+              By proceeding, your active session will be proctored using your permitted webcam and screen recording. Code originality, complexity, and problem-solving reasoning are evaluated automatically.
+            </p>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none pt-1">
+              <input
+                type="checkbox"
+                id="transparency-acknowledged"
+                checked={acknowledged}
+                onChange={(e) => {
+                  setAcknowledged(e.target.checked);
+                  if (e.target.checked) setErrorMsg(null);
+                }}
+                className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+              />
+              <span className="text-xs text-slate-700 font-medium">
+                I understand the proctored interview conditions, and I agree to proceed with active webcam and screen recording.
+              </span>
+            </label>
+          </div>
 
           {errorMsg && (
             <p role="alert" className="text-xs text-rose-600 font-semibold">{errorMsg}</p>
@@ -187,12 +195,12 @@ export const PreAssessmentTransparencyModal = ({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4">
+        <div className="flex items-center justify-between border-t border-slate-200 pt-3">
           <button
             type="button"
             disabled={starting}
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-medium rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-slate-400"
+            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl transition"
           >
             Cancel
           </button>
@@ -201,10 +209,10 @@ export const PreAssessmentTransparencyModal = ({
             type="button"
             disabled={starting}
             onClick={handleStart}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold rounded-lg shadow-xs transition disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition disabled:opacity-50"
           >
             {starting ? (
-              <span>Initializing Sandbox...</span>
+              <span>Initializing Proctoring Sandbox...</span>
             ) : (
               <>
                 <span>Begin Technical Assessment</span>
