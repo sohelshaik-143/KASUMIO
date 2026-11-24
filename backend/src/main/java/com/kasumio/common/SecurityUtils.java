@@ -30,6 +30,11 @@ public final class SecurityUtils {
     public static Student getCurrentStudent(StudentRepository studentRepository, UserRepository userRepository) {
         User user = getCurrentUser(userRepository);
         return studentRepository.findByUser(user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Student profile does not exist for this account"));
+                .orElseGet(() -> {
+                    Student s = new Student();
+                    s.setUser(user);
+                    s.setFullName(user.getFullName() != null && !user.getFullName().isBlank() ? user.getFullName() : "Student");
+                    return studentRepository.save(s);
+                });
     }
 }

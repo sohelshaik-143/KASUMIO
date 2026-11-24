@@ -1,11 +1,5 @@
 package com.kasumio.config;
 
-import com.kasumio.organization.Organization;
-import com.kasumio.organization.OrganizationApprovalStatus;
-import com.kasumio.organization.OrganizationRepository;
-import com.kasumio.organization.OrganizationType;
-import com.kasumio.student.Student;
-import com.kasumio.student.StudentRepository;
 import com.kasumio.user.Role;
 import com.kasumio.user.User;
 import com.kasumio.user.UserRepository;
@@ -16,110 +10,55 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * Seeds demo accounts and sample organization when running under the "local" profile.
+ * Clean data initializer: provides base login accounts with ZERO predefined mock data.
+ * No dummy candidates, opportunities, assessments, or evidence are seeded.
  */
 @Component
 @Profile("local")
 public class LocalDemoDataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final OrganizationRepository organizationRepository;
     private final PasswordEncoder passwordEncoder;
 
     public LocalDemoDataSeeder(UserRepository userRepository,
-                               StudentRepository studentRepository,
-                               OrganizationRepository organizationRepository,
                                PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.studentRepository = studentRepository;
-        this.organizationRepository = organizationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        Organization acme = organizationRepository.findByNameIgnoreCase("Acme Engineering")
-                .orElseGet(() -> {
-                    Organization org = new Organization();
-                    org.setName("Acme Engineering");
-                    org.setType(OrganizationType.COMPANY);
-                    org.setWebsite("https://acme.example.com");
-                    org.setApprovalStatus(OrganizationApprovalStatus.APPROVED);
-                    return organizationRepository.save(org);
-                });
-
-        // 1. Admin account
+        // 1. Clean admin account
         if (userRepository.findByEmail("admin@kasumio.com").isEmpty()) {
             User admin = new User();
             admin.setEmail("admin@kasumio.com");
+            admin.setFullName("Administrator");
             admin.setPasswordHash(passwordEncoder.encode("password123"));
             admin.setRole(Role.ADMIN);
             admin.setStatus(UserStatus.ACTIVE);
-            admin.setOrganization(acme);
             userRepository.save(admin);
         }
 
-        // 2. Recruiter account
+        // 2. Clean recruiter account - 0 opportunities, 0 candidates
         if (userRepository.findByEmail("recruiter@kasumio.com").isEmpty()) {
             User recruiter = new User();
             recruiter.setEmail("recruiter@kasumio.com");
-            recruiter.setFullName("Arjun Reddy");
+            recruiter.setFullName("Recruiter");
             recruiter.setPasswordHash(passwordEncoder.encode("password123"));
             recruiter.setRole(Role.RECRUITER);
             recruiter.setStatus(UserStatus.ACTIVE);
-            recruiter.setOrganization(acme);
             userRepository.save(recruiter);
         }
 
-        // 2b. Recruiter secondary account (TechCorp)
-        if (userRepository.findByEmail("recruiter@techcorp.com").isEmpty()) {
-            User recruiter2 = new User();
-            recruiter2.setEmail("recruiter@techcorp.com");
-            recruiter2.setFullName("Sarah Jenkins");
-            recruiter2.setPasswordHash(passwordEncoder.encode("password123"));
-            recruiter2.setRole(Role.RECRUITER);
-            recruiter2.setStatus(UserStatus.ACTIVE);
-            recruiter2.setOrganization(acme);
-            userRepository.save(recruiter2);
-        }
-
-        // 3. Student account
+        // 3. Clean student account - 0 evidence, 0 dummy data
         if (userRepository.findByEmail("student@kasumio.com").isEmpty()) {
             User studentUser = new User();
             studentUser.setEmail("student@kasumio.com");
-            studentUser.setFullName("Alex Rivera");
+            studentUser.setFullName("Student");
             studentUser.setPasswordHash(passwordEncoder.encode("password123"));
             studentUser.setRole(Role.STUDENT);
             studentUser.setStatus(UserStatus.ACTIVE);
-            studentUser = userRepository.save(studentUser);
-
-            Student student = new Student();
-            student.setUser(studentUser);
-            student.setFullName("Alex Rivera");
-            student.setBio("Software Engineering Student focusing on Distributed Systems and Full-Stack Engineering.");
-            student.setUniversity("Berkeley University");
-            student.setGraduationYear(2026);
-            studentRepository.save(student);
-        }
-
-        // 3b. Student demo account (University)
-        if (userRepository.findByEmail("student@university.edu").isEmpty()) {
-            User student2User = new User();
-            student2User.setEmail("student@university.edu");
-            student2User.setFullName("Shaik Sohel");
-            student2User.setPasswordHash(passwordEncoder.encode("password123"));
-            student2User.setRole(Role.STUDENT);
-            student2User.setStatus(UserStatus.ACTIVE);
-            student2User = userRepository.save(student2User);
-
-            Student student2 = new Student();
-            student2.setUser(student2User);
-            student2.setFullName("Shaik Sohel");
-            student2.setBio("Undergraduate Computer Science & Systems Engineering Student.");
-            student2.setUniversity("RGUKT IIIT");
-            student2.setGraduationYear(2026);
-            studentRepository.save(student2);
+            userRepository.save(studentUser);
         }
     }
 }

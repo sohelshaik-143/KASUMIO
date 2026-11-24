@@ -35,7 +35,7 @@ export const LoginPage = () => {
           password: demoPassword,
           role: role,
           fullName: role === 'RECRUITER' ? 'Recruiter Demo' : 'Student Demo',
-          organizationName: role === 'RECRUITER' ? 'TechCorp Solutions' : undefined,
+          organizationName: role === 'RECRUITER' ? (user?.organizationName || undefined) : undefined,
           university: role === 'STUDENT' ? 'State University' : undefined,
         });
         await login(emailToUse, demoPassword);

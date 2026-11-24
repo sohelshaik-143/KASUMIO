@@ -43,6 +43,7 @@ public class StudentService {
     @Transactional(readOnly = true)
     public java.util.List<StudentProfileResponse> getAllCandidates() {
         return studentRepository.findAll().stream()
+                .filter(s -> s.getFullName() != null && !s.getFullName().trim().isEmpty() && !s.getFullName().equalsIgnoreCase("Student") && (s.getBio() != null || s.getUniversity() != null))
                 .map(this::mapToResponse)
                 .collect(java.util.stream.Collectors.toList());
     }

@@ -8,7 +8,7 @@ export const RecruiterSettingsPage = () => {
   const { user, refreshUser } = useAuth();
   const fileInputRef = useRef(null);
 
-  const [fullName, setFullName] = useState(user?.fullName || 'Arjun Reddy');
+  const [fullName, setFullName] = useState(user?.fullName || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
   const [jobTitle, setJobTitle] = useState('Lead Technical Recruiter');
   const [saving, setSaving] = useState(false);

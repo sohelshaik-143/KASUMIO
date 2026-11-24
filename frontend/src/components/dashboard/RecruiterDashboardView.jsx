@@ -30,7 +30,7 @@ export const RecruiterDashboardView = ({
   const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days');
   const [invitedCandidateId, setInvitedCandidateId] = useState(null);
 
-  const recruiterName = user?.fullName || 'Arjun';
+  const recruiterName = user?.fullName || 'Recruiter';
   const firstName = recruiterName.split(' ')[0];
 
   // Derive dynamic shortlisted count from localStorage

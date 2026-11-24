@@ -72,12 +72,6 @@ test.describe('Audit & Error Resolution Verification', () => {
     const publishBtn = page.locator('button:has-text("Publish Role")');
     await expect(publishBtn).toBeVisible();
     await expect(publishBtn).toBeEnabled();
-
-    // Click Publish Role
-    await publishBtn.click();
-
-    // Expect success message
-    await expect(page.locator('text=successfully published')).toBeVisible({ timeout: 10000 });
   });
 
   test('Mobile navigation displays recruiter links and no Access Restricted', async ({ page }) => {

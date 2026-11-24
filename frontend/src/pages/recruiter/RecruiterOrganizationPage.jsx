@@ -6,7 +6,7 @@ import { Alert } from '../../components/common/Alert';
 
 export const RecruiterOrganizationPage = () => {
   const { user } = useAuth();
-  const [orgName, setOrgName] = useState(user?.organizationName || 'Acme Engineering');
+  const [orgName, setOrgName] = useState(user?.organizationName || '');
   const [website, setWebsite] = useState('https://acme.example.com');
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState({ type: null, message: null });

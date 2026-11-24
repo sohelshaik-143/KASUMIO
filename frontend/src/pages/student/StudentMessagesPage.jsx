@@ -62,26 +62,6 @@ export const StudentMessagesPage = () => {
         }
       });
 
-      // Also check if there are recruiter threads where candidateName matches or is demo
-      try {
-        const recThreads = JSON.parse(localStorage.getItem('kasumo_recruiter_threads') || '[]');
-        if (recThreads.length > 0 && conns.length === 0) {
-          // If no formal connection API items yet but recruiter threads exist in local demo
-          const synthetic = recThreads.map((t, idx) => ({
-            id: 'rt-' + (t.id || idx),
-            recruiterName: t.recruiterName || 'Talent Acquisition Team',
-            organizationName: t.organizationName || 'Hiring Partner',
-            opportunityTitle: t.roleTitle || 'Open Opportunity',
-            status: 'CONNECTED',
-            requestNote: t.messages?.[0]?.text || 'Hello! We reviewed your verifiable project evidence and would like to connect.'
-          }));
-          setConnections(synthetic);
-          synthetic.forEach((sc, idx) => {
-            map[sc.id] = recThreads[idx]?.messages || [];
-          });
-        }
-      } catch {}
-
       setMessagesMap(map);
       if (conns.length > 0) {
         setSelectedConnId(conns[0].id);
