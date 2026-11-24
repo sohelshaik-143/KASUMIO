@@ -26,6 +26,12 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getCurrentProfile());
     }
 
+    @GetMapping
+    @Operation(summary = "List all registered student candidates for recruiters")
+    public ResponseEntity<java.util.List<StudentProfileResponse>> getAllCandidates() {
+        return ResponseEntity.ok(studentService.getAllCandidates());
+    }
+
     @PutMapping("/profile")
     @Operation(summary = "Create or update current authenticated student's profile")
     public ResponseEntity<StudentProfileResponse> updateProfile(@Valid @RequestBody StudentProfileRequest request) {

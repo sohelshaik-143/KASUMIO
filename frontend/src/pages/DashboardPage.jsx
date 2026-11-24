@@ -28,6 +28,7 @@ export const DashboardPage = () => {
   const [templates, setTemplates] = useState([]);
   const [connections, setConnections] = useState([]);
   const [opportunities, setOpportunities] = useState([]);
+  const [candidates, setCandidates] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [outcomeData, setOutcomeData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -78,17 +79,19 @@ export const DashboardPage = () => {
         setRecommendations(recsList || []);
         setOutcomeData(outcomeIntelligence);
       } else if (isRecruiter || isAdmin) {
-        const [pendingList, skillList, connList, oppList] = await Promise.all([
+        const [pendingList, skillList, connList, oppList, candList] = await Promise.all([
           evidenceApi.getPendingVerification().catch(() => []),
           skillApi.getAllSkills().catch(() => []),
           connectionApi.getRecruiterConnections().catch(() => []),
           opportunityApi.getMyOpportunities().catch(() => []),
+          studentApi.getAllCandidates().catch(() => []),
         ]);
 
         setRecentEvidence(pendingList || []);
         setSkills(skillList || []);
         setConnections(connList || []);
         setOpportunities(oppList || []);
+        setCandidates(candList || []);
       }
     } catch (err) {
       console.error('Error loading dashboard data:', err);
@@ -166,6 +169,7 @@ export const DashboardPage = () => {
         <RecruiterDashboardView
           user={user}
           opportunities={opportunities}
+          candidates={candidates}
           recentEvidence={recentEvidence}
           connections={connections}
           skills={skills}

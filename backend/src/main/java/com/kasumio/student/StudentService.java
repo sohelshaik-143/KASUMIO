@@ -40,6 +40,13 @@ public class StudentService {
         return mapToResponse(student);
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<StudentProfileResponse> getAllCandidates() {
+        return studentRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     @Transactional
     public StudentProfileResponse updateProfile(StudentProfileRequest request) {
         User user = SecurityUtils.getCurrentUser(userRepository);

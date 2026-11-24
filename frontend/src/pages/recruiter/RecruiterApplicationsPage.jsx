@@ -1,51 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, CheckCircle2, Clock, XCircle, ChevronDown, ExternalLink, ShieldCheck, Search } from 'lucide-react';
+import { Briefcase, Filter, ExternalLink, CheckCircle2, XCircle, Clock, UserCheck } from 'lucide-react';
 import { Alert } from '../../components/common/Alert';
+import { opportunityApi } from '../../api/opportunityApi';
 
 export const RecruiterApplicationsPage = () => {
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [alert, setAlert] = useState({ type: null, message: null });
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [applications, setApplications] = useState([
-    {
-      id: 'app-1',
-      candidateName: 'Arjun Reddy',
-      roleTitle: 'SDE Intern - Backend Developer',
-      appliedAt: '2 hours ago',
-      evidenceUrl: 'https://github.com/kasumo-demo/distributed-cache',
-      assessmentScore: '92% (PASSED)',
-      status: 'SHORTLISTED'
-    },
-    {
-      id: 'app-2',
-      candidateName: 'Sneha Kumar',
-      roleTitle: 'Software Engineer - Java',
-      appliedAt: '1 day ago',
-      evidenceUrl: 'https://github.com/kasumo-demo/sql-optimizer',
-      assessmentScore: '88% (PASSED)',
-      status: 'UNDER_REVIEW'
-    },
-    {
-      id: 'app-3',
-      candidateName: 'Vikram Das',
-      roleTitle: 'SDE Intern - Backend Developer',
-      appliedAt: '2 days ago',
-      evidenceUrl: 'https://github.com/kasumo-demo/spring-monolith',
-      assessmentScore: '95% (PASSED)',
-      status: 'INTERVIEWING'
-    },
-    {
-      id: 'app-4',
-      candidateName: 'Rahul Varma',
-      roleTitle: 'Tech Challenge 2026',
-      appliedAt: '3 days ago',
-      evidenceUrl: 'https://github.com/kasumo-demo/ml-pipeline',
-      assessmentScore: '84% (PASSED)',
-      status: 'ACCEPTED'
+  useEffect(() => {
+    loadApplications();
+  }, []);
+
+  const loadApplications = async () => {
+    try {
+      setLoading(true);
+      const opps = await opportunityApi.getMyOpportunities().catch(() => []);
+      const allApps = [];
+      (opps || []).forEach((opp) => {
+        if (opp.applications && Array.isArray(opp.applications)) {
+          opp.applications.forEach((a) => {
+            allApps.push({
+              id: a.id,
+              candidateName: a.candidateName || 'Candidate',
+              roleTitle: opp.title,
+              appliedAt: a.appliedAt || 'Recent',
+              evidenceUrl: a.evidenceUrl || '#',
+              assessmentScore: a.assessmentScore || 'N/A',
+              status: a.status || 'UNDER_REVIEW'
+            });
+          });
+        }
+      });
+      setApplications(allApps);
+    } catch (err) {
+      console.error('Failed to load applications:', err);
+      setApplications([]);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const handleUpdateStatus = (appId, newStatus, candidateName) => {
     setApplications((prev) =>
@@ -78,19 +75,19 @@ export const RecruiterApplicationsPage = () => {
         </div>
 
         {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          {['ALL', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEWING', 'ACCEPTED'].map((st) => (
+        <div className="flex items-center gap-1.5 bg-white dark:bg-[#0e172a] border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-2xs">
+          {['ALL', 'UNDER_REVIEW', 'INTERVIEWING', 'ACCEPTED'].map((status) => (
             <button
-              key={st}
+              key={status}
               type="button"
-              onClick={() => setFilterStatus(st)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                filterStatus === st
+              onClick={() => setFilterStatus(status)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                filterStatus === status
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {st === 'ALL' ? 'All Applications' : st.replace('_', ' ')}
+              {status === 'ALL' ? 'All Applications' : status.replace('_', ' ')}
             </button>
           ))}
         </div>
@@ -98,62 +95,84 @@ export const RecruiterApplicationsPage = () => {
 
       <Alert type={alert.type} message={alert.message} onClose={() => setAlert({ type: null, message: null })} />
 
-      <div className="space-y-3">
-        {filteredApps.map((app) => (
-          <div
-            key={app.id}
-            className="bg-white dark:bg-[#0e172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-2xs hover:shadow-xs transition flex flex-col md:flex-row md:items-center justify-between gap-4"
+      {filteredApps.length === 0 ? (
+        <div className="bg-white dark:bg-[#0e172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 p-12 text-center space-y-3">
+          <Briefcase className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            No applications received yet
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            When candidates discover and apply to your published opportunities, their verified applications will appear here.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/recruiter/opportunities/new')}
+            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
           >
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  {app.candidateName}
-                </h3>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-100 dark:border-blue-900/40">
-                  {app.roleTitle}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Applied {app.appliedAt}</span>
-                </span>
-                <span>•</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                  Assessment: {app.assessmentScore}
-                </span>
-                <span>•</span>
-                <a
-                  href={app.evidenceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 font-semibold"
-                >
-                  <span>Verified Repo</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            {/* Status Change Selector */}
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="text-xs font-semibold text-slate-500">Stage:</span>
-              <select
-                value={app.status}
-                onChange={(e) => handleUpdateStatus(app.id, e.target.value, app.candidateName)}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
-              >
-                <option value="UNDER_REVIEW">Under Review</option>
-                <option value="SHORTLISTED">Shortlisted</option>
-                <option value="INTERVIEWING">Interviewing</option>
-                <option value="ACCEPTED">Accepted</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
+            <span>Post an Opportunity</span>
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-[#0e172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-2xs">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4">Candidate</th>
+                <th className="py-3.5 px-4">Applied Role</th>
+                <th className="py-3.5 px-4">Applied</th>
+                <th className="py-3.5 px-4">Assessment Result</th>
+                <th className="py-3.5 px-4">Current Stage</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+              {filteredApps.map((app) => (
+                <tr key={app.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
+                  <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
+                    {app.candidateName}
+                  </td>
+                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                    {app.roleTitle}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
+                    {app.appliedAt}
+                  </td>
+                  <td className="py-3.5 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    {app.assessmentScore}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      app.status === 'ACCEPTED'
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                        : app.status === 'INTERVIEWING'
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                        : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                    }`}>
+                      {app.status.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(app.id, 'INTERVIEWING', app.candidateName)}
+                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 rounded-lg font-bold text-[11px] transition"
+                    >
+                      Interview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(app.id, 'ACCEPTED', app.candidateName)}
+                      className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-lg font-bold text-[11px] transition"
+                    >
+                      Accept
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

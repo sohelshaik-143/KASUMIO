@@ -7,12 +7,14 @@ import { Alert } from '../../components/common/Alert';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { ConnectionConsentModal } from '../../components/connection/ConnectionConsentModal';
+import { StudentMessageModal } from '../../components/connection/StudentMessageModal';
 import { 
   ShieldCheck, 
   Building, 
   Clock, 
   CheckCircle2, 
-  XCircle
+  XCircle,
+  MessageSquare
 } from 'lucide-react';
 
 export const StudentConnectionsPage = () => {
@@ -23,8 +25,10 @@ export const StudentConnectionsPage = () => {
   const [alert, setAlert] = useState({ type: null, message: null });
   const [selectedFilter, setSelectedFilter] = useState('ALL');
 
-  // Consent modal state
+  // Consent & Message modal state
   const [consentModalOpen, setConsentModalOpen] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [activeMessageConn, setActiveMessageConn] = useState(null);
   const [activeConnection, setActiveConnection] = useState(null);
   const [confirmState, setConfirmState] = useState({ isOpen: false, type: null, connId: null });
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -277,12 +281,24 @@ export const StudentConnectionsPage = () => {
                   )}
 
                   {conn.status === 'ACCEPTED' && (
-                    <button
-                      onClick={() => handleCancelConnection(conn.id)}
-                      className="px-3.5 py-2 bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-xl transition"
-                    >
-                      Revoke Access
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setActiveMessageConn(conn);
+                          setMessageModalOpen(true);
+                        }}
+                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Message Recruiter</span>
+                      </button>
+                      <button
+                        onClick={() => handleCancelConnection(conn.id)}
+                        className="px-3.5 py-2 bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-xl transition"
+                      >
+                        Revoke Access
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -309,6 +325,16 @@ export const StudentConnectionsPage = () => {
         onConfirm={handleConfirmAccept}
         connection={activeConnection}
         studentProfile={studentProfile}
+      />
+
+      {/* Recruiter Messaging Modal */}
+      <StudentMessageModal
+        isOpen={messageModalOpen}
+        onClose={() => {
+          setMessageModalOpen(false);
+          setActiveMessageConn(null);
+        }}
+        connection={activeMessageConn}
       />
 
       <ConfirmDialog

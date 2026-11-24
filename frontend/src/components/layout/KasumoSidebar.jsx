@@ -53,7 +53,7 @@ export const KasumoSidebar = ({
     { name: 'Opportunities', path: '/student/discover', icon: Briefcase },
     { name: 'Connections', path: '/student/connections', icon: Users2 },
     { name: 'Profile', path: '/profile', icon: User },
-    { name: 'Settings', path: '/profile', icon: Settings },
+    { name: 'Settings', path: '/student/settings', icon: Settings },
   ];
 
   // Recruiter Navigation Items - Matching Approved Reference Image
@@ -64,7 +64,7 @@ export const KasumoSidebar = ({
     { name: 'Talent Search', path: '/recruiter/talent-search', icon: Users },
     { name: 'Shortlist', path: '/recruiter/shortlist', icon: CheckSquare },
     { name: 'Applications', path: '/recruiter/applications', icon: Briefcase },
-    { name: 'Messages', path: '/recruiter/messages', icon: MessageSquare, badge: '3' },
+    { name: 'Messages', path: '/recruiter/messages', icon: MessageSquare },
     { name: 'Assessments', path: '/recruiter/assessments', icon: CheckSquare },
     { name: 'Analytics', path: '/recruiter/analytics', icon: BarChart3 },
     { name: 'My Organisation', path: '/recruiter/organization', icon: Building2 },

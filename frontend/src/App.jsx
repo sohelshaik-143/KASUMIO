@@ -33,6 +33,7 @@ const RecruiterAssessmentsPage = React.lazy(() => import('./pages/recruiter/Recr
 const RecruiterAnalyticsPage = React.lazy(() => import('./pages/recruiter/RecruiterAnalyticsPage').then(m => ({ default: m.RecruiterAnalyticsPage })));
 const RecruiterOrganizationPage = React.lazy(() => import('./pages/recruiter/RecruiterOrganizationPage').then(m => ({ default: m.RecruiterOrganizationPage })));
 const RecruiterSettingsPage = React.lazy(() => import('./pages/recruiter/RecruiterSettingsPage').then(m => ({ default: m.RecruiterSettingsPage })));
+const StudentSettingsPage = React.lazy(() => import('./pages/student/StudentSettingsPage').then(m => ({ default: m.StudentSettingsPage })));
 const RecruiterHelpPage = React.lazy(() => import('./pages/recruiter/RecruiterHelpPage').then(m => ({ default: m.RecruiterHelpPage })));
 const AssessmentsListPage = React.lazy(() => import('./pages/student/AssessmentsListPage').then(m => ({ default: m.AssessmentsListPage })));
 const AssessmentTakingPage = React.lazy(() => import('./pages/student/AssessmentTakingPage').then(m => ({ default: m.AssessmentTakingPage })));
@@ -78,6 +79,7 @@ export function App() {
                 <Route path="/student/opportunities" element={<StudentOpportunitiesPage />} />
                 <Route path="/student/connections" element={<StudentConnectionsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/student/settings" element={<StudentSettingsPage />} />
                 <Route path="/career-goals" element={<CareerGoalsPage />} />
                 <Route path="/evidence" element={<EvidencePage />} />
                 <Route path="/student/assessments" element={<AssessmentsListPage />} />

@@ -19,6 +19,11 @@ export const recruiterAgentApi = {
     return res.data;
   },
 
+  executeOperations: async (jobId, data) => {
+    const res = await api.post(`/recruiter/agent/jobs/${jobId}/approve-and-execute`, data);
+    return res.data;
+  },
+
   // Automation policy
   getPolicy: async () => {
     const res = await api.get('/recruiter/agent/policies');

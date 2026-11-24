@@ -88,15 +88,23 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
   };
 
   const handleExecuteOperations = async () => {
-    if (!jobData?.jobId) return;
+    if (!jobData?.jobId) {
+      setAlert({
+        type: 'error',
+        message: 'Please analyze your role intent or select a quick prompt before executing.',
+      });
+      return;
+    }
 
     try {
       setExecuting(true);
       setAlert({ type: null, message: null });
 
       const payload = {
+        approvedAliases: selectedAliases,
         selectedCandidateAliases: selectedAliases,
         customOutreachNotes: customNotes,
+        publishImmediately: true,
         createAssessment: assessmentConfig.enabled,
         assessmentTimeLimitMinutes: assessmentConfig.timeLimit,
         assessmentPassingPercentage: assessmentConfig.passingScore,
@@ -106,7 +114,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
       setExecutionResult(result);
       setAlert({
         type: 'success',
-        message: `Opportunity "${result.opportunityTitle}" published and ${result.requestsSentCount} requests dispatched!`,
+        message: `Opportunity "${result.opportunityTitle || 'New Role'}" successfully published! Dispatched ${result.requestsSentCount || selectedAliases.length} outreach request(s).`,
       });
     } catch (err) {
       console.error('Failed to execute operations:', err);
@@ -327,7 +335,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
             </div>
             <button
               type="button"
-              disabled={executing || selectedAliases.length === 0}
+              disabled={executing}
               onClick={handleExecuteOperations}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-verified hover:bg-verified-hover text-white text-xs font-bold rounded-lg shadow-xs transition disabled:opacity-50"
             >
@@ -339,7 +347,11 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
               ) : (
                 <>
                   <Send className="w-4 h-4" aria-hidden="true" />
-                  <span>Publish Role & Send Outreach ({selectedAliases.length})</span>
+                  <span>
+                    {selectedAliases.length > 0
+                      ? `Publish Role & Send Outreach (${selectedAliases.length})`
+                      : 'Publish Role & Activate Blueprint'}
+                  </span>
                 </>
               )}
             </button>

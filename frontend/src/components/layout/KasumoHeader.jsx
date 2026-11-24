@@ -9,7 +9,9 @@ import {
   Sun,
   Moon,
   Building,
-  ChevronDown
+  ChevronDown,
+  X,
+  CheckCircle2
 } from 'lucide-react';
 
 export const KasumoHeader = ({ onToggleMobile }) => {
@@ -17,6 +19,70 @@ export const KasumoHeader = ({ onToggleMobile }) => {
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [globalSearch, setGlobalSearch] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Dynamic notifications state
+  const [notifications, setNotifications] = useState(() => {
+    if (isRecruiter) {
+      return [
+        {
+          id: 1,
+          title: 'New candidate match surfaced',
+          desc: 'A student profile with verified Spring Boot evidence matched your criteria.',
+          time: '10m ago',
+          unread: true
+        },
+        {
+          id: 2,
+          title: 'Technical assessment completed',
+          desc: 'Alex Rivera scored 95% on algorithmic test suite.',
+          time: '1h ago',
+          unread: true
+        },
+        {
+          id: 3,
+          title: 'Organization profile active',
+          desc: 'Acme Engineering attestation status is verified.',
+          time: '1d ago',
+          unread: false
+        }
+      ];
+    } else {
+      return [
+        {
+          id: 1,
+          title: 'Employer connection request',
+          desc: 'A tech recruiter viewed your project footprint and requested connection.',
+          time: '20m ago',
+          unread: true
+        },
+        {
+          id: 2,
+          title: 'Assessment blueprint available',
+          desc: 'New screening assessment challenge is ready in your portal.',
+          time: '2h ago',
+          unread: true
+        },
+        {
+          id: 3,
+          title: 'Evidence verified by organization',
+          desc: 'Your Git repository proof received institutional verification.',
+          time: '1d ago',
+          unread: false
+        }
+      ];
+    }
+  });
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const handleMarkAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  };
+
+  const handleDismiss = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   const handleGlobalSearchSubmit = (e) => {
     e.preventDefault();
@@ -60,17 +126,97 @@ export const KasumoHeader = ({ onToggleMobile }) => {
 
       {/* Right Controls: Notifications, Theme Switch & Profile badge */}
       <div className="flex items-center gap-3 shrink-0">
-        {/* Notification Bell with Badge */}
-        <button
-          type="button"
-          className="relative p-2.5 bg-white dark:bg-[#0e172a] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-full border border-slate-200/90 dark:border-slate-800 shadow-2xs transition"
-          aria-label="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs">
-            {isRecruiter ? '5' : '3'}
-          </span>
-        </button>
+        {/* Notification Bell with Badge & Dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setNotificationsOpen((prev) => !prev)}
+            className="relative z-50 p-2.5 bg-white dark:bg-[#0e172a] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-full border border-slate-200/90 dark:border-slate-800 shadow-2xs transition"
+            aria-label="Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs pointer-events-none">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Notifications Dropdown Panel */}
+          {notificationsOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-30"
+                onClick={() => setNotificationsOpen(false)}
+              />
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#0e172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-40 overflow-hidden animate-in fade-in-50 duration-150">
+                <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Notifications</h4>
+                    {unreadCount > 0 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleMarkAllAsRead}
+                      className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Mark all as read
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400">
+                      No notifications
+                    </div>
+                  ) : (
+                    notifications.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`p-3.5 flex items-start justify-between gap-3 transition ${
+                          item.unread
+                            ? 'bg-blue-50/40 dark:bg-blue-950/20'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-850/40'
+                        }`}
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <div className="flex items-center gap-2">
+                            {item.unread && (
+                              <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+                            )}
+                            <p className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                              {item.title}
+                            </p>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                            {item.desc}
+                          </p>
+                          <span className="text-[10px] text-slate-400 font-medium block pt-0.5">
+                            {item.time}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDismiss(item.id)}
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                          title="Dismiss"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Theme Toggle Pill Switch */}
         <button

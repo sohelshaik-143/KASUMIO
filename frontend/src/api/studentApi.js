@@ -20,4 +20,9 @@ export const studentApi = {
     const res = await api.get(`/students/${id}`);
     return res.data;
   },
+
+  getAllCandidates: async () => {
+    const res = await api.get('/students');
+    return res.data;
+  },
 };
