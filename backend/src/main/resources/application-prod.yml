@@ -27,7 +27,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
     show-sql: false
     defer-datasource-initialization: false
@@ -51,3 +51,6 @@ kasumio:
     # In production, JWT secret must be provided via environment variable
     secret: ${JWT_SECRET}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+  assessment:
+    code-execution:
+      enabled: ${CODE_EXECUTION_ENABLED:false}

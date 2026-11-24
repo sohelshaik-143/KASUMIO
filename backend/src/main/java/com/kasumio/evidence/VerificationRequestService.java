@@ -62,6 +62,15 @@ public class VerificationRequestService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only recruiters or administrators can request verification");
         }
 
+        if (recruiter.getRole() == Role.RECRUITER) {
+            if (recruiter.getStatus() == com.kasumio.user.UserStatus.PENDING) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter account is pending administrator approval");
+            }
+            if (recruiter.getOrganization() == null || !recruiter.getOrganization().isApproved()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter organization is pending administrator approval");
+            }
+        }
+
         Opportunity opp = opportunityRepository.findById(opportunityId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Opportunity not found"));
 
@@ -145,9 +154,19 @@ public class VerificationRequestService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only recruiters or administrators can access the verification queue");
         }
 
+        if (recruiter.getRole() == Role.RECRUITER) {
+            if (recruiter.getStatus() == com.kasumio.user.UserStatus.PENDING ||
+                    recruiter.getOrganization() == null ||
+                    !recruiter.getOrganization().isApproved()) {
+                return Collections.emptyList();
+            }
+        }
+
         List<VerificationRequest> list = (recruiter.getRole() == Role.ADMIN)
                 ? verificationRequestRepository.findAll()
-                : verificationRequestRepository.findQueueByRecruiterWithDetails(recruiter);
+                : (recruiter.getOrganization() != null
+                    ? verificationRequestRepository.findQueueByOrganizationWithDetails(recruiter.getOrganization())
+                    : verificationRequestRepository.findQueueByRecruiterWithDetails(recruiter));
 
         Instant expirationThreshold = Instant.now().minus(EXPIRATION_DAYS, ChronoUnit.DAYS);
 
@@ -194,8 +213,18 @@ public class VerificationRequestService {
         VerificationRequest vr = verificationRequestRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Verification request not found"));
 
-        if (recruiter.getRole() != Role.ADMIN && !vr.getRecruiter().getId().equals(recruiter.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another recruiter");
+        if (recruiter.getRole() != Role.ADMIN) {
+            if (recruiter.getStatus() == com.kasumio.user.UserStatus.PENDING ||
+                    recruiter.getOrganization() == null ||
+                    !recruiter.getOrganization().isApproved()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter account or organization is pending approval");
+            }
+            boolean sameRecruiter = vr.getRecruiter().getId().equals(recruiter.getId());
+            boolean sameOrg = recruiter.getOrganization() != null && vr.getRecruiter().getOrganization() != null
+                    && vr.getRecruiter().getOrganization().getId().equals(recruiter.getOrganization().getId());
+            if (!sameRecruiter && !sameOrg) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another organization");
+            }
         }
 
         // Expiration check
@@ -218,8 +247,24 @@ public class VerificationRequestService {
         VerificationRequest vr = verificationRequestRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Verification request not found"));
 
-        if (recruiter.getRole() != Role.ADMIN && !vr.getRecruiter().getId().equals(recruiter.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another recruiter");
+        if (recruiter.getRole() != Role.ADMIN) {
+            if (recruiter.getStatus() == com.kasumio.user.UserStatus.PENDING ||
+                    recruiter.getOrganization() == null ||
+                    !recruiter.getOrganization().isApproved()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter account or organization is pending approval");
+            }
+            boolean sameRecruiter = vr.getRecruiter().getId().equals(recruiter.getId());
+            boolean sameOrg = recruiter.getOrganization() != null && vr.getRecruiter().getOrganization() != null
+                    && vr.getRecruiter().getOrganization().getId().equals(recruiter.getOrganization().getId());
+            if (!sameRecruiter && !sameOrg) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another organization");
+            }
+        }
+
+        // Never evidence they own
+        if (vr.getStudent() != null && vr.getStudent().getUser() != null
+                && vr.getStudent().getUser().getId().equals(recruiter.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Verifiers are strictly prohibited from verifying their own evidence");
         }
 
         if (vr.getStatus() == VerificationStatus.VERIFIED) {
@@ -252,8 +297,18 @@ public class VerificationRequestService {
         VerificationRequest vr = verificationRequestRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Verification request not found"));
 
-        if (recruiter.getRole() != Role.ADMIN && !vr.getRecruiter().getId().equals(recruiter.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another recruiter");
+        if (recruiter.getRole() != Role.ADMIN) {
+            if (recruiter.getStatus() == com.kasumio.user.UserStatus.PENDING ||
+                    recruiter.getOrganization() == null ||
+                    !recruiter.getOrganization().isApproved()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter account or organization is pending approval");
+            }
+            boolean sameRecruiter = vr.getRecruiter().getId().equals(recruiter.getId());
+            boolean sameOrg = recruiter.getOrganization() != null && vr.getRecruiter().getOrganization() != null
+                    && vr.getRecruiter().getOrganization().getId().equals(recruiter.getOrganization().getId());
+            if (!sameRecruiter && !sameOrg) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to verification request belonging to another organization");
+            }
         }
 
         if (vr.getStatus() == VerificationStatus.REJECTED) {

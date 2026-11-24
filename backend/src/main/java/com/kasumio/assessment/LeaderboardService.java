@@ -114,9 +114,9 @@ public class LeaderboardService {
 
             entries.add(new LeaderboardEntryDto(
                     0, // will be ranked after sorting
-                    student.getId(),
+                    null, // Do not expose studentId on public leaderboard for privacy
                     "Candidate #" + alias,
-                    student.getUniversity() != null ? student.getUniversity() : "Self-Taught / Independent",
+                    null, // Do not expose university on public leaderboard for privacy
                     totalScore,
                     problemsSolved,
                     assessmentsCompleted,

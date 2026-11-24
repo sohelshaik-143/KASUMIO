@@ -248,7 +248,7 @@ public class AssessmentService {
         String sampleStdout = outcome.getTestCaseResults().isEmpty() ? "" : outcome.getTestCaseResults().get(0).getActualOutput();
         String sampleStderr = outcome.getCompilationOutput();
 
-        return new RunCodeResponse(
+        RunCodeResponse resp = new RunCodeResponse(
                 outcome.getStatus() == SubmissionStatus.PASSED,
                 outcome.getStatus() == SubmissionStatus.ERROR,
                 outcome.getCompilationOutput(),
@@ -259,6 +259,10 @@ public class AssessmentService {
                 outcome.getStatus() == SubmissionStatus.TIMEOUT,
                 outcome.getTestCaseResults()
         );
+        if (outcome.getCompilationOutput() != null && outcome.getCompilationOutput().contains("disabled")) {
+            resp.setExecutionUnavailable(true);
+        }
+        return resp;
     }
 
     @Transactional

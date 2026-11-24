@@ -34,3 +34,6 @@ kasumio:
   jwt:
     secret: kasumio_test_secret_key_with_at_least_256_bits_for_unit_and_integration_tests_123456
     expiration-ms: 3600000
+  assessment:
+    code-execution:
+      enabled: true

@@ -50,23 +50,50 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "An account with this email already exists");
         }
 
+        if (request.getPassword() == null || request.getPassword().length() < 10) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 10 characters long");
+        }
+
         Role role = request.getRole() != null ? request.getRole() : Role.STUDENT;
+        if (role == Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Registration as an administrator is prohibited. Admins must be provisioned out-of-band.");
+        }
+        if (role != Role.STUDENT && role != Role.RECRUITER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid registration role. Only STUDENT and RECRUITER are supported.");
+        }
 
         Organization organization = null;
-        if (StringUtils.hasText(request.getOrganizationName())) {
-            String orgName = request.getOrganizationName().trim();
-            organization = organizationRepository.findByNameIgnoreCase(orgName)
-                    .orElseGet(() -> organizationRepository.save(new com.kasumio.organization.Organization(orgName, com.kasumio.organization.OrganizationType.COMPANY, null)));
-        } else if (request.getOrganizationId() != null) {
-            organization = organizationRepository.findById(request.getOrganizationId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specified organization does not exist"));
+        com.kasumio.user.UserStatus userStatus = com.kasumio.user.UserStatus.ACTIVE;
+
+        if (role == Role.RECRUITER) {
+            // Recruiters start PENDING until an admin approves their organization
+            userStatus = com.kasumio.user.UserStatus.PENDING;
+            if (StringUtils.hasText(request.getOrganizationName())) {
+                String orgName = request.getOrganizationName().trim();
+                organization = organizationRepository.findByNameIgnoreCase(orgName)
+                        .orElseGet(() -> organizationRepository.save(new com.kasumio.organization.Organization(
+                                orgName,
+                                com.kasumio.organization.OrganizationType.COMPANY,
+                                null,
+                                com.kasumio.organization.OrganizationApprovalStatus.PENDING)));
+                if (organization.getApprovalStatus() == com.kasumio.organization.OrganizationApprovalStatus.APPROVED) {
+                    userStatus = com.kasumio.user.UserStatus.ACTIVE;
+                }
+            } else if (request.getOrganizationId() != null) {
+                organization = organizationRepository.findById(request.getOrganizationId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specified organization does not exist"));
+                if (organization.getApprovalStatus() == com.kasumio.organization.OrganizationApprovalStatus.APPROVED) {
+                    userStatus = com.kasumio.user.UserStatus.ACTIVE;
+                }
+            }
         }
 
         User user = new User(
                 normalizedEmail,
                 passwordEncoder.encode(request.getPassword()),
                 role,
-                organization
+                organization,
+                userStatus
         );
         user = userRepository.save(user);
 
@@ -134,6 +161,7 @@ public class AuthService {
                 orgName,
                 studentId,
                 fullName,
+                user.getStatus() != null ? user.getStatus().name() : "ACTIVE",
                 user.getCreatedAt()
         );
     }

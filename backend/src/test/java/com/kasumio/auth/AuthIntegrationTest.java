@@ -111,7 +111,7 @@ public class AuthIntegrationTest {
     void testDuplicateRegistrationFails() throws Exception {
         RegisterRequest req = new RegisterRequest(
                 "duplicate@example.com",
-                "pass12345",
+                "password12345",
                 Role.STUDENT,
                 "Charlie",
                 null
@@ -126,5 +126,39 @@ public class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("4. Abuse case: Public registration with ADMIN role is rejected with 403 Forbidden")
+    void testRegisterAsAdminIsForbidden() throws Exception {
+        RegisterRequest adminReq = new RegisterRequest(
+                "hacker_admin@example.com",
+                "superSecretPass123",
+                Role.ADMIN,
+                "Malicious Admin",
+                null
+        );
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(adminReq)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("5. Abuse case: Password length under 10 characters is rejected with 400 Bad Request")
+    void testShortPasswordIsRejected() throws Exception {
+        RegisterRequest shortPassReq = new RegisterRequest(
+                "short@example.com",
+                "pass123", // only 7 chars
+                Role.STUDENT,
+                "Short Pass User",
+                null
+        );
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shortPassReq)))
+                .andExpect(status().isBadRequest());
     }
 }

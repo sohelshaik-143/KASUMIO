@@ -23,6 +23,13 @@ public class IsolatedCodeExecutionEngine {
     private static final Logger log = LoggerFactory.getLogger(IsolatedCodeExecutionEngine.class);
     private static final long DEFAULT_TIMEOUT_MS = 4000; // 4 seconds max execution per test case
 
+    @org.springframework.beans.factory.annotation.Value("${kasumio.assessment.code-execution.enabled:false}")
+    private boolean enabled;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public static class ExecutionResult {
         private final boolean success;
         private final boolean compilationError;
@@ -60,6 +67,10 @@ public class IsolatedCodeExecutionEngine {
     }
 
     public ExecutionResult execute(String language, String code, String stdin, long timeoutMs) {
+        if (!enabled) {
+            log.info("Code execution engine is disabled by configuration");
+            return new ExecutionResult(false, true, "Code execution engine is disabled in this environment.", "", "Code execution is currently unavailable in this environment.", 0, 0, false, 503);
+        }
         if (language == null || code == null) {
             return new ExecutionResult(false, true, "Language and code must be provided", "", "", 0, 0, false, -1);
         }

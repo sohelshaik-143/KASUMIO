@@ -181,8 +181,8 @@ public class FairTechnicalVerificationTest {
         opp.setStatus(OpportunityStatus.PUBLISHED);
         opportunityRepository.save(opp);
 
-        String candidateToken = getAuthToken("candidate.test@fairverif.io", "pass123", Role.STUDENT, "Jordan Reed");
-        String recruiterToken = getAuthToken("recruiter.review@fairverif.io", "pass123", Role.RECRUITER, "Elena Vance");
+        String candidateToken = getAuthToken("candidate.test@fairverif.io", "password123", Role.STUDENT, "Jordan Reed");
+        String recruiterToken = getAuthToken("recruiter.review@fairverif.io", "password123", Role.RECRUITER, "Elena Vance");
 
         // 2. Candidate gets assessment blueprint
         MvcResult assmResult = mockMvc.perform(get("/api/assessments/opportunity/" + opp.getId())

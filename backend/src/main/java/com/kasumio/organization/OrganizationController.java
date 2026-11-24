@@ -41,4 +41,18 @@ public class OrganizationController {
     public ResponseEntity<OrganizationDto> createOrganization(@Valid @RequestBody CreateOrganizationRequest request) {
         return new ResponseEntity<>(organizationService.createOrganization(request), HttpStatus.CREATED);
     }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List organizations pending verification approval (ADMIN only)")
+    public ResponseEntity<List<OrganizationDto>> getPendingOrganizations() {
+        return ResponseEntity.ok(organizationService.getPendingOrganizations());
+    }
+
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Approve organization and activate associated recruiters (ADMIN only)")
+    public ResponseEntity<OrganizationDto> approveOrganization(@PathVariable Long id) {
+        return ResponseEntity.ok(organizationService.approveOrganization(id));
+    }
 }

@@ -53,6 +53,9 @@ public class VerificationRequestIntegrationTest {
     @Autowired
     private VerificationRequestRepository verificationRequestRepository;
 
+    @Autowired
+    private com.kasumio.organization.OrganizationRepository organizationRepository;
+
     private String registerAndGetToken(String email, Role role, String name, String orgName) throws Exception {
         RegisterRequest req = new RegisterRequest(email, "password123", role, name, null, orgName);
         String res = mockMvc.perform(post("/api/auth/register")
@@ -115,7 +118,10 @@ public class VerificationRequestIntegrationTest {
         Skill javaSkill = skillRepository.findByNameIgnoreCase("Java").orElseThrow();
         Skill reactSkill = skillRepository.findByNameIgnoreCase("React").orElseThrow();
 
-        // 1. Register Recruiters
+        // 1. Pre-approve Organizations & Register Recruiters
+        organizationRepository.save(new com.kasumio.organization.Organization("Tech Corp", com.kasumio.organization.OrganizationType.COMPANY, "https://techcorp.com", com.kasumio.organization.OrganizationApprovalStatus.APPROVED));
+        organizationRepository.save(new com.kasumio.organization.Organization("Other Corp", com.kasumio.organization.OrganizationType.COMPANY, "https://othercorp.com", com.kasumio.organization.OrganizationApprovalStatus.APPROVED));
+
         String recruiterToken1 = registerAndGetToken("lead_recruiter@tech.com", Role.RECRUITER, "Lead Recruiter", "Tech Corp");
         String recruiterToken2 = registerAndGetToken("other_recruiter@other.com", Role.RECRUITER, "Other Recruiter", "Other Corp");
 

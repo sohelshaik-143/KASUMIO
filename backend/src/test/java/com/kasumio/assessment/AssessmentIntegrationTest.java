@@ -70,8 +70,8 @@ public class AssessmentIntegrationTest {
     @Test
     @DisplayName("Assessment Complete Lifecycle: Generate, Start, Run Code, Submit, Complete, and Leaderboard")
     void testAssessmentLifecycle() throws Exception {
-        String recruiterToken = getAuthToken("recruiter@acme.com", "pass12345", Role.RECRUITER, "Rachel Recruiter");
-        String studentToken = getAuthToken("bob@student.edu", "pass12345", Role.STUDENT, "Bob Developer");
+        String recruiterToken = getAuthToken("recruiter@acme.com", "password123", Role.RECRUITER, "Rachel Recruiter");
+        String studentToken = getAuthToken("bob@student.edu", "password123", Role.STUDENT, "Bob Developer");
 
         User recruiter = userRepository.findByEmail("recruiter@acme.com").orElseThrow();
 

@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS organizations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
-    website VARCHAR(255) NULL
+    website VARCHAR(255) NULL,
+    approval_status VARCHAR(50) NOT NULL DEFAULT 'APPROVED'
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
     organization_id BIGINT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_users_organization FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
 );

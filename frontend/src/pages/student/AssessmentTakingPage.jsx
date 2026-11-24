@@ -145,12 +145,25 @@ export const AssessmentTakingPage = () => {
       });
 
       setRunTelemetry(res);
+      if (res?.executionUnavailable || res?.compilationOutput?.includes('disabled') || res?.compilationOutput?.includes('unavailable')) {
+        setAlert({
+          type: 'info',
+          message: 'Code execution sandbox is currently unavailable in this environment. You may still submit your code for evaluation.'
+        });
+      }
     } catch (err) {
-      console.error('Failed to run code:', err);
-      setAlert({
-        type: 'error',
-        message: err.response?.data?.message || 'Code execution sandbox error.'
-      });
+      if (err.response?.status === 503 || err.response?.data?.message?.includes('disabled')) {
+        setAlert({
+          type: 'info',
+          message: 'Code execution sandbox is currently unavailable in this environment. You may still submit your code for evaluation.'
+        });
+      } else {
+        console.error('Failed to run code:', err);
+        setAlert({
+          type: 'error',
+          message: err.response?.data?.message || 'Code execution sandbox error.'
+        });
+      }
     } finally {
       setRunningCode(false);
     }
@@ -453,7 +466,13 @@ export const AssessmentTakingPage = () => {
                     </span>
                   </div>
 
-                  {runTelemetry.compilationError && (
+                  {(runTelemetry.executionUnavailable || runTelemetry.compilationOutput?.includes('disabled')) && (
+                    <div className="text-amber-300 bg-amber-950/40 p-3 rounded-lg border border-amber-900/50">
+                      Interactive sandbox execution is currently unavailable in this environment. You may proceed to submit your answer directly.
+                    </div>
+                  )}
+
+                  {runTelemetry.compilationError && !runTelemetry.executionUnavailable && !runTelemetry.compilationOutput?.includes('disabled') && (
                     <div className="text-rose-400 bg-rose-950/40 p-2.5 rounded-lg border border-rose-900/50 whitespace-pre-wrap">
                       {runTelemetry.compilationOutput}
                     </div>

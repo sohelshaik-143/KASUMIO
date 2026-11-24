@@ -3,12 +3,22 @@ package com.kasumio.evidence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kasumio.auth.dto.RegisterRequest;
 import com.kasumio.evidence.dto.EvidenceRequest;
+import com.kasumio.opportunity.Opportunity;
+import com.kasumio.opportunity.OpportunityRepository;
+import com.kasumio.opportunity.OpportunityStatus;
+import com.kasumio.opportunity.OpportunityType;
+import com.kasumio.opportunity.WorkType;
 import com.kasumio.organization.Organization;
+import com.kasumio.organization.OrganizationApprovalStatus;
 import com.kasumio.organization.OrganizationRepository;
 import com.kasumio.organization.OrganizationType;
 import com.kasumio.skill.Skill;
 import com.kasumio.skill.SkillRepository;
+import com.kasumio.student.Student;
+import com.kasumio.student.StudentRepository;
 import com.kasumio.user.Role;
+import com.kasumio.user.User;
+import com.kasumio.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +51,21 @@ public class VerificationSecurityTest {
     @Autowired
     private OrganizationRepository organizationRepository;
 
+    @Autowired
+    private VerificationRequestRepository verificationRequestRepository;
+
+    @Autowired
+    private OpportunityRepository opportunityRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Autowired
+    private EvidenceRepository evidenceRepository;
+
     private String registerAndGetToken(String email, Role role, String name, Long orgId) throws Exception {
         RegisterRequest req = new RegisterRequest(email, "password123", role, name, orgId);
         String res = mockMvc.perform(post("/api/auth/register")
@@ -54,10 +79,11 @@ public class VerificationSecurityTest {
     }
 
     @Test
-    @DisplayName("6. Verification Security: Unauthorized verification rejected, valid org verification accepted")
+    @DisplayName("Verification Security: Trust, cross-org isolation, self-verify guard, and unauthenticated write guard")
     void testVerificationAuthorizationFlow() throws Exception {
-        // 1. Create Organization
-        Organization techCorp = organizationRepository.save(new Organization("TechCorp Global", OrganizationType.COMPANY, "https://techcorp.example.com"));
+        // 1. Create Approved Organizations
+        Organization techCorp = organizationRepository.save(new Organization("TechCorp Global", OrganizationType.COMPANY, "https://techcorp.example.com", OrganizationApprovalStatus.APPROVED));
+        Organization rivalCorp = organizationRepository.save(new Organization("RivalCorp Inc", OrganizationType.COMPANY, "https://rivalcorp.example.com", OrganizationApprovalStatus.APPROVED));
 
         // 2. Register Student & create evidence
         String studentToken = registerAndGetToken("student_v@example.com", Role.STUDENT, "Student Verifiable", null);
@@ -94,8 +120,39 @@ public class VerificationSecurityTest {
                         .header("Authorization", "Bearer " + unaffiliatedRecruiterToken))
                 .andExpect(status().isForbidden());
 
-        // 5. Authorized: Recruiter belonging to TechCorp verifies evidence -> 200 OK
+        // 5. Cross-org / Unrequested Check: TechCorp recruiter tries to verify before any request was made -> 403 Forbidden
         String orgRecruiterToken = registerAndGetToken("recruiter@techcorp.com", Role.RECRUITER, "TechCorp Lead", techCorp.getId());
+        mockMvc.perform(post("/api/evidence/" + evidenceId + "/verify")
+                        .header("Authorization", "Bearer " + orgRecruiterToken))
+                .andExpect(status().isForbidden());
+
+        // Create a formal VerificationRequest for TechCorp
+        User techRecruiter = userRepository.findByEmail("recruiter@techcorp.com").orElseThrow();
+        User studentUser = userRepository.findByEmail("student_v@example.com").orElseThrow();
+        Student student = studentRepository.findByUser(studentUser).orElseThrow();
+        Evidence evidence = evidenceRepository.findById(evidenceId).orElseThrow();
+
+        Opportunity opp = new Opportunity(
+                techRecruiter,
+                "Backend Engineer",
+                "Great role",
+                OpportunityType.JOB,
+                "Remote",
+                WorkType.REMOTE
+        );
+        opp.setStatus(OpportunityStatus.PUBLISHED);
+        opp = opportunityRepository.save(opp);
+
+        VerificationRequest vr = new VerificationRequest(opp, evidence, techRecruiter, student);
+        verificationRequestRepository.save(vr);
+
+        // 6. Cross-Org Verify Abuse: RivalCorp recruiter attempts to verify evidence requested by TechCorp -> 403 Forbidden
+        String rivalRecruiterToken = registerAndGetToken("recruiter@rivalcorp.com", Role.RECRUITER, "Rival Lead", rivalCorp.getId());
+        mockMvc.perform(post("/api/evidence/" + evidenceId + "/verify")
+                        .header("Authorization", "Bearer " + rivalRecruiterToken))
+                .andExpect(status().isForbidden());
+
+        // 7. Authorized: Recruiter belonging to TechCorp (the requesting org) verifies evidence -> 200 OK
         mockMvc.perform(post("/api/evidence/" + evidenceId + "/verify")
                         .header("Authorization", "Bearer " + orgRecruiterToken))
                 .andExpect(status().isOk())
@@ -103,16 +160,33 @@ public class VerificationSecurityTest {
                 .andExpect(jsonPath("$.verification.organizationName").value("TechCorp Global"))
                 .andExpect(jsonPath("$.verification.verifiedByUserEmail").value("recruiter@techcorp.com"));
 
-        // 6. Duplicate verification attempt -> 409 Conflict
+        // 8. Duplicate verification attempt -> 409 Conflict
         mockMvc.perform(post("/api/evidence/" + evidenceId + "/verify")
                         .header("Authorization", "Bearer " + orgRecruiterToken))
                 .andExpect(status().isConflict());
 
-        // 7. Student dashboard now reflects exactly 1 verified evidence
-        mockMvc.perform(get("/api/students/dashboard")
-                        .header("Authorization", "Bearer " + studentToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalEvidenceCount").value(1))
-                .andExpect(jsonPath("$.verifiedEvidenceCount").value(1));
+        // 9. Self-Verify Abuse Case: A recruiter attempts to verify evidence they own -> 403 Forbidden
+        Evidence recruiterOwnedEvidence = new Evidence(
+                student, // candidate with recruiter's user
+                springSkill,
+                "Recruiter Side Project",
+                "Description",
+                "https://github.com/project",
+                EvidenceType.PROJECT
+        );
+        // Link evidence student user to techRecruiter
+        Student recruiterStudent = studentRepository.save(new Student(techRecruiter, "Tech Recruiter Student", null, null, null));
+        recruiterOwnedEvidence.setStudent(recruiterStudent);
+        recruiterOwnedEvidence = evidenceRepository.save(recruiterOwnedEvidence);
+
+        mockMvc.perform(post("/api/evidence/" + recruiterOwnedEvidence.getId() + "/verify")
+                        .header("Authorization", "Bearer " + orgRecruiterToken))
+                .andExpect(status().isForbidden());
+
+        // 10. Unauthenticated write abuse: POST /api/discovery/candidates/discover requires authentication -> 401/403
+        mockMvc.perform(post("/api/discovery/candidates/discover")
+                        .param("term", "QuantumComputing")
+                        .param("source", "abuse_test"))
+                .andExpect(status().isUnauthorized());
     }
 }

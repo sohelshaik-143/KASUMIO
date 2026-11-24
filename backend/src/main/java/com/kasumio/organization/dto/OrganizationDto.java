@@ -7,14 +7,20 @@ public class OrganizationDto {
     private String name;
     private OrganizationType type;
     private String website;
+    private String approvalStatus;
 
     public OrganizationDto() {}
 
     public OrganizationDto(Long id, String name, OrganizationType type, String website) {
+        this(id, name, type, website, "APPROVED");
+    }
+
+    public OrganizationDto(Long id, String name, OrganizationType type, String website, String approvalStatus) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.website = website;
+        this.approvalStatus = approvalStatus;
     }
 
     public Long getId() {
@@ -47,5 +53,13 @@ public class OrganizationDto {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
     }
 }

@@ -28,6 +28,7 @@ public class EvidenceService {
     private final SkillRepository skillRepository;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final VerificationRequestRepository verificationRequestRepository;
     private final com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService;
 
     public EvidenceService(
@@ -36,12 +37,14 @@ public class EvidenceService {
             SkillRepository skillRepository,
             StudentRepository studentRepository,
             UserRepository userRepository,
+            VerificationRequestRepository verificationRequestRepository,
             com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService) {
         this.evidenceRepository = evidenceRepository;
         this.verificationRepository = verificationRepository;
         this.skillRepository = skillRepository;
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
+        this.verificationRequestRepository = verificationRequestRepository;
         this.outcomeIntelligenceService = outcomeIntelligenceService;
     }
 
@@ -125,10 +128,28 @@ public class EvidenceService {
 
     @Transactional(readOnly = true)
     public List<EvidenceResponse> getPendingVerificationEvidence() {
-        return evidenceRepository.findUnverifiedEvidence()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        User currentUser = SecurityUtils.getCurrentUser(userRepository);
+        if (currentUser.getRole() == Role.ADMIN) {
+            return evidenceRepository.findUnverifiedEvidence()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+        }
+
+        if (currentUser.getRole() == Role.RECRUITER) {
+            if (currentUser.getStatus() == com.kasumio.user.UserStatus.PENDING ||
+                    currentUser.getOrganization() == null ||
+                    !currentUser.getOrganization().isApproved()) {
+                return java.util.Collections.emptyList();
+            }
+            List<Evidence> scopedEvidence = verificationRequestRepository.findPendingEvidenceByOrganization(currentUser.getOrganization());
+            return scopedEvidence.stream()
+                    .filter(ev -> ev.getStudent() == null || ev.getStudent().getUser() == null || !ev.getStudent().getUser().getId().equals(currentUser.getId()))
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+        }
+
+        return java.util.Collections.emptyList();
     }
 
     public EvidenceResponse mapToResponse(Evidence evidence) {

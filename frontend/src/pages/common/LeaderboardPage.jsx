@@ -186,7 +186,6 @@ export const LeaderboardPage = () => {
                 <tr>
                   <th className="px-6 py-4">Rank</th>
                   <th className="px-6 py-4">Candidate</th>
-                  <th className="px-6 py-4">Institution</th>
                   <th className="px-6 py-4 text-center">Score</th>
                   <th className="px-6 py-4 text-center">Accuracy</th>
                   <th className="px-6 py-4 text-center">Difficulty</th>
@@ -198,7 +197,7 @@ export const LeaderboardPage = () => {
                   const isTop3 = entry.rank <= 3;
                   return (
                     <tr
-                      key={entry.studentId}
+                      key={entry.candidateAlias || entry.rank}
                       className="hover:bg-slate-50/60 transition duration-150"
                     >
                       {/* Rank badge */}
@@ -221,11 +220,6 @@ export const LeaderboardPage = () => {
                       {/* Candidate Alias */}
                       <td className="px-6 py-4 font-bold text-slate-900">
                         <span>{entry.candidateAlias}</span>
-                      </td>
-
-                      {/* University */}
-                      <td className="px-6 py-4 text-slate-600">
-                        <span>{entry.university}</span>
                       </td>
 
                       {/* Score */}

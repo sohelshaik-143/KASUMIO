@@ -13,6 +13,7 @@ public class RunCodeResponse {
     private long executionTimeMs;
     private long memoryUsedKb;
     private boolean timedOut;
+    private boolean executionUnavailable;
     private List<DeterministicEvaluationService.TestCaseResult> sampleResults;
 
     public RunCodeResponse() {}
@@ -47,6 +48,8 @@ public class RunCodeResponse {
     public void setMemoryUsedKb(long memoryUsedKb) { this.memoryUsedKb = memoryUsedKb; }
     public boolean isTimedOut() { return timedOut; }
     public void setTimedOut(boolean timedOut) { this.timedOut = timedOut; }
+    public boolean isExecutionUnavailable() { return executionUnavailable; }
+    public void setExecutionUnavailable(boolean executionUnavailable) { this.executionUnavailable = executionUnavailable; }
     public List<DeterministicEvaluationService.TestCaseResult> getSampleResults() { return sampleResults; }
     public void setSampleResults(List<DeterministicEvaluationService.TestCaseResult> sampleResults) { this.sampleResults = sampleResults; }
 }

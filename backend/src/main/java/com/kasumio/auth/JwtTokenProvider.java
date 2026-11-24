@@ -19,8 +19,14 @@ public class JwtTokenProvider {
     private final long expirationMs;
 
     public JwtTokenProvider(
-            @Value("${kasumio.jwt.secret}") String secret,
+            @Value("${kasumio.jwt.secret:}") String secret,
             @Value("${kasumio.jwt.expiration-ms}") long expirationMs) {
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalStateException("Missing required configuration: 'kasumio.jwt.secret'. Application cannot start without a valid JWT secret.");
+        }
+        if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("kasumio.jwt.secret must be at least 256 bits (32 bytes) long.");
+        }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }

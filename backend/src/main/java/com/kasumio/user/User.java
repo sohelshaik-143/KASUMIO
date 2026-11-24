@@ -26,6 +26,10 @@ public class User {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private UserStatus status = UserStatus.ACTIVE;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -36,6 +40,16 @@ public class User {
         this.passwordHash = passwordHash;
         this.role = role;
         this.organization = organization;
+        this.status = UserStatus.ACTIVE;
+        this.createdAt = Instant.now();
+    }
+
+    public User(String email, String passwordHash, Role role, Organization organization, UserStatus status) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.organization = organization;
+        this.status = status != null ? status : UserStatus.ACTIVE;
         this.createdAt = Instant.now();
     }
 
@@ -77,6 +91,18 @@ public class User {
 
     public void setOrganization(Organization organization) {
         this.organization = organization;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public boolean isActive() {
+        return this.status == UserStatus.ACTIVE;
     }
 
     public Instant getCreatedAt() {

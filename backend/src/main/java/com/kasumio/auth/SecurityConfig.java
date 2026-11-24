@@ -31,9 +31,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, RateLimitFilter rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -67,20 +69,22 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/skills/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/discovery/technologies/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/discovery/candidates").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/discovery/candidates/discover").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/evidence-templates/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/organizations/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/leaderboard").permitAll()
                 // Admin-only management
                 .requestMatchers(HttpMethod.POST, "/api/skills").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/organizations").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/organizations/*/approve").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/organizations/pending").hasRole("ADMIN")
                 // Verification endpoints (Recruiter or Admin)
                 .requestMatchers(HttpMethod.POST, "/api/evidence/*/verify").hasAnyRole("RECRUITER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/evidence/pending-verification").hasAnyRole("RECRUITER", "ADMIN")
-                // All other API requests require authentication
+                // All other API requests require authentication (including POST /api/discovery/candidates/discover)
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -90,28 +94,25 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        List<String> originPatterns = new ArrayList<>(Arrays.asList(
-            "http://localhost:*",
-            "http://127.0.0.1:*",
-            "https://*.vercel.app",
-            "https://vercel.app",
-            "https://*.onrender.com"
+        List<String> allowedOrigins = new ArrayList<>(Arrays.asList(
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173",
+            "https://kasumio.vercel.app"
         ));
         
         String frontendUrl = System.getenv("FRONTEND_URL");
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             for (String origin : frontendUrl.split(",")) {
                 String trimmed = origin.trim().replaceAll("/+$", "");
-                if (!trimmed.isEmpty() && !originPatterns.contains(trimmed)) {
-                    originPatterns.add(trimmed);
+                if (!trimmed.isEmpty() && !allowedOrigins.contains(trimmed)) {
+                    allowedOrigins.add(trimmed);
                 }
             }
-        } else {
-            // Permissive fallback so any frontend deployment connects seamlessly without strict CORS block
-            originPatterns.add("*");
         }
 
-        configuration.setAllowedOriginPatterns(originPatterns);
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));

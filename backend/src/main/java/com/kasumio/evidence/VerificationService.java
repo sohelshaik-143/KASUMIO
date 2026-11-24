@@ -21,6 +21,7 @@ public class VerificationService {
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
     private final EvidenceService evidenceService;
+    private final VerificationRequestRepository verificationRequestRepository;
     private final com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService;
 
     public VerificationService(
@@ -29,12 +30,14 @@ public class VerificationService {
             OrganizationRepository organizationRepository,
             UserRepository userRepository,
             EvidenceService evidenceService,
+            VerificationRequestRepository verificationRequestRepository,
             com.kasumio.action.OutcomeIntelligenceService outcomeIntelligenceService) {
         this.verificationRepository = verificationRepository;
         this.evidenceRepository = evidenceRepository;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.evidenceService = evidenceService;
+        this.verificationRequestRepository = verificationRequestRepository;
         this.outcomeIntelligenceService = outcomeIntelligenceService;
     }
 
@@ -45,6 +48,11 @@ public class VerificationService {
         // Security check: Only ADMIN or RECRUITER can verify
         if (verifier.getRole() != Role.ADMIN && verifier.getRole() != Role.RECRUITER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only authorized recruiters or administrators can verify evidence");
+        }
+
+        // Recruiter approval check
+        if (verifier.getRole() == Role.RECRUITER && verifier.getStatus() == com.kasumio.user.UserStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter account is pending administrator approval");
         }
 
         // Organization affiliation check
@@ -63,8 +71,27 @@ public class VerificationService {
             }
         }
 
+        // Recruiter organization must be approved
+        if (verifier.getRole() == Role.RECRUITER && !organization.isApproved()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Recruiter organization is pending administrator approval");
+        }
+
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evidence not found"));
+
+        // Abuse prevention: Never verify evidence they own
+        if (evidence.getStudent() != null && evidence.getStudent().getUser() != null
+                && evidence.getStudent().getUser().getId().equals(verifier.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Verifiers are strictly prohibited from verifying their own evidence");
+        }
+
+        // Scope check: A recruiter may only verify evidence requested from their own approved org
+        if (verifier.getRole() != Role.ADMIN) {
+            boolean requestedByOrg = verificationRequestRepository.existsByEvidenceIdAndOrganizationId(evidenceId, organization.getId());
+            if (!requestedByOrg) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Verifiers may only verify evidence requested from their own approved organization");
+            }
+        }
 
         if (verificationRepository.existsByEvidenceId(evidenceId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This evidence has already been verified");

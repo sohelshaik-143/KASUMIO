@@ -20,6 +20,10 @@ public class Organization {
     @Column(name = "website")
     private String website;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", nullable = false, length = 50)
+    private OrganizationApprovalStatus approvalStatus = OrganizationApprovalStatus.APPROVED;
+
     public Organization() {}
 
     public Organization(Long id, String name, OrganizationType type, String website) {
@@ -27,12 +31,21 @@ public class Organization {
         this.name = name;
         this.type = type;
         this.website = website;
+        this.approvalStatus = OrganizationApprovalStatus.APPROVED;
     }
 
     public Organization(String name, OrganizationType type, String website) {
         this.name = name;
         this.type = type;
         this.website = website;
+        this.approvalStatus = OrganizationApprovalStatus.APPROVED;
+    }
+
+    public Organization(String name, OrganizationType type, String website, OrganizationApprovalStatus approvalStatus) {
+        this.name = name;
+        this.type = type;
+        this.website = website;
+        this.approvalStatus = approvalStatus != null ? approvalStatus : OrganizationApprovalStatus.APPROVED;
     }
 
     public Long getId() {
@@ -65,5 +78,17 @@ public class Organization {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public OrganizationApprovalStatus getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(OrganizationApprovalStatus approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
+    public boolean isApproved() {
+        return this.approvalStatus == OrganizationApprovalStatus.APPROVED;
     }
 }
