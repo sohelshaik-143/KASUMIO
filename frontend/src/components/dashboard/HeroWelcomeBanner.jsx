@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 
 export const HeroWelcomeBanner = ({ user }) => {
   const navigate = useNavigate();
-  const firstName = user?.fullName?.split(' ')[0] || 'Sohel';
+  const firstName = user?.fullName?.split(' ')[0] || 'Student';
 
   return (
     <div className="relative rounded-2xl bg-gradient-to-r from-[#0a1224] via-[#0f1d3d] to-[#142650] border border-blue-900/30 p-6 sm:p-7 text-white shadow-sm overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-h-[170px]">

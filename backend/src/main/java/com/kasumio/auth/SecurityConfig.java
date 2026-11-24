@@ -60,6 +60,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Allow all preflight OPTIONS requests from CORS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Static uploads (avatars, attachments)
+                .requestMatchers("/uploads/**").permitAll()
                 // Public auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 // Public health check and docs

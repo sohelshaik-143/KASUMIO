@@ -51,6 +51,7 @@ export const KasumoSidebar = ({
     { name: 'My Projects', path: '/evidence', icon: FolderGit2 },
     { name: 'Assessments', path: '/student/assessments', icon: CheckSquare },
     { name: 'Opportunities', path: '/student/discover', icon: Briefcase },
+    { name: 'Messages', path: '/student/messages', icon: MessageSquare },
     { name: 'Connections', path: '/student/connections', icon: Users2 },
     { name: 'Profile', path: '/profile', icon: User },
     { name: 'Settings', path: '/student/settings', icon: Settings },
@@ -79,12 +80,12 @@ export const KasumoSidebar = ({
 
   const navItems = (isRecruiterRole || isAdminRole) ? recruiterNavItems : studentNavItems;
 
-  const displayName = user?.fullName || (isStudentRole ? 'Shaik Sohel' : 'Arjun Reddy');
+  const displayName = user?.fullName || (isStudentRole ? 'Student' : 'Recruiter');
   const displayRole = isStudentRole
-    ? 'Student • E3 • EEE'
+    ? (user?.department ? `${user.department} • Student` : 'Student')
     : user?.organizationName
     ? `${user.organizationName} • Recruiter`
-    : 'Tech Recruiter';
+    : 'Recruiter';
   const avatarUrl = user?.avatarUrl;
 
   return (

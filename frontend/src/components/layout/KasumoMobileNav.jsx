@@ -34,6 +34,7 @@ export const KasumoMobileNav = () => {
     { name: 'Dashboard', path: '/', icon: Layers },
     { name: 'Evidence', path: '/evidence', icon: ShieldCheck },
     { name: 'Roles', path: '/student/discover', icon: Compass },
+    { name: 'Messages', path: '/student/messages', icon: MessageSquare },
     { name: 'Assessments', path: '/student/assessments', icon: Code },
     { name: 'Connections', path: '/student/connections', icon: Users },
   ];

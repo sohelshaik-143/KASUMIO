@@ -21,58 +21,8 @@ export const KasumoHeader = ({ onToggleMobile }) => {
   const [globalSearch, setGlobalSearch] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  // Dynamic notifications state
-  const [notifications, setNotifications] = useState(() => {
-    if (isRecruiter) {
-      return [
-        {
-          id: 1,
-          title: 'New candidate match surfaced',
-          desc: 'A student profile with verified Spring Boot evidence matched your criteria.',
-          time: '10m ago',
-          unread: true
-        },
-        {
-          id: 2,
-          title: 'Technical assessment completed',
-          desc: 'Alex Rivera scored 95% on algorithmic test suite.',
-          time: '1h ago',
-          unread: true
-        },
-        {
-          id: 3,
-          title: 'Organization profile active',
-          desc: 'Acme Engineering attestation status is verified.',
-          time: '1d ago',
-          unread: false
-        }
-      ];
-    } else {
-      return [
-        {
-          id: 1,
-          title: 'Employer connection request',
-          desc: 'A tech recruiter viewed your project footprint and requested connection.',
-          time: '20m ago',
-          unread: true
-        },
-        {
-          id: 2,
-          title: 'Assessment blueprint available',
-          desc: 'New screening assessment challenge is ready in your portal.',
-          time: '2h ago',
-          unread: true
-        },
-        {
-          id: 3,
-          title: 'Evidence verified by organization',
-          desc: 'Your Git repository proof received institutional verification.',
-          time: '1d ago',
-          unread: false
-        }
-      ];
-    }
-  });
+  // Dynamic notifications state - clean 0 defaults
+  const [notifications, setNotifications] = useState([]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -94,7 +44,7 @@ export const KasumoHeader = ({ onToggleMobile }) => {
     }
   };
 
-  const orgName = user?.organizationName || 'Acme Engineering';
+  const orgName = user?.organizationName || user?.fullName || 'Organization';
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-[68px] px-6 lg:px-8 bg-[#edf2f9]/90 dark:bg-[#090f1e]/90 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/60 transition-colors">
