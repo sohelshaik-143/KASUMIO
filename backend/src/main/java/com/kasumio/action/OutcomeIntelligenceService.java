@@ -223,7 +223,7 @@ public class OutcomeIntelligenceService {
                 skillName,
                 "STRONG",
                 "UNKNOWN",
-                evidenceId,
+                null,
                 null,
                 null,
                 impactCount,

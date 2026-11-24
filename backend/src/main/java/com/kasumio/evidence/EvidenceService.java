@@ -123,6 +123,14 @@ public class EvidenceService {
 
         String skillName = evidence.getSkill().getName();
         outcomeIntelligenceService.recordEvidenceDeleted(student, skillName, id);
+
+        // Explicitly clean up all dependent verification records
+        verificationRepository.findByEvidenceId(id).ifPresent(verificationRepository::delete);
+        List<VerificationRequest> requests = verificationRequestRepository.findByEvidenceId(id);
+        if (!requests.isEmpty()) {
+            verificationRequestRepository.deleteAll(requests);
+        }
+
         evidenceRepository.delete(evidence);
     }
 

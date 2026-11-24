@@ -116,11 +116,17 @@ export const EvidencePage = () => {
     try {
       setDeleting(true);
       await evidenceApi.deleteEvidence(evidenceToDelete);
+      try {
+        localStorage.removeItem(`evidence_photo_${evidenceToDelete}`);
+      } catch (_) {}
       await loadData();
       setAlert({ type: 'success', message: 'Evidence record removed.' });
       setEvidenceToDelete(null);
     } catch (err) {
-      setAlert({ type: 'error', message: 'Failed to delete evidence.' });
+      console.error('Failed to delete evidence:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Failed to delete evidence.';
+      setAlert({ type: 'error', message: errMsg });
+      setEvidenceToDelete(null);
     } finally {
       setDeleting(false);
     }

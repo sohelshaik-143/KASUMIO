@@ -69,11 +69,38 @@ test.describe('Evidence Footprint, Progress Tracking & Proctored Screening', () 
     await expect(page.locator('img[alt*="Playwright Automated Microservice Proof"]').first()).toBeVisible();
   });
 
-  test('Pre-Assessment requires webcam and screen-recording permissions before starting', async ({ page, context }) => {
+  test('Pre-Assessment requires webcam and screen-recording permissions before starting', async ({ page, context, request }) => {
     await page.setViewportSize({ width: 1440, height: 810 });
 
     // Grant permissions at browser level to allow media request testing
     await context.grantPermissions(['camera', 'microphone']);
+
+    // Ensure at least one published opportunity with assessment exists
+    try {
+      const loginRes = await request.post('http://localhost:8080/api/auth/login', {
+        data: { email: 'recruiter@kasumio.com', password: 'password123' },
+      });
+      const loginData = await loginRes.json();
+      const headers = { Authorization: `Bearer ${loginData.token}` };
+
+      const oppRes = await request.post('http://localhost:8080/api/opportunities', {
+        headers,
+        data: {
+          title: 'Cloud Backend Engineer',
+          description: 'Build scalable Spring Boot microservices',
+          requirements: 'Java, Spring Boot',
+          location: 'Remote',
+          type: 'JOB',
+          workType: 'REMOTE',
+          skills: [{ skillId: 1, skillType: 'REQUIRED' }],
+        },
+      });
+      const oppData = await oppRes.json();
+      await request.post(`http://localhost:8080/api/opportunities/${oppData.id}/publish`, { headers });
+      await request.post(`http://localhost:8080/api/assessments/generate/${oppData.id}`, { headers });
+    } catch (_) {
+      // Ignore if already created
+    }
 
     await page.goto('/login');
     await page.fill('input[type="email"]', 'student@kasumio.com');
