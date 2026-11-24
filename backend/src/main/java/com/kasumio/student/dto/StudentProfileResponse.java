@@ -8,10 +8,15 @@ public class StudentProfileResponse {
     private String bio;
     private String university;
     private Integer graduationYear;
+    private String avatarUrl;
 
     public StudentProfileResponse() {}
 
     public StudentProfileResponse(Long id, Long userId, String email, String fullName, String bio, String university, Integer graduationYear) {
+        this(id, userId, email, fullName, bio, university, graduationYear, null);
+    }
+
+    public StudentProfileResponse(Long id, Long userId, String email, String fullName, String bio, String university, Integer graduationYear, String avatarUrl) {
         this.id = id;
         this.userId = userId;
         this.email = email;
@@ -19,6 +24,7 @@ public class StudentProfileResponse {
         this.bio = bio;
         this.university = university;
         this.graduationYear = graduationYear;
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getId() {
@@ -75,5 +81,13 @@ public class StudentProfileResponse {
 
     public void setGraduationYear(Integer graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

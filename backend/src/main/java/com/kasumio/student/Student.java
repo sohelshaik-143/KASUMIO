@@ -30,6 +30,9 @@ public class Student {
     @Column(name = "leaderboard_public", nullable = false)
     private Boolean leaderboardPublic = true;
 
+    @Column(name = "avatar_url", length = 1024)
+    private String avatarUrl;
+
     public Student() {}
 
     public Student(User user, String fullName, String bio, String university, Integer graduationYear) {
@@ -95,5 +98,13 @@ public class Student {
 
     public void setLeaderboardPublic(Boolean leaderboardPublic) {
         this.leaderboardPublic = leaderboardPublic;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

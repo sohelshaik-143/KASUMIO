@@ -19,6 +19,8 @@ public class StudentProfileRequest {
     @Max(value = 2100, message = "Graduation year must be a valid 4-digit year")
     private Integer graduationYear;
 
+    private String avatarUrl;
+
     public StudentProfileRequest() {}
 
     public StudentProfileRequest(String fullName, String bio, String university, Integer graduationYear) {
@@ -58,5 +60,13 @@ public class StudentProfileRequest {
 
     public void setGraduationYear(Integer graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

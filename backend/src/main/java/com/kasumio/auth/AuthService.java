@@ -95,6 +95,9 @@ public class AuthService {
                 organization,
                 userStatus
         );
+        if (StringUtils.hasText(request.getFullName())) {
+            user.setFullName(request.getFullName().trim());
+        }
         user = userRepository.save(user);
 
         Student student = null;
@@ -147,11 +150,56 @@ public class AuthService {
         return buildUserDto(user, student);
     }
 
+    @Transactional
+    public UserDto updateUserProfile(String email, com.kasumio.auth.dto.UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found"));
+
+        if (StringUtils.hasText(request.getFullName())) {
+            user.setFullName(request.getFullName().trim());
+        }
+        if (request.getAvatarUrl() != null) {
+            user.setAvatarUrl(request.getAvatarUrl().trim().isEmpty() ? null : request.getAvatarUrl().trim());
+        }
+
+        Student student = null;
+        if (user.getRole() == Role.STUDENT) {
+            student = studentRepository.findByUser(user).orElse(null);
+            if (student != null) {
+                if (StringUtils.hasText(request.getFullName())) {
+                    student.setFullName(request.getFullName().trim());
+                }
+                if (request.getAvatarUrl() != null) {
+                    student.setAvatarUrl(request.getAvatarUrl().trim().isEmpty() ? null : request.getAvatarUrl().trim());
+                }
+                if (request.getBio() != null) {
+                    student.setBio(request.getBio().trim());
+                }
+                if (request.getUniversity() != null) {
+                    student.setUniversity(request.getUniversity().trim());
+                }
+                if (request.getGraduationYear() != null) {
+                    student.setGraduationYear(request.getGraduationYear());
+                }
+                student = studentRepository.save(student);
+            }
+        } else if (user.getRole() == Role.RECRUITER && StringUtils.hasText(request.getOrganizationName())) {
+            if (user.getOrganization() != null) {
+                user.getOrganization().setName(request.getOrganizationName().trim());
+                organizationRepository.save(user.getOrganization());
+            }
+        }
+
+        user = userRepository.save(user);
+        return buildUserDto(user, student);
+    }
+
     private UserDto buildUserDto(User user, Student student) {
         Long orgId = user.getOrganization() != null ? user.getOrganization().getId() : null;
         String orgName = user.getOrganization() != null ? user.getOrganization().getName() : null;
         Long studentId = student != null ? student.getId() : null;
-        String fullName = student != null ? student.getFullName() : null;
+        String fullName = student != null && student.getFullName() != null ? student.getFullName() : user.getFullName();
+        String avatarUrl = student != null && student.getAvatarUrl() != null ? student.getAvatarUrl() : user.getAvatarUrl();
 
         return new UserDto(
                 user.getId(),
@@ -161,6 +209,7 @@ public class AuthService {
                 orgName,
                 studentId,
                 fullName,
+                avatarUrl,
                 user.getStatus() != null ? user.getStatus().name() : "ACTIVE",
                 user.getCreatedAt()
         );

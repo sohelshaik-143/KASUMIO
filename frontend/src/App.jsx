@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { KasumoLayout } from './components/layout/KasumoLayout';
 import { ServerWakeupBanner } from './components/common/ServerWakeupBanner';
@@ -23,6 +24,16 @@ const OpportunitiesPage = React.lazy(() => import('./pages/recruiter/Opportuniti
 const CreateOpportunityPage = React.lazy(() => import('./pages/recruiter/CreateOpportunityPage').then(m => ({ default: m.CreateOpportunityPage })));
 const OpportunityDetailPage = React.lazy(() => import('./pages/recruiter/OpportunityDetailPage').then(m => ({ default: m.OpportunityDetailPage })));
 const RecruiterConnectionsPage = React.lazy(() => import('./pages/recruiter/RecruiterConnectionsPage').then(m => ({ default: m.RecruiterConnectionsPage })));
+const RecruiterCandidatesPage = React.lazy(() => import('./pages/recruiter/RecruiterCandidatesPage').then(m => ({ default: m.RecruiterCandidatesPage })));
+const RecruiterTalentSearchPage = React.lazy(() => import('./pages/recruiter/RecruiterTalentSearchPage').then(m => ({ default: m.RecruiterTalentSearchPage })));
+const RecruiterShortlistPage = React.lazy(() => import('./pages/recruiter/RecruiterShortlistPage').then(m => ({ default: m.RecruiterShortlistPage })));
+const RecruiterApplicationsPage = React.lazy(() => import('./pages/recruiter/RecruiterApplicationsPage').then(m => ({ default: m.RecruiterApplicationsPage })));
+const RecruiterMessagesPage = React.lazy(() => import('./pages/recruiter/RecruiterMessagesPage').then(m => ({ default: m.RecruiterMessagesPage })));
+const RecruiterAssessmentsPage = React.lazy(() => import('./pages/recruiter/RecruiterAssessmentsPage').then(m => ({ default: m.RecruiterAssessmentsPage })));
+const RecruiterAnalyticsPage = React.lazy(() => import('./pages/recruiter/RecruiterAnalyticsPage').then(m => ({ default: m.RecruiterAnalyticsPage })));
+const RecruiterOrganizationPage = React.lazy(() => import('./pages/recruiter/RecruiterOrganizationPage').then(m => ({ default: m.RecruiterOrganizationPage })));
+const RecruiterSettingsPage = React.lazy(() => import('./pages/recruiter/RecruiterSettingsPage').then(m => ({ default: m.RecruiterSettingsPage })));
+const RecruiterHelpPage = React.lazy(() => import('./pages/recruiter/RecruiterHelpPage').then(m => ({ default: m.RecruiterHelpPage })));
 const AssessmentsListPage = React.lazy(() => import('./pages/student/AssessmentsListPage').then(m => ({ default: m.AssessmentsListPage })));
 const AssessmentTakingPage = React.lazy(() => import('./pages/student/AssessmentTakingPage').then(m => ({ default: m.AssessmentTakingPage })));
 const AssessmentResultPage = React.lazy(() => import('./pages/student/AssessmentResultPage').then(m => ({ default: m.AssessmentResultPage })));
@@ -37,9 +48,10 @@ const PageLoader = () => (
 export function App() {
   return (
     <Router>
-      <ServerWakeupBanner />
-      <AuthProvider>
-        <Suspense fallback={<PageLoader />}>
+      <ThemeProvider>
+        <ServerWakeupBanner />
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public Routes without layout */}
             <Route path="/login" element={<LoginPage />} />
@@ -80,6 +92,16 @@ export function App() {
                 <Route path="/recruiter/opportunities/new" element={<CreateOpportunityPage />} />
                 <Route path="/recruiter/opportunities/:id" element={<OpportunityDetailPage />} />
                 <Route path="/recruiter/verifications" element={<VerificationPage />} />
+                <Route path="/recruiter/candidates" element={<RecruiterCandidatesPage />} />
+                <Route path="/recruiter/talent-search" element={<RecruiterTalentSearchPage />} />
+                <Route path="/recruiter/shortlist" element={<RecruiterShortlistPage />} />
+                <Route path="/recruiter/applications" element={<RecruiterApplicationsPage />} />
+                <Route path="/recruiter/messages" element={<RecruiterMessagesPage />} />
+                <Route path="/recruiter/assessments" element={<RecruiterAssessmentsPage />} />
+                <Route path="/recruiter/analytics" element={<RecruiterAnalyticsPage />} />
+                <Route path="/recruiter/organization" element={<RecruiterOrganizationPage />} />
+                <Route path="/recruiter/settings" element={<RecruiterSettingsPage />} />
+                <Route path="/recruiter/help" element={<RecruiterHelpPage />} />
               </Route>
             </Route>
 
@@ -91,7 +113,8 @@ export function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

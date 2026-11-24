@@ -8,7 +8,7 @@ export const KasumoLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#edf2f9] flex font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#edf2f9] dark:bg-[#070c18] flex font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
       {/* Dark Navy Sidebar Navigation */}
       <KasumoSidebar
         mobileOpen={mobileOpen}

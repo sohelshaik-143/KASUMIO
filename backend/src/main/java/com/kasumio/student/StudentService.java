@@ -54,6 +54,9 @@ public class StudentService {
         student.setBio(request.getBio() != null ? request.getBio().trim() : null);
         student.setUniversity(request.getUniversity() != null ? request.getUniversity().trim() : null);
         student.setGraduationYear(request.getGraduationYear());
+        if (request.getAvatarUrl() != null) {
+            student.setAvatarUrl(request.getAvatarUrl());
+        }
 
         student = studentRepository.save(student);
         return mapToResponse(student);
@@ -87,6 +90,7 @@ public class StudentService {
     }
 
     private StudentProfileResponse mapToResponse(Student student) {
+        String avatar = student.getAvatarUrl() != null ? student.getAvatarUrl() : student.getUser().getAvatarUrl();
         return new StudentProfileResponse(
                 student.getId(),
                 student.getUser().getId(),
@@ -94,7 +98,8 @@ public class StudentService {
                 student.getFullName(),
                 student.getBio(),
                 student.getUniversity(),
-                student.getGraduationYear()
+                student.getGraduationYear(),
+                avatar
         );
     }
 }

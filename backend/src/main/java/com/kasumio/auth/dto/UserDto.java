@@ -11,16 +11,21 @@ public class UserDto {
     private String organizationName;
     private Long studentId;
     private String fullName;
+    private String avatarUrl;
     private String status;
     private Instant createdAt;
 
     public UserDto() {}
 
     public UserDto(Long id, String email, Role role, Long organizationId, String organizationName, Long studentId, String fullName, Instant createdAt) {
-        this(id, email, role, organizationId, organizationName, studentId, fullName, "ACTIVE", createdAt);
+        this(id, email, role, organizationId, organizationName, studentId, fullName, null, "ACTIVE", createdAt);
     }
 
     public UserDto(Long id, String email, Role role, Long organizationId, String organizationName, Long studentId, String fullName, String status, Instant createdAt) {
+        this(id, email, role, organizationId, organizationName, studentId, fullName, null, status, createdAt);
+    }
+
+    public UserDto(Long id, String email, Role role, Long organizationId, String organizationName, Long studentId, String fullName, String avatarUrl, String status, Instant createdAt) {
         this.id = id;
         this.email = email;
         this.role = role;
@@ -28,6 +33,7 @@ public class UserDto {
         this.organizationName = organizationName;
         this.studentId = studentId;
         this.fullName = fullName;
+        this.avatarUrl = avatarUrl;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -86,6 +92,14 @@ public class UserDto {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public String getStatus() {

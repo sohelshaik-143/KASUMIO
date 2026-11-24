@@ -55,15 +55,30 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+.dark .kasumo-card {
+  background-color: #0e172a;
+  border-color: #1e293b;
+  color: #f1f5f9;
+}
+
 .kasumo-card:hover {
   border-color: #d1cfc7;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.dark .kasumo-card:hover {
+  border-color: #334155;
 }
 
 .kasumo-surface-subtle {
   background-color: #f5f4ef;
   border: 1px solid #e4e2db;
   border-radius: 0.75rem;
+}
+
+.dark .kasumo-surface-subtle {
+  background-color: #0b1329;
+  border-color: #1e293b;
 }
 
 .tab-active {

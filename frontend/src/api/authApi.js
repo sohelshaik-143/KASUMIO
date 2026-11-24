@@ -15,4 +15,21 @@ export const authApi = {
     const res = await api.get('/me');
     return res.data;
   },
+
+  uploadAvatar: async (formData) => {
+    const res = await api.post('/me/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  deleteAvatar: async () => {
+    const res = await api.delete('/me/avatar');
+    return res.data;
+  },
+
+  updateProfile: async (profileData) => {
+    const res = await api.put('/me/profile', profileData);
+    return res.data;
+  },
 };

@@ -46,6 +46,9 @@ export const AssessmentTakingPage = () => {
   const [adaptiveDifficulty, setAdaptiveDifficulty] = useState('MEDIUM');
   const [totalScore, setTotalScore] = useState(0);
 
+  // Time-limited assessment countdown timer
+  const [timeLeft, setTimeLeft] = useState(45 * 60);
+
   // Non-punitive assessment telemetry signals
   const [focusChangeCount, setFocusChangeCount] = useState(0);
   const [pasteCount, setPasteCount] = useState(0);
@@ -53,13 +56,27 @@ export const AssessmentTakingPage = () => {
   const [largeChangesCount, setLargeChangesCount] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const previousCodeLengthRef = React.useRef(0);
-  const proctorVideoRef = React.useRef(null);
+  const textareaRef = React.useRef(null);
 
   useEffect(() => {
-    if (proctorVideoRef.current && window.__proctorWebcamStream) {
-      proctorVideoRef.current.srcObject = window.__proctorWebcamStream;
-    }
-  }, [loadingQuestion]);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleFinishAssessment();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTimer = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
 
   useEffect(() => {
     const handleBlur = () => {
@@ -137,6 +154,25 @@ export const AssessmentTakingPage = () => {
   const handlePaste = () => {
     setPasteCount((prev) => prev + 1);
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = e.target.selectionStart;
+      const end = e.target.selectionEnd;
+      const val = codeContent;
+      const updated = val.substring(0, start) + '    ' + val.substring(end);
+      setCodeContent(updated);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 4;
+        }
+      }, 0);
+    }
+  };
+
+  const lineCount = (codeContent.match(/\n/g) || []).length + 1;
+  const lineNumbers = Array.from({ length: Math.max(lineCount, 16) }, (_, i) => i + 1);
 
   const handleRunCode = async () => {
     if (!question || !codeContent.trim()) return;
@@ -309,42 +345,15 @@ export const AssessmentTakingPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Live Proctored Feed Badge */}
-          <div className="flex items-center gap-2 bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-700">
-            {window.__proctorWebcamStream ? (
-              <video
-                ref={proctorVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-10 h-8 rounded object-cover bg-black border border-slate-600"
-              />
-            ) : (
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-            )}
-            <div className="text-left">
-              <span className="text-[10px] font-bold text-emerald-400 block uppercase tracking-wider leading-none">
-                Live Proctored
-              </span>
-              <span className="text-[9px] text-slate-400 block leading-tight">
-                Cam & Screen Recorded
-              </span>
+          {/* Active Assessment Countdown Timer */}
+          <div className="flex items-center gap-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 shadow-inner">
+            <Clock className="w-4 h-4 text-amber-400" />
+            <div className="text-left font-mono">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block leading-none">Time Left</span>
+              <span className="text-xs font-bold text-amber-300">{formatTimer(timeLeft)}</span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleAgentAutoSolve}
-            disabled={agentRunning || submitting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-paper-subtle hover:bg-paper-border text-ink border border-paper-border text-xs font-semibold rounded-lg shadow-xs transition disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
-            title="Auto-run test suite simulation"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-verified" aria-hidden="true" />
-            <span>{agentRunning ? 'Evaluating...' : 'Simulate Run'}</span>
-          </button>
           <div className="text-right">
             <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Score</span>
             <p className="text-sm font-bold text-emerald-400 font-mono">{totalScore} pts</p>
@@ -440,7 +449,7 @@ export const AssessmentTakingPage = () => {
               <div className="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-bold text-slate-200">Sandbox Environment</span>
+                  <span className="text-xs font-bold text-slate-200">Sandbox Code Editor</span>
                   <select
                     value={selectedLanguage}
                     onChange={(e) => handleLanguageChange(e.target.value)}
@@ -449,11 +458,7 @@ export const AssessmentTakingPage = () => {
                     <option value="java">Java 21 (Temurin)</option>
                     <option value="python">Python 3.12</option>
                     <option value="javascript">JavaScript (Node.js)</option>
-                    <option value="typescript">TypeScript</option>
                     <option value="cpp">C++ 17</option>
-                    <option value="go">Go 1.22</option>
-                    <option value="rust">Rust</option>
-                    <option value="kotlin">Kotlin</option>
                   </select>
                 </div>
 
@@ -475,15 +480,24 @@ export const AssessmentTakingPage = () => {
                 </div>
               </div>
 
-              {/* Code Textarea with Monospace styling */}
-              <div className="flex-1 bg-slate-950 p-4 min-h-[300px]">
+              {/* Code Editor Container with Line Numbers Gutter */}
+              <div className="flex-1 bg-slate-950 flex overflow-hidden min-h-[320px]">
+                {/* Gutter */}
+                <div className="w-10 py-4 px-2 select-none text-right font-mono text-xs text-slate-600 bg-slate-900/60 border-r border-slate-800/80 shrink-0">
+                  {lineNumbers.map((n) => (
+                    <div key={n} className="leading-relaxed">{n}</div>
+                  ))}
+                </div>
+                {/* Textarea */}
                 <textarea
+                  ref={textareaRef}
                   value={codeContent}
                   onChange={handleCodeChange}
+                  onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
                   spellCheck="false"
-                  className="w-full h-full min-h-[280px] bg-transparent text-slate-100 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none selection:bg-indigo-600 selection:text-white"
-                  placeholder="// Implement your solution..."
+                  className="flex-1 p-4 bg-transparent text-slate-100 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none selection:bg-indigo-600 selection:text-white"
+                  placeholder="// Implement your solution here..."
                 />
               </div>
 

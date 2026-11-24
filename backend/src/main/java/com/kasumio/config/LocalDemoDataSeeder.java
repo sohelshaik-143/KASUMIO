@@ -64,6 +64,7 @@ public class LocalDemoDataSeeder implements CommandLineRunner {
         if (userRepository.findByEmail("recruiter@kasumio.com").isEmpty()) {
             User recruiter = new User();
             recruiter.setEmail("recruiter@kasumio.com");
+            recruiter.setFullName("Arjun Reddy");
             recruiter.setPasswordHash(passwordEncoder.encode("password123"));
             recruiter.setRole(Role.RECRUITER);
             recruiter.setStatus(UserStatus.ACTIVE);
@@ -75,6 +76,7 @@ public class LocalDemoDataSeeder implements CommandLineRunner {
         if (userRepository.findByEmail("student@kasumio.com").isEmpty()) {
             User studentUser = new User();
             studentUser.setEmail("student@kasumio.com");
+            studentUser.setFullName("Alex Rivera");
             studentUser.setPasswordHash(passwordEncoder.encode("password123"));
             studentUser.setRole(Role.STUDENT);
             studentUser.setStatus(UserStatus.ACTIVE);
