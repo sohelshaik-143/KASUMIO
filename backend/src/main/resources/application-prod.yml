@@ -13,8 +13,8 @@ server:
 spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:kasumio_db}?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: KasumioHikariCP
@@ -49,7 +49,7 @@ spring:
 kasumio:
   jwt:
     # In production, JWT secret must be provided via environment variable
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:kasumio_super_secure_jwt_secret_key_with_at_least_256_bits_length_123456}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
   assessment:
     code-execution:
