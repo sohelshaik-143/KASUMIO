@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/authApi';
 import { Alert } from '../components/common/Alert';
-import { Lock, Mail, ArrowRight, Sparkles, Building, GraduationCap } from 'lucide-react';
+import { Field } from '../components/common/Field';
+import { Lock, Mail, ArrowRight, Building, GraduationCap, ShieldCheck } from 'lucide-react';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -18,24 +19,26 @@ export const LoginPage = () => {
   const from = location.state?.from?.pathname || '/';
 
   const handleQuickDemo = async (role) => {
-    setError(null);
-    setSubmitting(true);
-    const emailToUse = role === 'RECRUITER' ? 'recruiter@kasumo.internal' : 'student@kasumo.internal';
-    const pwd = 'password123';
+    const emailToUse = role === 'RECRUITER' ? 'recruiter@techcorp.com' : 'student@university.edu';
+    const demoPassword = 'password123';
+
     try {
-      await login(emailToUse, pwd);
+      setSubmitting(true);
+      setError(null);
+      await login(emailToUse, demoPassword);
       navigate(from, { replace: true });
     } catch (err) {
       // In-memory H2 fallback: auto-register and sign in
       try {
         await authApi.register({
           email: emailToUse,
-          password: pwd,
-          fullName: role === 'RECRUITER' ? 'Sarah Jenkins (Lead Recruiter)' : 'Alex Mercer (Full-Stack Student)',
+          password: demoPassword,
           role: role,
-          organizationName: role === 'RECRUITER' ? 'Apex Systems' : 'Stanford University',
+          fullName: role === 'RECRUITER' ? 'Recruiter Demo' : 'Student Demo',
+          organizationName: role === 'RECRUITER' ? 'TechCorp Solutions' : undefined,
+          university: role === 'STUDENT' ? 'State University' : undefined,
         });
-        await login(emailToUse, pwd);
+        await login(emailToUse, demoPassword);
         navigate(from, { replace: true });
       } catch (regErr) {
         setError('Failed to initiate quick demo session.');
@@ -47,10 +50,14 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
 
     try {
+      setSubmitting(true);
+      setError(null);
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
@@ -62,28 +69,28 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+    <div className="min-h-screen bg-warm-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Platform Identity */}
         <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-2xl mx-auto mb-4 shadow-sm">
-            K
+          <div className="w-12 h-12 rounded-xl bg-teal-800 flex items-center justify-center text-white font-bold text-xl mx-auto mb-3 shadow-xs">
+            <ShieldCheck className="w-7 h-7" aria-hidden="true" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight font-serif">
             KASUMIO
-          </h2>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 font-medium max-w-xs mx-auto">
-            Career-Intelligence Platform
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 font-medium">
+            Verifiable Skill & Evidence Infrastructure
           </p>
         </div>
       </div>
 
       {/* Card Form */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white border border-slate-200 py-8 px-6 sm:px-10 rounded-3xl shadow-xs space-y-6">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white border border-slate-200 py-8 px-6 sm:px-8 rounded-2xl shadow-xs space-y-6">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Sign in to your account</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Sign in to your account</h2>
+            <p className="text-xs text-slate-600 mt-1">
               Access your verifiable skill evidence and career profile.
             </p>
           </div>
@@ -92,56 +99,60 @@ export const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Email address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-4 h-4" />
+            <Field label="Email address" required>
+              {({ id, describedBy, isInvalid }) => (
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <input
+                    id={id}
+                    aria-describedby={describedBy}
+                    aria-invalid={isInvalid}
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="student@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
+                  />
                 </div>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  placeholder="student@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
-                />
-              </div>
-            </div>
+              )}
+            </Field>
 
             {/* Password */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
+            <Field label="Password" required>
+              {({ id, describedBy, isInvalid }) => (
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <input
+                    id={id}
+                    aria-describedby={describedBy}
+                    aria-invalid={isInvalid}
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    placeholder="••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
+                  />
                 </div>
-                <input
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
-                />
-              </div>
-            </div>
+              )}
+            </Field>
 
             {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none transition-all shadow-xs disabled:opacity-50 active:scale-98"
+                className="w-full min-h-[48px] flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 transition shadow-xs disabled:opacity-50"
               >
                 <span>{submitting ? 'Authenticating...' : 'Sign In'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </form>
@@ -150,8 +161,8 @@ export const LoginPage = () => {
           <div className="pt-2 space-y-2.5">
             <div className="relative flex py-1 items-center">
               <div className="flex-grow border-t border-slate-200"></div>
-              <span className="flex-shrink mx-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                ⚡ Quick Demo Access
+              <span className="flex-shrink mx-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                Demo Accounts
               </span>
               <div className="flex-grow border-t border-slate-200"></div>
             </div>
@@ -161,9 +172,9 @@ export const LoginPage = () => {
                 type="button"
                 disabled={submitting}
                 onClick={() => handleQuickDemo('RECRUITER')}
-                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-indigo-200 transition"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-slate-50 hover:bg-teal-50 hover:text-teal-900 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-teal-300 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600"
               >
-                <Building className="w-3.5 h-3.5 text-indigo-600" />
+                <Building className="w-4 h-4 text-teal-700" aria-hidden="true" />
                 <span>Recruiter Demo</span>
               </button>
 
@@ -171,21 +182,21 @@ export const LoginPage = () => {
                 type="button"
                 disabled={submitting}
                 onClick={() => handleQuickDemo('STUDENT')}
-                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-indigo-200 transition"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-slate-50 hover:bg-teal-50 hover:text-teal-900 text-slate-700 text-xs font-semibold border border-slate-200 hover:border-teal-300 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600"
               >
-                <GraduationCap className="w-3.5 h-3.5 text-purple-600" />
+                <GraduationCap className="w-4 h-4 text-teal-700" aria-hidden="true" />
                 <span>Student Demo</span>
               </button>
             </div>
           </div>
 
           {/* Registration Redirect */}
-          <div className="pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500">
+          <div className="pt-4 border-t border-slate-200 text-center">
+            <p className="text-xs text-slate-600">
               Don't have an account?{' '}
               <Link
                 to="/register"
-                className="font-semibold text-indigo-600 hover:text-indigo-700 transition underline underline-offset-2"
+                className="font-semibold text-teal-700 hover:text-teal-900 transition underline underline-offset-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 rounded"
               >
                 Create an account
               </Link>
@@ -196,3 +207,5 @@ export const LoginPage = () => {
     </div>
   );
 };
+
+export default LoginPage;

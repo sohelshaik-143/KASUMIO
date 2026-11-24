@@ -71,11 +71,11 @@ export const ServerWakeupBanner = () => {
                 <span className="text-xs font-semibold text-slate-100">
                   Connecting to server...
                 </span>
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-indigo-500/20 text-indigo-300 rounded-md border border-indigo-500/30">
+                <span className="px-1.5 py-0.5 text-xs font-medium bg-indigo-500/20 text-indigo-300 rounded-md border border-indigo-500/30">
                   Please wait
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 truncate mt-0.5">
+              <p className="text-xs text-slate-400 truncate mt-0.5">
                 Establishing connection. Retrying automatically...
               </p>
             </div>
@@ -100,7 +100,7 @@ export const ServerWakeupBanner = () => {
               <p className="text-xs font-semibold text-emerald-100">
                 Backend Server Online
               </p>
-              <p className="text-[11px] text-emerald-300/80">
+              <p className="text-xs text-emerald-300/80">
                 Connection established successfully.
               </p>
             </div>

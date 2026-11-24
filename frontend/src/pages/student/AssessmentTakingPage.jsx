@@ -284,7 +284,7 @@ export const AssessmentTakingPage = () => {
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-bold text-white">{question?.title}</h2>
               <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                   adaptiveDifficulty === 'HARD'
                     ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                     : adaptiveDifficulty === 'MEDIUM'
@@ -312,7 +312,7 @@ export const AssessmentTakingPage = () => {
             <span>{agentRunning ? 'Solving...' : '🤖 AI Agent Solve'}</span>
           </button>
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Score</span>
+            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Score</span>
             <p className="text-sm font-bold text-emerald-400 font-mono">{totalScore} pts</p>
           </div>
           <button
@@ -336,7 +336,7 @@ export const AssessmentTakingPage = () => {
         <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
           <div className="space-y-4 overflow-y-auto max-h-[640px] pr-2">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
                 {question?.questionType} ASSESSMENT
               </span>
               <h3 className="text-lg font-bold text-slate-900 mt-1">{question?.title}</h3>
@@ -377,7 +377,7 @@ export const AssessmentTakingPage = () => {
                     </h4>
                     {question.codingProblem.sampleTestCases.map((tc, idx) => (
                       <div key={idx} className="bg-slate-900 rounded-xl p-3 text-xs font-mono text-slate-200 space-y-1.5 border border-slate-800">
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-1">
+                        <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-1">
                           <span>Sample #{idx + 1}</span>
                           <span className="text-indigo-400">{tc.explanation || 'Example Case'}</span>
                         </div>
@@ -456,7 +456,7 @@ export const AssessmentTakingPage = () => {
               {/* Run Telemetry Console */}
               {runTelemetry && (
                 <div className="border-t border-slate-800 bg-slate-900 p-4 space-y-2 text-xs font-mono">
-                  <div className="flex items-center justify-between text-[11px] pb-1 border-b border-slate-800">
+                  <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-800">
                     <span className="font-bold flex items-center gap-1.5">
                       <Terminal className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Sandbox Telemetry</span>
@@ -502,7 +502,7 @@ export const AssessmentTakingPage = () => {
                         )}
                         <span>Sample #{i + 1}</span>
                       </div>
-                      <div className="text-[11px] text-right font-mono">
+                      <div className="text-xs text-right font-mono">
                         <span>Expected: {res.expectedOutput}</span> • <span>Output: {res.actualOutput}</span>
                       </div>
                     </div>

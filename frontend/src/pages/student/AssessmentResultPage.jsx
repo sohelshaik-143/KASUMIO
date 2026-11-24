@@ -102,19 +102,19 @@ export const AssessmentResultPage = () => {
           {/* Score telemetry box */}
           <div className="flex items-center gap-4 bg-slate-50 p-4 px-6 rounded-2xl border border-slate-200 shrink-0">
             <div className="text-center pr-4 border-r border-slate-200">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Score</span>
+              <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Score</span>
               <p className="text-2xl font-black text-slate-900 font-mono">
                 {result.score}<span className="text-sm font-normal text-slate-400">/{result.maxScore}</span>
               </p>
             </div>
             <div className="text-center pr-4 border-r border-slate-200">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Accuracy</span>
+              <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Accuracy</span>
               <p className="text-2xl font-black text-indigo-600 font-mono">
                 {Math.round(result.percentage)}%
               </p>
             </div>
             <div className="text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Capability</span>
+              <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Capability</span>
               <p className="text-sm font-bold text-slate-800 font-mono uppercase mt-1">
                 {result.capabilityLevel}
               </p>
@@ -140,7 +140,7 @@ export const AssessmentResultPage = () => {
               <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
               <div className="text-xs text-emerald-950">
                 <strong>Verified Assessment Evidence Added</strong>
-                <p className="text-[11px] text-emerald-800">
+                <p className="text-xs text-emerald-800">
                   This screening is now a verified portfolio credential visible to matching recruiters.
                 </p>
               </div>

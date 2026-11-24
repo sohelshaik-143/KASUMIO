@@ -5,6 +5,7 @@ import { studentApi } from '../../api/studentApi';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { Alert } from '../../components/common/Alert';
 import { EmptyState } from '../../components/common/EmptyState';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { ConnectionConsentModal } from '../../components/connection/ConnectionConsentModal';
 import { 
   ShieldCheck, 
@@ -25,6 +26,8 @@ export const StudentConnectionsPage = () => {
   // Consent modal state
   const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [activeConnection, setActiveConnection] = useState(null);
+  const [confirmState, setConfirmState] = useState({ isOpen: false, type: null, connId: null });
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const loadData = async () => {
     if (!user) return;
@@ -74,38 +77,42 @@ export const StudentConnectionsPage = () => {
     }
   };
 
-  const handleDecline = async (connId) => {
-    if (!window.confirm('Decline this connection request? Declining will never affect your matching, evidence strength, or reputation.')) {
-      return;
-    }
-    try {
-      const updated = await connectionApi.declineStudentConnection(connId);
-      setConnections((prev) =>
-        prev.map((c) => (c.id === updated.id ? updated : c))
-      );
-      setAlert({
-        type: 'info',
-        message: 'Connection request declined. Your candidate standing and opportunity matching remain unaffected.',
-      });
-    } catch (err) {
-      const errMsg = err.response?.data?.message || 'Failed to decline connection.';
-      setAlert({ type: 'error', message: errMsg });
-    }
+  const handleDecline = (connId) => {
+    setConfirmState({ isOpen: true, type: 'DECLINE', connId });
   };
 
-  const handleCancelConnection = async (connId) => {
-    if (!window.confirm('Are you sure you want to revoke this connection? The recruiter will no longer have access to your contact information.')) {
-      return;
-    }
+  const handleCancelConnection = (connId) => {
+    setConfirmState({ isOpen: true, type: 'REVOKE', connId });
+  };
+
+  const handleExecuteConfirm = async () => {
+    const { type, connId } = confirmState;
+    if (!connId) return;
+
     try {
-      await connectionApi.cancelStudentConnection(connId);
-      setConnections((prev) =>
-        prev.map((c) => (c.id === connId ? { ...c, status: 'CANCELLED' } : c))
-      );
-      setAlert({ type: 'info', message: 'Connection revoked.' });
+      setConfirmLoading(true);
+      if (type === 'DECLINE') {
+        const updated = await connectionApi.declineStudentConnection(connId);
+        setConnections((prev) =>
+          prev.map((c) => (c.id === updated.id ? updated : c))
+        );
+        setAlert({
+          type: 'info',
+          message: 'Connection request declined. Your candidate standing and opportunity matching remain unaffected.',
+        });
+      } else if (type === 'REVOKE') {
+        await connectionApi.cancelStudentConnection(connId);
+        setConnections((prev) =>
+          prev.map((c) => (c.id === connId ? { ...c, status: 'CANCELLED' } : c))
+        );
+        setAlert({ type: 'info', message: 'Connection revoked.' });
+      }
+      setConfirmState({ isOpen: false, type: null, connId: null });
     } catch (err) {
-      const errMsg = err.response?.data?.message || 'Failed to revoke connection.';
+      const errMsg = err.response?.data?.message || 'Failed to process request.';
       setAlert({ type: 'error', message: errMsg });
+    } finally {
+      setConfirmLoading(false);
     }
   };
 
@@ -180,7 +187,7 @@ export const StudentConnectionsPage = () => {
               Trusted Connections
             </h1>
             {pendingCount > 0 && (
-              <span className="ml-1 px-2.5 py-0.5 text-[11px] font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
+              <span className="ml-1 px-2.5 py-0.5 text-xs font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
                 {pendingCount} Decision Pending
               </span>
             )}
@@ -302,6 +309,21 @@ export const StudentConnectionsPage = () => {
         onConfirm={handleConfirmAccept}
         connection={activeConnection}
         studentProfile={studentProfile}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false, type: null, connId: null })}
+        title={confirmState.type === 'DECLINE' ? 'Decline Connection Request' : 'Revoke Connection'}
+        message={
+          confirmState.type === 'DECLINE'
+            ? 'Decline this connection request? Declining will never affect your matching, evidence strength, or reputation.'
+            : 'Are you sure you want to revoke this connection? The recruiter will no longer have access to your contact information.'
+        }
+        confirmLabel={confirmState.type === 'DECLINE' ? 'Decline Request' : 'Revoke Connection'}
+        isDanger={true}
+        isLoading={confirmLoading}
+        onConfirm={handleExecuteConfirm}
       />
     </div>
   );

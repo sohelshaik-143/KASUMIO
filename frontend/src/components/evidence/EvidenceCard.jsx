@@ -40,7 +40,7 @@ export const EvidenceCard = ({
               <Layers className="w-3.5 h-3.5 text-indigo-600" />
               {evidence.skillName}
             </span>
-            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${typeBadgeColors[evidence.evidenceType] || typeBadgeColors.OTHER}`}>
+            <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${typeBadgeColors[evidence.evidenceType] || typeBadgeColors.OTHER}`}>
               {evidence.evidenceType}
             </span>
           </div>
@@ -57,7 +57,7 @@ export const EvidenceCard = ({
           ) : (
             <div 
               title="Awaiting verification by an accredited institution or organization"
-              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200"
+              className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200"
             >
               <Clock className="w-3 h-3 text-slate-400" />
               <span>Unverified</span>
@@ -87,14 +87,14 @@ export const EvidenceCard = ({
         {/* Opportunity-Specific Verification Provenance */}
         {evidence.opportunityVerifications && evidence.opportunityVerifications.length > 0 && (
           <div className="space-y-1.5 mb-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block">
               Opportunity Verification Provenance
             </span>
             <div className="flex flex-wrap gap-1.5">
               {evidence.opportunityVerifications.map((v, i) => (
                 <span
                   key={i}
-                  className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-lg border ${
+                  className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg border ${
                     v.status === 'VERIFIED'
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : v.status === 'REQUESTED'
@@ -122,7 +122,7 @@ export const EvidenceCard = ({
       {/* Footer / Links / Actions */}
       <div className="pt-3.5 border-t border-slate-100 mt-2 flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-slate-400 text-[11px]">
+          <span className="flex items-center gap-1 text-slate-400 text-xs">
             <Calendar className="w-3.5 h-3.5" />
             {formattedDate}
           </span>

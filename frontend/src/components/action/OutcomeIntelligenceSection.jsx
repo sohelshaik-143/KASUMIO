@@ -71,7 +71,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
               Evidence Portfolio
             </div>
             <div className="text-2xl font-bold text-white">{totalEvidenceCount}</div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Submitted project & skill artifacts
             </p>
           </div>
@@ -82,7 +82,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
               Verified Evidence
             </div>
             <div className="text-2xl font-bold text-emerald-400">{verifiedEvidenceCount}</div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Attributed by partner organizations
             </p>
           </div>
@@ -93,7 +93,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
               Actions Completed
             </div>
             <div className="text-2xl font-bold text-blue-400">{completedActionsCount}</div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Executed growth steps
             </p>
           </div>
@@ -104,7 +104,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
               Opportunities Matched
             </div>
             <div className="text-2xl font-bold text-amber-400">{newlyMatchedOpportunitiesCount}</div>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Derived from verified capability
             </p>
           </div>
@@ -154,7 +154,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-white text-sm">{item.skillName}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800 font-mono">
+                    <span className="text-xs px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800 font-mono">
                       {item.category}
                     </span>
                   </div>
@@ -171,7 +171,7 @@ export function OutcomeIntelligenceSection({ outcomeData, onRecalculate }) {
                 <div className="text-xs text-slate-300 bg-slate-900/50 p-2.5 rounded-lg border border-slate-900">
                   <p className="font-medium text-slate-200">{item.explanation}</p>
                   {item.evidenceTitle && (
-                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-400 pt-1.5 border-t border-slate-800/60">
+                    <div className="mt-1.5 flex items-center justify-between text-xs text-slate-400 pt-1.5 border-t border-slate-800/60">
                       <span className="truncate max-w-[220px]">Artifact: <strong className="text-slate-300">{item.evidenceTitle}</strong></span>
                       {item.isVerified ? (
                         <span className="text-emerald-400 font-semibold flex items-center gap-1">

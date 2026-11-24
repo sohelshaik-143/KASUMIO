@@ -51,7 +51,7 @@ export const KasumoMobileNav = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] font-medium transition-all ${
+              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-xs font-medium transition-all ${
                 active
                   ? 'text-indigo-600 font-bold'
                   : 'text-slate-500 hover:text-slate-900'

@@ -182,7 +182,7 @@ export const LeaderboardPage = () => {
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <thead className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-6 py-4">Rank</th>
                   <th className="px-6 py-4">Candidate</th>
@@ -235,7 +235,7 @@ export const LeaderboardPage = () => {
                       {/* Difficulty tier */}
                       <td className="px-6 py-4 text-center">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                          className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${
                             entry.highestDifficultyHandled === 'HARD'
                               ? 'bg-rose-50 text-rose-700 border border-rose-200'
                               : entry.highestDifficultyHandled === 'MEDIUM'
@@ -253,7 +253,7 @@ export const LeaderboardPage = () => {
                           {entry.verifiedSkillBadges?.map((b, i) => (
                             <span
                               key={i}
-                              className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md font-mono"
+                              className="text-xs bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md font-mono"
                             >
                               {b}
                             </span>

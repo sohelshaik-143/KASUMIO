@@ -196,7 +196,7 @@ export const CareerIntelligencePage = () => {
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700">
+              <div className="text-xs font-bold uppercase tracking-widest text-indigo-700">
                 Highest-Leverage Capability Insight
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-900 mt-0.5">
@@ -256,7 +256,7 @@ export const CareerIntelligencePage = () => {
         >
           <Network className="w-4 h-4" />
           <span>Career Capability Map</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-mono">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-mono">
             {graphData?.nodes?.length || 0}
           </span>
         </button>
@@ -288,7 +288,7 @@ export const CareerIntelligencePage = () => {
         >
           <Layers className="w-4 h-4" />
           <span>Opportunity Clusters</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono">
             {intelligence?.opportunityClusters?.length || 0}
           </span>
         </button>
@@ -317,7 +317,7 @@ export const CareerIntelligencePage = () => {
           {/* Quick Metrics Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Live Opportunities Surveyed
               </span>
               <div className="text-3xl font-black text-slate-900">
@@ -327,7 +327,7 @@ export const CareerIntelligencePage = () => {
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
                 Demonstrated Proof Artifacts
               </span>
               <div className="text-3xl font-black text-emerald-600">
@@ -337,7 +337,7 @@ export const CareerIntelligencePage = () => {
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-              <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">
+              <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
                 Most Demanded Skill
               </span>
               <div className="text-2xl font-black text-indigo-600 truncate">
@@ -349,7 +349,7 @@ export const CareerIntelligencePage = () => {
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-              <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+              <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
                 Highest Leverage Gap
               </span>
               <div className="text-2xl font-black text-amber-600 truncate">
@@ -375,7 +375,7 @@ export const CareerIntelligencePage = () => {
                   Frequency of technologies required across live active opportunities in KASUMIO.
                 </p>
               </div>
-              <span className="text-[10px] font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+              <span className="text-xs font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
                 Deterministic Requirement Counts
               </span>
             </div>
@@ -397,14 +397,14 @@ export const CareerIntelligencePage = () => {
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-slate-900">{item.technologyName}</span>
-                          <span className="text-[10px] text-slate-400">({item.category})</span>
+                          <span className="text-xs text-slate-400">({item.category})</span>
                           {item.studentPossesses ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                               <span>Possessed</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
                               <span>Missing</span>
                             </span>
                           )}
@@ -412,7 +412,7 @@ export const CareerIntelligencePage = () => {
 
                         <div className="flex items-center gap-3 font-mono text-xs">
                           <span className="text-indigo-600 font-bold">{item.opportunityCount} roles</span>
-                          <span className="text-slate-400 text-[10px]">
+                          <span className="text-slate-400 text-xs">
                             ({item.requiredCount} req / {item.preferredCount} pref)
                           </span>
                         </div>
@@ -461,7 +461,7 @@ export const CareerIntelligencePage = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs text-slate-700">
-                  <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider font-bold">
+                  <thead className="bg-slate-50 text-slate-500 uppercase text-xs tracking-wider font-bold">
                     <tr>
                       <th className="px-4 py-3 rounded-l-xl">Skill</th>
                       <th className="px-4 py-3">Category</th>
@@ -474,7 +474,7 @@ export const CareerIntelligencePage = () => {
                     {intelligence.highestLeverageSkills.map((gap, i) => (
                       <tr key={i} className="hover:bg-slate-50/80 transition">
                         <td className="px-4 py-3.5 font-bold text-slate-900 flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-indigo-50 text-[10px] font-mono flex items-center justify-center text-indigo-700 font-bold">
+                          <span className="w-5 h-5 rounded-full bg-indigo-50 text-xs font-mono flex items-center justify-center text-indigo-700 font-bold">
                             {i + 1}
                           </span>
                           <span>{gap.skillName}</span>
@@ -494,7 +494,7 @@ export const CareerIntelligencePage = () => {
                               setActiveTab('WHAT_IF');
                               handleRunWhatIf(gap.skillName);
                             }}
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
                           >
                             <span>Model What-If</span>
                             <ArrowRight className="w-3 h-3" />
@@ -572,7 +572,7 @@ export const CareerIntelligencePage = () => {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-bold">
                 <span className="flex items-center gap-1 text-emerald-700">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Verified / Strong
                 </span>
@@ -626,7 +626,7 @@ export const CareerIntelligencePage = () => {
                     className={`p-3.5 rounded-xl border text-left transition hover:shadow-xs flex flex-col justify-between h-28 ${bgClass} ${borderClass}`}
                   >
                     <div>
-                      <div className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">
+                      <div className="text-xs text-slate-400 uppercase tracking-wider font-mono">
                         {node.ecosystem || 'Tech'}
                       </div>
                       <div className={`text-xs mt-0.5 truncate ${textClass}`}>
@@ -634,7 +634,7 @@ export const CareerIntelligencePage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[10px]">
+                    <div className="flex items-center justify-between text-xs">
                       <span className={`px-1.5 py-0.5 rounded-md font-mono ${statusBadge}`}>
                         {node.possessionStatus}
                       </span>
@@ -687,15 +687,15 @@ export const CareerIntelligencePage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <span className="text-slate-400 text-[10px] block font-bold">EVIDENCE STATE</span>
+                    <span className="text-slate-400 text-xs block font-bold">EVIDENCE STATE</span>
                     <span className="text-sm font-bold text-indigo-700 mt-0.5 block">{selectedNode.possessionStatus}</span>
                   </div>
                   <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <span className="text-slate-400 text-[10px] block font-bold">CONFIDENCE METRIC</span>
+                    <span className="text-slate-400 text-xs block font-bold">CONFIDENCE METRIC</span>
                     <span className="text-sm font-bold text-slate-900 mt-0.5 block">{Math.round(selectedNode.confidence * 100)}%</span>
                   </div>
                   <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <span className="text-slate-400 text-[10px] block font-bold">MARKET DEMAND</span>
+                    <span className="text-slate-400 text-xs block font-bold">MARKET DEMAND</span>
                     <span className="text-sm font-bold text-indigo-600 mt-0.5 block">{selectedNode.opportunityDemandCount} Active Opportunities</span>
                   </div>
                 </div>
@@ -739,7 +739,7 @@ export const CareerIntelligencePage = () => {
                     }`}
                   >
                     <span>{gap.skillName}</span>
-                    <span className="text-[10px] font-mono opacity-80">(+{gap.opportunitiesUnlockedCount})</span>
+                    <span className="text-xs font-mono opacity-80">(+{gap.opportunitiesUnlockedCount})</span>
                   </button>
                 ))}
               </div>
@@ -783,7 +783,7 @@ export const CareerIntelligencePage = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Currently Relevant Roles (Score ≥ 50)
                   </span>
                   <div className="text-3xl font-black text-slate-900">
@@ -793,7 +793,7 @@ export const CareerIntelligencePage = () => {
                 </div>
 
                 <div className="bg-indigo-50/60 border border-indigo-200 rounded-xl p-5 space-y-1 shadow-xs">
-                  <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
                     Modeled Relevant Roles (With {whatIfResult.simulatedSkillName})
                   </span>
                   <div className="text-3xl font-black text-indigo-600">
@@ -805,7 +805,7 @@ export const CareerIntelligencePage = () => {
                 </div>
 
                 <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1 shadow-xs">
-                  <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
                     Average Score Impact
                   </span>
                   <div className="text-3xl font-black text-indigo-600">

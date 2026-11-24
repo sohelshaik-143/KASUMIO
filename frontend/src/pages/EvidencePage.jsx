@@ -6,6 +6,7 @@ import { skillApi } from '../api/skillApi';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { Alert } from '../components/common/Alert';
 import { EmptyState } from '../components/common/EmptyState';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { EvidenceCard } from '../components/evidence/EvidenceCard';
 import { TemplatePickerModal } from '../components/evidence/TemplatePickerModal';
 import { EvidenceFormModal } from '../components/evidence/EvidenceFormModal';
@@ -26,6 +27,8 @@ export const EvidencePage = () => {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editingEvidence, setEditingEvidence] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [evidenceToDelete, setEvidenceToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = async () => {
     if (!user) return;
@@ -104,14 +107,22 @@ export const EvidencePage = () => {
     setFormModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this evidence record?')) return;
+  const handleDelete = (id) => {
+    setEvidenceToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!evidenceToDelete) return;
     try {
-      await evidenceApi.deleteEvidence(id);
+      setDeleting(true);
+      await evidenceApi.deleteEvidence(evidenceToDelete);
       await loadData();
       setAlert({ type: 'success', message: 'Evidence record removed.' });
+      setEvidenceToDelete(null);
     } catch (err) {
       setAlert({ type: 'error', message: 'Failed to delete evidence.' });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -259,6 +270,17 @@ export const EvidencePage = () => {
         templateData={selectedTemplate}
         preselectedSkillId={preselectedSkill?.id}
         targetSkillName={targetSkillName}
+      />
+
+      <ConfirmDialog
+        isOpen={Boolean(evidenceToDelete)}
+        onClose={() => setEvidenceToDelete(null)}
+        title="Delete Evidence Record"
+        message="Are you sure you want to delete this evidence record? This will revoke associated verifications and recalculate capability metrics."
+        confirmLabel="Delete Record"
+        isDanger={true}
+        isLoading={deleting}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

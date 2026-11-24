@@ -188,7 +188,7 @@ export const AssessmentsListPage = () => {
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">
                         {assm.opportunityTitle || 'Software Role'}
                       </span>
                       <h3 className="text-base font-bold text-slate-900 mt-2 line-clamp-1">
@@ -210,7 +210,7 @@ export const AssessmentsListPage = () => {
                     {assm.questions?.map((q, idx) => (
                       <span
                         key={idx}
-                        className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/80 flex items-center gap-1"
+                        className="text-xs font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/80 flex items-center gap-1"
                       >
                         {q.questionType === 'CODING' && <Code className="w-3 h-3 text-indigo-600" />}
                         {q.questionType === 'DEBUGGING' && <Cpu className="w-3 h-3 text-amber-600" />}
@@ -227,7 +227,7 @@ export const AssessmentsListPage = () => {
                     <p>
                       <strong>{assm.totalQuestions || 4}</strong> Questions • Passing: <strong>{assm.passingScore}%</strong>
                     </p>
-                    <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                    <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3" />
                       <span>Adaptive Multi-Language Sandbox</span>
                     </p>

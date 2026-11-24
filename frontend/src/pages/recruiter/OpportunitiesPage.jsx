@@ -59,21 +59,21 @@ export const OpportunitiesPage = () => {
     switch (status) {
       case 'PUBLISHED':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
             PUBLISHED
           </span>
         );
       case 'DRAFT':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
             <Clock className="w-3 h-3 text-amber-600" />
             DRAFT
           </span>
         );
       case 'CLOSED':
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
             <XCircle className="w-3 h-3 text-slate-400" />
             CLOSED
           </span>
@@ -134,7 +134,7 @@ export const OpportunitiesPage = () => {
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200 uppercase tracking-wider">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200 uppercase tracking-wider">
                     {opp.type} • {opp.workType}
                   </span>
                   {statusBadge(opp.status)}

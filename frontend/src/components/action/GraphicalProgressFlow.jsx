@@ -96,10 +96,10 @@ export function GraphicalProgressFlow({ visualFlow, outcomeData }) {
               <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 h-full flex flex-col justify-between hover:border-slate-700 transition-all">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider font-semibold text-slate-400">
+                    <span className="text-xs font-mono uppercase tracking-wider font-semibold text-slate-400">
                       Step 0{idx + 1}
                     </span>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded border ${step.badgeColor}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded border ${step.badgeColor}`}>
                       {step.phase}
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export function GraphicalProgressFlow({ visualFlow, outcomeData }) {
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-900">
+                <p className="text-xs text-slate-400 mt-3 pt-2 border-t border-slate-900">
                   {step.description}
                 </p>
               </div>

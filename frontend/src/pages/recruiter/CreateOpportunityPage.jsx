@@ -232,7 +232,7 @@ export const CreateOpportunityPage = () => {
         >
           <Sparkles className="w-4 h-4 text-indigo-600" />
           <span>⚡ AI Recruiter Agent (Zero-Friction Intent)</span>
-          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 ml-1">
+          <span className="text-xs uppercase font-mono px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 ml-1">
             Recommended
           </span>
         </button>
@@ -411,7 +411,7 @@ export const CreateOpportunityPage = () => {
                           className="w-full text-left px-3.5 py-2 hover:bg-indigo-50/50 flex items-center justify-between text-xs transition"
                         >
                           <span className="font-semibold text-slate-900">{skill.name}</span>
-                          <span className="text-[10px] text-slate-500 font-mono">({skill.category})</span>
+                          <span className="text-xs text-slate-500 font-mono">({skill.category})</span>
                         </button>
                       ))}
                     </div>
@@ -452,7 +452,7 @@ export const CreateOpportunityPage = () => {
                       <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                       Required Skills ({requiredSkills.length})
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">Mandatory for matching</span>
+                    <span className="text-xs text-slate-500 font-mono">Mandatory for matching</span>
                   </div>
 
                   {requiredSkills.length === 0 ? (
@@ -468,7 +468,7 @@ export const CreateOpportunityPage = () => {
                         >
                           <div>
                             <span className="font-semibold text-slate-900">{s.skillName}</span>
-                            <span className="text-[10px] text-slate-500 ml-2">({s.skillCategory})</span>
+                            <span className="text-xs text-slate-500 ml-2">({s.skillCategory})</span>
                           </div>
                           <button
                             type="button"
@@ -489,7 +489,7 @@ export const CreateOpportunityPage = () => {
                     <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
                       Preferred Skills ({preferredSkills.length})
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">Optional bonus</span>
+                    <span className="text-xs text-slate-500 font-mono">Optional bonus</span>
                   </div>
 
                   {preferredSkills.length === 0 ? (
@@ -505,7 +505,7 @@ export const CreateOpportunityPage = () => {
                         >
                           <div>
                             <span className="font-semibold text-slate-900">{s.skillName}</span>
-                            <span className="text-[10px] text-slate-500 ml-2">({s.skillCategory})</span>
+                            <span className="text-xs text-slate-500 ml-2">({s.skillCategory})</span>
                           </div>
                           <button
                             type="button"
@@ -561,7 +561,7 @@ export const CreateOpportunityPage = () => {
                       onChange={(e) => setFormData({ ...formData, assessmentTimeLimit: parseInt(e.target.value) || 45 })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                     />
-                    <span className="text-[10px] text-slate-400 mt-1 block">Default: 45 minutes</span>
+                    <span className="text-xs text-slate-400 mt-1 block">Default: 45 minutes</span>
                   </div>
 
                   <div>
@@ -577,7 +577,7 @@ export const CreateOpportunityPage = () => {
                       onChange={(e) => setFormData({ ...formData, assessmentPassingScore: parseInt(e.target.value) || 70 })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
                     />
-                    <span className="text-[10px] text-slate-400 mt-1 block">Passing candidates automatically mint verified portfolio evidence</span>
+                    <span className="text-xs text-slate-400 mt-1 block">Passing candidates automatically mint verified portfolio evidence</span>
                   </div>
                 </div>
               )}

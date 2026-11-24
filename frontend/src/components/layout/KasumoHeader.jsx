@@ -140,7 +140,7 @@ export const KasumoHeader = ({ onToggleMobile, sidebarCollapsed }) => {
                 <span className="text-xs font-semibold text-slate-900 leading-tight">
                   {user.fullName || user.email.split('@')[0]}
                 </span>
-                <span className="text-[10px] text-indigo-600 font-mono font-medium leading-tight">
+                <span className="text-xs text-indigo-600 font-mono font-medium leading-tight">
                   {user.role}
                 </span>
               </div>
@@ -151,9 +151,9 @@ export const KasumoHeader = ({ onToggleMobile, sidebarCollapsed }) => {
               <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100">
                 <div className="px-3.5 py-2.5 border-b border-slate-100 text-xs">
                   <p className="font-semibold text-slate-900 truncate">{user.fullName || user.email}</p>
-                  <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                  <p className="text-xs text-slate-500 truncate">{user.email}</p>
                   {user.organizationName && (
-                    <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">
+                    <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">
                       {user.organizationName}
                     </span>
                   )}

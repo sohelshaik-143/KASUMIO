@@ -139,7 +139,7 @@ export const RecruiterConnectionsPage = () => {
               Trusted Candidate Connections
             </h1>
             {connectedCount > 0 && (
-              <span className="ml-1 px-2.5 py-0.5 text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="ml-1 px-2.5 py-0.5 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
                 {connectedCount} Connected
               </span>
             )}

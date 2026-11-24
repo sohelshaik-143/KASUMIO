@@ -228,7 +228,7 @@ export const OpportunityDetailPage = () => {
 
           {/* Explainable Match Status Card */}
           <div className="shrink-0 bg-indigo-50/60 border border-indigo-100 rounded-2xl p-5 text-center min-w-[220px] shadow-xs space-y-2">
-            <span className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider block">
               Capability Match Level
             </span>
             <div className="text-xl font-extrabold text-indigo-700">
@@ -293,7 +293,7 @@ export const OpportunityDetailPage = () => {
               <p className="text-xs font-semibold text-slate-900">
                 {opp.eligible ? 'Candidate Eligible' : 'Eligibility Criteria Mismatch'}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {opp.eligibilityReason}
               </p>
             </div>
@@ -358,22 +358,22 @@ export const OpportunityDetailPage = () => {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                  <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                     {skill.requirementType?.toLowerCase()}
                   </span>
                   {skill.verified && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
                       Verified
                     </span>
                   )}
                 </div>
               </div>
 
-              <p className="text-slate-600 text-[11px] leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed">
                 {skill.explanation}
               </p>
 
-              <div className="flex items-center justify-between pt-1 text-[11px] text-slate-400 border-t border-slate-100">
+              <div className="flex items-center justify-between pt-1 text-xs text-slate-400 border-t border-slate-100">
                 <span>Category: {skill.category}</span>
                 {skill.ecosystem && <span>Ecosystem: {skill.ecosystem}</span>}
               </div>

@@ -247,7 +247,7 @@ export const OpportunityDiscoveryPage = () => {
 
         {/* Natural Language Example Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="text-slate-400 text-[11px] font-semibold shrink-0">Try searching:</span>
+          <span className="text-slate-400 text-xs font-semibold shrink-0">Try searching:</span>
           {[
             'Find remote Java internships',
             'AI opportunities involving RAG',
@@ -261,7 +261,7 @@ export const OpportunityDiscoveryPage = () => {
                 setSearchQuery(chip);
                 fetchRecommendations({ query: chip });
               }}
-              className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 border border-slate-200 text-[11px] font-medium transition shrink-0"
+              className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 border border-slate-200 text-xs font-medium transition shrink-0"
             >
               "{chip}"
             </button>
@@ -436,7 +436,7 @@ export const OpportunityDiscoveryPage = () => {
                       <span>
                         {opp.matchCategory === 'STRONG' ? 'Strong Match' : opp.matchCategory === 'GOOD' ? 'Good Match' : 'Potential Match'}
                       </span>
-                      <span className="text-[10px] font-normal text-indigo-500 ml-1">
+                      <span className="text-xs font-normal text-indigo-500 ml-1">
                         ({supportedCount}/{totalSpecs} core requirements supported)
                       </span>
                     </div>
@@ -508,7 +508,7 @@ export const OpportunityDiscoveryPage = () => {
                 {/* Explainable Why Recommended Highlight */}
                 {opp.whyRecommended && (
                   <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4">
-                    <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider block mb-1">
                       Why KASUMIO Recommends This
                     </span>
                     <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
@@ -521,7 +521,7 @@ export const OpportunityDiscoveryPage = () => {
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   {opp.strongSkills && opp.strongSkills.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider mr-1">
+                      <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider mr-1">
                         Demonstrated Specs:
                       </span>
                       {opp.strongSkills.map((s, idx) => (
@@ -538,7 +538,7 @@ export const OpportunityDiscoveryPage = () => {
 
                   {opp.missingSkills && opp.missingSkills.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap ml-auto">
-                      <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider mr-1">
+                      <span className="text-xs font-bold text-amber-700 uppercase tracking-wider mr-1">
                         Missing Gaps:
                       </span>
                       {opp.missingSkills.map((s, idx) => (

@@ -57,7 +57,7 @@ export const RecommendedOpportunitiesList = ({ recommendations = [] }) => {
                       <span>
                         {opp.matchCategory === 'STRONG' ? 'Strong Match' : opp.matchCategory === 'GOOD' ? 'Good Match' : 'Potential Match'}
                       </span>
-                      <span className="text-[10px] font-normal text-indigo-500 ml-1">
+                      <span className="text-xs font-normal text-indigo-500 ml-1">
                         ({supportedCount}/{totalSpecs} core requirements supported)
                       </span>
                     </span>
@@ -106,11 +106,11 @@ export const RecommendedOpportunitiesList = ({ recommendations = [] }) => {
                 <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1">
                   {opp.strongSkills?.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-emerald-700 text-[11px] uppercase tracking-wider">Supported:</span>
+                      <span className="font-bold text-emerald-700 text-xs uppercase tracking-wider">Supported:</span>
                       {opp.strongSkills.map((s, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200"
                         >
                           <CheckCircle className="w-3 h-3 text-emerald-600" />
                           {s}
@@ -121,11 +121,11 @@ export const RecommendedOpportunitiesList = ({ recommendations = [] }) => {
 
                   {opp.missingSkills?.length > 0 && (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-amber-700 text-[11px] uppercase tracking-wider">Missing Gap:</span>
+                      <span className="font-bold text-amber-700 text-xs uppercase tracking-wider">Missing Gap:</span>
                       {opp.missingSkills.map((s, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200"
+                          className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200"
                         >
                           <AlertTriangle className="w-3 h-3 text-amber-600" />
                           {s}
@@ -137,7 +137,7 @@ export const RecommendedOpportunitiesList = ({ recommendations = [] }) => {
 
                 {/* Action Link */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-mono text-[11px]">Deterministic Matcher</span>
+                  <span className="text-slate-400 font-mono text-xs">Deterministic Matcher</span>
                   <button
                     onClick={() => navigate(`/student/discover/${opp.id}`)}
                     className="inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-700"

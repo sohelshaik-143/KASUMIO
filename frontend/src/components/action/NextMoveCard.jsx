@@ -113,25 +113,25 @@ export const NextMoveCard = ({ onActionUpdated }) => {
             <span className="p-1 rounded bg-teal-500/10 text-teal-400">
               <Target className="w-3.5 h-3.5" />
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-teal-400">
+            <span className="text-xs font-bold uppercase tracking-widest text-teal-400">
               Your Next Move
             </span>
             {data.careerGoalTitle && (
-              <span className="text-[11px] text-slate-400 px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 hidden sm:inline-block">
+              <span className="text-xs text-slate-400 px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 hidden sm:inline-block">
                 Goal: {data.careerGoalTitle}
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
+            <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded border ${
               primary.evidenceRoi === 'HIGH'
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                 : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
             }`}>
               Evidence ROI: {primary.evidenceRoi || 'HIGH'}
             </span>
-            <span className="text-[10px] text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700/60">
+            <span className="text-xs text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700/60">
               Effort: {primary.estimatedEffort || 'Moderate'}
             </span>
           </div>
@@ -168,7 +168,7 @@ export const NextMoveCard = ({ onActionUpdated }) => {
         {/* Minimal Graphical Flow Representation */}
         {flow && (
           <div className="bg-slate-950/40 border border-slate-800/50 rounded-lg p-2.5">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 overflow-x-auto gap-2 py-0.5">
+            <div className="flex items-center justify-between text-xs text-slate-400 overflow-x-auto gap-2 py-0.5">
               <div className="shrink-0 font-medium text-slate-300">{flow.currentTech || 'Current Proof'}</div>
               <span className="text-slate-600">→</span>
               <div className="shrink-0 text-amber-400/90 font-medium">{flow.gapTech} Gap</div>
@@ -224,7 +224,7 @@ export const NextMoveCard = ({ onActionUpdated }) => {
         {/* Alternative Moves */}
         {showAlternatives && alternatives.length > 0 && (
           <div className="pt-3 border-t border-slate-800/80 space-y-2">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Alternative Options
             </p>
             {alternatives.map((alt) => (
@@ -234,11 +234,11 @@ export const NextMoveCard = ({ onActionUpdated }) => {
               >
                 <div className="min-w-0">
                   <h4 className="text-xs font-medium text-white truncate">{alt.title}</h4>
-                  <p className="text-[11px] text-slate-400 truncate">{alt.description}</p>
+                  <p className="text-xs text-slate-400 truncate">{alt.description}</p>
                 </div>
                 <button
                   onClick={() => handleOpenDetails(alt.id)}
-                  className="px-2.5 py-1 text-[11px] font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 rounded shrink-0 transition"
+                  className="px-2.5 py-1 text-xs font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 rounded shrink-0 transition"
                 >
                   Inspect
                 </button>

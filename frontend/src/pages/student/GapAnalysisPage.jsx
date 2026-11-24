@@ -113,7 +113,7 @@ export const GapAnalysisPage = () => {
       {/* Metrics Summary Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1.5 shadow-xs">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             Opportunities Surveyed
           </span>
           <div className="text-3xl font-black text-slate-900">
@@ -123,7 +123,7 @@ export const GapAnalysisPage = () => {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1.5 shadow-xs">
-          <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">
+          <span className="text-xs font-bold text-rose-700 uppercase tracking-wider">
             High Priority Gaps
           </span>
           <div className="text-3xl font-black text-rose-600">
@@ -133,7 +133,7 @@ export const GapAnalysisPage = () => {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-1.5 shadow-xs">
-          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+          <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
             Medium Priority Gaps
           </span>
           <div className="text-3xl font-black text-amber-600">
@@ -202,7 +202,7 @@ export const GapAnalysisPage = () => {
                 </div>
 
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-xl border shrink-0 ${
+                  className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-xl border shrink-0 ${
                     gap.priority === 'HIGH'
                       ? 'bg-rose-50 text-rose-700 border-rose-200'
                       : gap.priority === 'MEDIUM'
@@ -217,17 +217,17 @@ export const GapAnalysisPage = () => {
               {/* UX Chain: Gap -> Why it matters -> Recommended action -> Opportunity impact */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">1. Why It Matters</span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">1. Why It Matters</span>
                   <p className="text-xs text-slate-700 leading-relaxed">{gap.priorityReason}</p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-1">
-                  <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">2. Recommended Action</span>
+                  <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider block">2. Recommended Action</span>
                   <p className="text-xs text-slate-800 leading-relaxed font-medium">{gap.recommendedAction}</p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 space-y-1">
-                  <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">3. Opportunity Impact</span>
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">3. Opportunity Impact</span>
                   <p className="text-xs text-emerald-900 font-extrabold">
                     Unlocks {gap.opportunitiesAffectedCount || 1} active market role(s)
                   </p>
@@ -237,7 +237,7 @@ export const GapAnalysisPage = () => {
               {/* Action Footer */}
               <div className="pt-2 flex items-center justify-between">
                 {gap.relatedOpportunityTitles && gap.relatedOpportunityTitles.length > 0 && (
-                  <div className="text-[11px] text-slate-500 flex items-center gap-1.5 flex-wrap">
+                  <div className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
                     <span>Impacts roles:</span>
                     {gap.relatedOpportunityTitles.map((title, idx) => (
                       <span

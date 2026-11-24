@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Modal } from '../common/Modal';
+import { Field } from '../common/Field';
 import { Alert } from '../common/Alert';
 
 export const EvidenceFormModal = ({
@@ -116,46 +117,27 @@ export const EvidenceFormModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in-50 duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Modal Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                {initialData ? 'Edit Evidence Record' : templateData ? `Add Evidence (${templateData.title})` : 'Add Demonstrable Evidence'}
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Submit verifiable proof to back your capability profile.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-            aria-label="Close dialog"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={initialData ? 'Edit Evidence Record' : templateData ? `Add Evidence (${templateData.title})` : 'Add Demonstrable Evidence'}
+      description="Submit verifiable proof to back your capability profile."
+      maxWidth="max-w-lg"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4 max-h-[72vh] overflow-y-auto pr-1">
+        <Alert type="error" message={error} onClose={() => setError(null)} />
 
-        {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 overflow-y-auto space-y-4">
-          <Alert type="error" message={error} onClose={() => setError(null)} />
-
-          {/* Skill Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Associated Skill <span className="text-teal-400">*</span>
-            </label>
+        {/* Skill Selector */}
+        <Field label="Associated Skill" required>
+          {({ id, describedBy, isInvalid }) => (
             <select
+              id={id}
+              aria-describedby={describedBy}
+              aria-invalid={isInvalid}
               value={formData.skillId}
               onChange={(e) => setFormData({ ...formData, skillId: e.target.value })}
               required
-              className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
             >
               <option value="" disabled>Select a skill from taxonomy</option>
               {skills.map((skill) => (
@@ -164,92 +146,100 @@ export const EvidenceFormModal = ({
                 </option>
               ))}
             </select>
-          </div>
+          )}
+        </Field>
 
-          {/* Evidence Type */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Evidence Type <span className="text-teal-400">*</span>
-            </label>
+        {/* Evidence Type */}
+        <Field label="Evidence Type" required>
+          {({ id, describedBy, isInvalid }) => (
             <select
+              id={id}
+              aria-describedby={describedBy}
+              aria-invalid={isInvalid}
               value={formData.evidenceType}
               onChange={(e) => setFormData({ ...formData, evidenceType: e.target.value })}
               required
-              className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
             >
               <option value="PROJECT">Project / Repository</option>
               <option value="CERTIFICATE">Official Certificate</option>
               <option value="PUBLICATION">Publication / Research</option>
               <option value="OTHER">Competition / Other Proof</option>
             </select>
-          </div>
+          )}
+        </Field>
 
-          {/* Title */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Title <span className="text-teal-400">*</span>
-            </label>
+        {/* Title */}
+        <Field label="Title" required>
+          {({ id, describedBy, isInvalid }) => (
             <input
+              id={id}
+              aria-describedby={describedBy}
+              aria-invalid={isInvalid}
               type="text"
               required
               maxLength={255}
               placeholder="e.g. Distributed Order Microservice in Spring Boot"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
             />
-          </div>
+          )}
+        </Field>
 
-          {/* Evidence URL */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Evidence Link / Proof URL <span className="text-teal-400">*</span>
-            </label>
+        {/* Evidence URL */}
+        <Field label="Evidence Link / Proof URL" required hint="Must be a valid URL starting with http:// or https://">
+          {({ id, describedBy, isInvalid }) => (
             <input
+              id={id}
+              aria-describedby={describedBy}
+              aria-invalid={isInvalid}
               type="text"
               required
               maxLength={1024}
               placeholder="github.com/username/project or https://domain.com/cert"
               value={formData.evidenceUrl}
               onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-              className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 font-mono text-xs transition"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 font-mono text-xs focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 transition"
             />
-          </div>
+          )}
+        </Field>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Description & Context
-            </label>
+        {/* Description */}
+        <Field label="Description & Context" hint="Explain how this evidence demonstrates your skill mastery, architecture choices, or outcome">
+          {({ id, describedBy, isInvalid }) => (
             <textarea
+              id={id}
+              aria-describedby={describedBy}
+              aria-invalid={isInvalid}
               rows={3}
               placeholder="Explain how this evidence demonstrates your skill mastery, architecture choices, or outcome..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full bg-slate-850 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 resize-none transition"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-600 focus:border-teal-600 resize-none transition"
             />
-          </div>
+          )}
+        </Field>
 
-          {/* Form Actions */}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-lg transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-5 py-2.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-500 rounded-xl transition shadow-sm disabled:opacity-50 active:scale-98"
-            >
-              {submitting ? 'Saving...' : initialData ? 'Update Evidence' : 'Submit Evidence'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Form Actions */}
+        <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 bg-white border border-slate-300 rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition shadow-xs disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+          >
+            {submitting ? 'Saving...' : initialData ? 'Update Evidence' : 'Submit Evidence'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

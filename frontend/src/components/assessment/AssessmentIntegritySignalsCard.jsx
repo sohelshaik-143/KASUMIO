@@ -90,43 +90,43 @@ export const AssessmentIntegritySignalsCard = ({
       {signals && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Focus Changes
             </span>
             <span className="text-base font-bold font-mono text-slate-800">
               {signals.focusChangeCount ?? 0}
             </span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">blur events</span>
+            <span className="text-xs text-slate-400 block mt-0.5">blur events</span>
           </div>
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Paste Events
             </span>
             <span className="text-base font-bold font-mono text-slate-800">
               {signals.pasteCount ?? 0}
             </span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">editor inserts</span>
+            <span className="text-xs text-slate-400 block mt-0.5">editor inserts</span>
           </div>
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Fast Solves
             </span>
             <span className="text-base font-bold font-mono text-slate-800">
               {signals.fastSolveCount ?? 0}
             </span>
-            <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">high proficiency</span>
+            <span className="text-xs text-emerald-600 font-semibold block mt-0.5">high proficiency</span>
           </div>
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Compilations
             </span>
             <span className="text-base font-bold font-mono text-slate-800">
               {signals.compilationErrors ?? 0} errs
             </span>
-            <span className="text-[10px] text-slate-400 block mt-0.5">sandbox runs</span>
+            <span className="text-xs text-slate-400 block mt-0.5">sandbox runs</span>
           </div>
         </div>
       )}
@@ -134,7 +134,7 @@ export const AssessmentIntegritySignalsCard = ({
       {/* Observations list */}
       {signals?.observations && signals.observations.length > 0 && (
         <div className="space-y-2 pt-1">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">
+          <span className="text-xs uppercase font-bold tracking-wider text-slate-500 block">
             System Telemetry Observations:
           </span>
           <div className="space-y-1.5">
@@ -152,7 +152,7 @@ export const AssessmentIntegritySignalsCard = ({
       )}
 
       {/* Non-punitive assurance */}
-      <div className="p-3 bg-slate-100/70 border border-slate-200 rounded-xl text-[11px] text-slate-600 leading-relaxed">
+      <div className="p-3 bg-slate-100/70 border border-slate-200 rounded-xl text-xs text-slate-600 leading-relaxed">
         <strong>Fair Verification Guarantee:</strong> Fast solutions reflect technical proficiency, while occasional window changes are expected during development. Human recruiters review all contextual signals.
       </div>
     </div>

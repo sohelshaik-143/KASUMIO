@@ -8,6 +8,7 @@ import { assessmentApi } from '../../api/assessmentApi';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { Alert } from '../../components/common/Alert';
 import { EmptyState } from '../../components/common/EmptyState';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { RequestConnectionModal } from '../../components/connection/RequestConnectionModal';
 import { DisclosedProfileModal } from '../../components/connection/DisclosedProfileModal';
 import { CandidateAssessmentModal } from '../../components/recruiter/CandidateAssessmentModal';
@@ -44,6 +45,7 @@ export const OpportunityDetailPage = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [alert, setAlert] = useState({ type: null, message: null });
 
   // Anonymous Candidate Evidence Review Modal
@@ -217,16 +219,18 @@ export const OpportunityDetailPage = () => {
     }
   };
 
-  const handleClose = async () => {
-    if (!window.confirm('Are you sure you want to close this opportunity? Active candidate matching will stop.')) {
-      return;
-    }
+  const handleClose = () => {
+    setShowCloseConfirm(true);
+  };
+
+  const handleConfirmClose = async () => {
     try {
       setActionLoading(true);
       const updated = await opportunityApi.closeOpportunity(id);
       setOpportunity(updated);
       setMatches([]);
       setAlert({ type: 'info', message: 'Opportunity closed. Matching paused.' });
+      setShowCloseConfirm(false);
     } catch (err) {
       const errMsg = err.response?.data?.message || 'Failed to close opportunity.';
       setAlert({ type: 'error', message: errMsg });
@@ -369,7 +373,7 @@ export const OpportunityDetailPage = () => {
                 }`}
               >
                 <span>{s.skillName}</span>
-                <span className="text-[10px] uppercase opacity-75 font-mono">({s.skillType})</span>
+                <span className="text-xs uppercase opacity-75 font-mono">({s.skillType})</span>
               </span>
             ))}
           </div>
@@ -383,7 +387,7 @@ export const OpportunityDetailPage = () => {
                 <Sparkles className="w-4 h-4 text-indigo-600" />
                 <span>AI Round-1 Technical Screening Blueprint</span>
               </h3>
-              <span className="text-[11px] font-mono text-slate-500">
+              <span className="text-xs font-mono text-slate-500">
                 Passing Threshold: <strong className="text-emerald-600">{assessment.passingScore}%</strong> • Time Limit: <strong>{assessment.timeLimitMinutes} mins</strong>
               </span>
             </div>
@@ -393,13 +397,13 @@ export const OpportunityDetailPage = () => {
               {assessment.questions?.map((q, idx) => (
                 <span
                   key={idx}
-                  className="text-[11px] font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 flex items-center gap-1.5 shadow-2xs"
+                  className="text-xs font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700 flex items-center gap-1.5 shadow-2xs"
                 >
                   {q.questionType === 'CODING' && <Code className="w-3 h-3 text-indigo-600" />}
                   {q.questionType === 'DEBUGGING' && <Cpu className="w-3 h-3 text-amber-600" />}
                   {q.questionType === 'SQL' && <Layers className="w-3 h-3 text-emerald-600" />}
                   <span>{q.title}</span>
-                  <span className="text-[10px] font-bold text-slate-400">({q.points}pts)</span>
+                  <span className="text-xs font-bold text-slate-400">({q.points}pts)</span>
                 </span>
               ))}
             </div>
@@ -415,7 +419,7 @@ export const OpportunityDetailPage = () => {
               <Sparkles className="w-4 h-4 text-indigo-600" />
               <span>AI Candidate Recommendations ({matches.length})</span>
             </div>
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-xs text-slate-500 font-mono">
               Traceable Evidence • Human Final Decision
             </span>
           </div>
@@ -438,7 +442,7 @@ export const OpportunityDetailPage = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="text-base font-bold text-slate-900">Candidate #{candidate.candidateAlias}</h4>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
+                        <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
                           {candidate.matchedRequiredSkillsCount} Required Skills Matched
                         </span>
                       </div>
@@ -492,7 +496,7 @@ export const OpportunityDetailPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-5 text-xs">
                     {/* Why This Candidate */}
                     <div className="md:col-span-8 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-2.5">
-                      <span className="font-bold text-slate-800 uppercase tracking-wider text-[10px] flex items-center gap-1.5 text-emerald-800">
+                      <span className="font-bold text-slate-800 uppercase tracking-wider text-xs flex items-center gap-1.5 text-emerald-800">
                         <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
                         <span>Why This Candidate? (Traceable Proof)</span>
                       </span>
@@ -515,11 +519,11 @@ export const OpportunityDetailPage = () => {
 
                     {/* Identified Gaps */}
                     <div className="md:col-span-4 bg-amber-50/50 p-4 rounded-xl border border-amber-200/70 space-y-2">
-                      <span className="font-bold text-amber-900 uppercase tracking-wider text-[10px] flex items-center gap-1">
+                      <span className="font-bold text-amber-900 uppercase tracking-wider text-xs flex items-center gap-1">
                         <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
                         <span>Competency Gaps</span>
                       </span>
-                      <p className="text-amber-950 leading-relaxed text-[11px]">
+                      <p className="text-amber-950 leading-relaxed text-xs">
                         Production deployment or CI/CD test evidence limited. Verify containerization or cloud exposure in interview.
                       </p>
                     </div>
@@ -556,7 +560,7 @@ export const OpportunityDetailPage = () => {
                   <div key={ev.evidenceId} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-slate-900 text-sm">{ev.title}</span>
-                      <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">
+                      <span className="font-mono text-xs bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">
                         {ev.skillName}
                       </span>
                     </div>
@@ -614,6 +618,17 @@ export const OpportunityDetailPage = () => {
         }}
         connection={activeDisclosedConnection}
         onCancelConnection={handleCancelDisclosedConnection}
+      />
+
+      <ConfirmDialog
+        isOpen={showCloseConfirm}
+        onClose={() => setShowCloseConfirm(false)}
+        title="Close Opportunity"
+        message="Are you sure you want to close this opportunity? Active candidate matching will stop."
+        confirmLabel="Close Opportunity"
+        isDanger={true}
+        isLoading={actionLoading}
+        onConfirm={handleConfirmClose}
       />
     </div>
   );

@@ -130,7 +130,7 @@ export const KasumoSidebar = ({
           <div className="flex-1 flex items-center justify-between overflow-hidden">
             <span className="truncate">{item.name}</span>
             {item.badge && (
-              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200 ml-2 shrink-0">
+              <span className="text-xs uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200 ml-2 shrink-0">
                 {item.badge}
               </span>
             )}
@@ -152,11 +152,11 @@ export const KasumoSidebar = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-sm text-slate-900 tracking-tight">KASUMIO</span>
-                <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+                <span className="text-xs uppercase tracking-widest px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
                   Intel
                 </span>
               </div>
-              <span className="text-[10px] text-slate-500 truncate font-medium">
+              <span className="text-xs text-slate-500 truncate font-medium">
                 Career Intelligence Platform
               </span>
             </div>
@@ -177,7 +177,7 @@ export const KasumoSidebar = ({
         {currentGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
             {!collapsed ? (
-              <h4 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+              <h4 className="px-3 text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                 {group.label}
               </h4>
             ) : (
@@ -202,7 +202,7 @@ export const KasumoSidebar = ({
                 <p className="text-xs font-semibold text-slate-900 truncate">
                   {user.fullName || user.email.split('@')[0]}
                 </p>
-                <p className="text-[10px] text-indigo-600 font-medium truncate">
+                <p className="text-xs text-indigo-600 font-medium truncate">
                   {user.role} {user.organizationName ? `• ${user.organizationName}` : ''}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export const KasumoSidebar = ({
             ) : (
               <>
                 <ChevronLeft className="w-4 h-4" />
-                <span className="text-[11px] text-slate-500">Collapse sidebar</span>
+                <span className="text-xs text-slate-500">Collapse sidebar</span>
               </>
             )}
           </button>

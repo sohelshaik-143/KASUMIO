@@ -94,7 +94,7 @@ export const CandidateEvidenceProfileCard = ({
         {/* Self vs Demonstrated Comparative Pill */}
         <div className="flex items-center gap-3 bg-slate-50 p-2.5 px-4 rounded-2xl border border-slate-200 shrink-0">
           <div className="text-center pr-3 border-r border-slate-200">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Self-Assessed
             </span>
             <span className="text-xs font-mono font-bold text-slate-700 uppercase">
@@ -102,7 +102,7 @@ export const CandidateEvidenceProfileCard = ({
             </span>
           </div>
           <div className="text-center">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-400 block tracking-wider">
               Demonstrated
             </span>
             <span className={`text-xs font-mono font-bold uppercase ${
@@ -117,7 +117,7 @@ export const CandidateEvidenceProfileCard = ({
 
       {/* Constructive Narrative Box */}
       <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4.5 space-y-1.5 text-xs text-indigo-950">
-        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-indigo-900">
+        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-xs text-indigo-900">
           <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
           <span>Evidence-Based Alignment Narrative</span>
         </div>
@@ -144,7 +144,7 @@ export const CandidateEvidenceProfileCard = ({
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                 <span className="font-semibold text-emerald-950">{concept}</span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-emerald-700 uppercase bg-white/80 px-1.5 py-0.5 rounded border border-emerald-200">
+              <span className="text-xs font-mono font-bold text-emerald-700 uppercase bg-white/80 px-1.5 py-0.5 rounded border border-emerald-200">
                 Demonstrated
               </span>
             </div>
@@ -160,7 +160,7 @@ export const CandidateEvidenceProfileCard = ({
                 <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                 <span className="font-semibold text-amber-950">{concept}</span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-amber-700 uppercase bg-white/80 px-1.5 py-0.5 rounded border border-amber-200">
+              <span className="text-xs font-mono font-bold text-amber-700 uppercase bg-white/80 px-1.5 py-0.5 rounded border border-amber-200">
                 Developing
               </span>
             </div>

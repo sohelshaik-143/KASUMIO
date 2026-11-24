@@ -44,7 +44,7 @@ export const CapabilitySnapshotCard = ({
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               Strong ({strongCapabilities.length})
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">Verified Proof</span>
+            <span className="text-xs text-slate-400 font-mono">Verified Proof</span>
           </div>
 
           {strongCapabilities.length === 0 ? (
@@ -61,9 +61,9 @@ export const CapabilitySnapshotCard = ({
                 >
                   <div>
                     <span className="font-bold text-slate-900 group-hover:text-indigo-600">{sk.name}</span>
-                    <span className="text-[10px] text-slate-400 block">{sk.category}</span>
+                    <span className="text-xs text-slate-400 block">{sk.category}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     Verified
                   </span>
                 </button>
@@ -79,7 +79,7 @@ export const CapabilitySnapshotCard = ({
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
               Developing ({developingCapabilities.length})
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">Submitted Proof</span>
+            <span className="text-xs text-slate-400 font-mono">Submitted Proof</span>
           </div>
 
           {developingCapabilities.length === 0 ? (
@@ -96,9 +96,9 @@ export const CapabilitySnapshotCard = ({
                 >
                   <div>
                     <span className="font-bold text-slate-900 group-hover:text-indigo-600">{sk.name}</span>
-                    <span className="text-[10px] text-slate-400 block">{sk.category}</span>
+                    <span className="text-xs text-slate-400 block">{sk.category}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                  <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
                     Developing
                   </span>
                 </button>
@@ -114,7 +114,7 @@ export const CapabilitySnapshotCard = ({
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               Learning ({learningCapabilities.length})
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">Growth Target</span>
+            <span className="text-xs text-slate-400 font-mono">Growth Target</span>
           </div>
 
           <div className="space-y-2">
@@ -126,9 +126,9 @@ export const CapabilitySnapshotCard = ({
               >
                 <div>
                   <span className="font-semibold text-slate-800 group-hover:text-indigo-600">{sk.name}</span>
-                  <span className="text-[10px] text-slate-400 block">{sk.category}</span>
+                  <span className="text-xs text-slate-400 block">{sk.category}</span>
                 </div>
-                <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                   Learning
                 </span>
               </button>

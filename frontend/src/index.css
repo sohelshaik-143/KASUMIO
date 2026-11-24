@@ -4,28 +4,35 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 40 20% 98%; /* warm neutral #faf9f6 */
+    --foreground: 240 10% 9.8%; /* near-black ink #18181b */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 9.8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 238.7 83.5% 66.7%;
-    --primary-foreground: 210 40% 98%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 238.7 83.5% 66.7%;
+    --popover-foreground: 240 10% 9.8%;
+    --primary: 174 77% 26%; /* deep teal #0f766e */
+    --primary-foreground: 0 0% 100%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 38 92% 50%; /* warm amber */
+    --accent-foreground: 24 9.8% 10%;
+    --destructive: 0 72% 51%; /* brick #dc2626 */
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 174 77% 26%;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased selection:bg-indigo-600 selection:text-white;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-teal-700 selection:text-white;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
   }
 }
 
@@ -48,19 +55,31 @@
   background: #94a3b8;
 }
 
-/* KASUMIO Production Card & Surface Tokens */
+/* KASUMIO Production Surface Tokens */
 .kasumo-card {
-  @apply bg-white border border-slate-200/90 rounded-xl shadow-xs transition-all duration-200;
+  @apply bg-white border border-slate-200 rounded-xl shadow-xs transition duration-150;
 }
 
 .kasumo-card:hover {
-  @apply border-slate-300 shadow-md;
+  @apply border-slate-300 shadow-sm;
 }
 
 .kasumo-surface-subtle {
-  @apply bg-slate-50 border border-slate-200/80 rounded-xl;
+  @apply bg-slate-50 border border-slate-200 rounded-xl;
 }
 
 .tab-active {
-  @apply bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold;
+  @apply bg-teal-50 text-teal-900 border-teal-300 font-semibold;
+}
+
+/* Accessibility: WCAG 2.2 prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

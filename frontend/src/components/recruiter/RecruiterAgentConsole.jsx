@@ -197,7 +197,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <span className="text-[11px] uppercase tracking-widest font-bold text-emerald-700">
+              <span className="text-xs uppercase tracking-widest font-bold text-emerald-700">
                 Workflow Successfully Executed
               </span>
               <h3 className="text-xl font-bold text-emerald-950 mt-1">
@@ -271,7 +271,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                 type="button"
                 onClick={() => setPromptText(p.text)}
                 disabled={analyzing || executing}
-                className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 border border-slate-200 transition"
+                className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 border border-slate-200 transition"
               >
                 {p.label}
               </button>
@@ -329,7 +329,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-5">
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600">
+                <span className="text-xs uppercase font-bold tracking-widest text-indigo-600">
                   Understood Intent & Generated Opportunity
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 mt-0.5">
@@ -337,10 +337,10 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                 </h3>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold uppercase">
+                <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold uppercase">
                   {jobData.parsedIntent?.opportunityType}
                 </span>
-                <span className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-semibold uppercase flex items-center gap-1">
+                <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-semibold uppercase flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {jobData.parsedIntent?.workType} • {jobData.parsedIntent?.location}
                 </span>
@@ -354,7 +354,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                   Technology Requirements (Resolved via Taxonomy)
                 </h4>
                 <div>
-                  <span className="text-[11px] font-semibold text-emerald-700 block mb-1.5">
+                  <span className="text-xs font-semibold text-emerald-700 block mb-1.5">
                     Required Core Technologies (Must Have Evidence):
                   </span>
                   <div className="flex flex-wrap gap-1.5">
@@ -372,7 +372,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
 
                 {jobData.parsedIntent?.preferredSkills?.length > 0 && (
                   <div className="mt-3">
-                    <span className="text-[11px] font-semibold text-indigo-700 block mb-1.5">
+                    <span className="text-xs font-semibold text-indigo-700 block mb-1.5">
                       Preferred Technologies (Bonus Alignment):
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -391,13 +391,13 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
 
               {/* Generated Description Preview */}
               <div className="space-y-2 bg-slate-50/70 border border-slate-200 rounded-xl p-4">
-                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
                   Generated Role Summary & Responsibilities
                 </span>
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-4">
                   {jobData.parsedIntent?.generatedDescription}
                 </p>
-                <div className="pt-2 text-[11px] text-slate-500 whitespace-pre-line line-clamp-3">
+                <div className="pt-2 text-xs text-slate-500 whitespace-pre-line line-clamp-3">
                   {jobData.parsedIntent?.generatedResponsibilities}
                 </div>
               </div>
@@ -457,7 +457,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
 
                   <div>
                     <span className="font-semibold text-slate-700 block mb-1">Curriculum:</span>
-                    <span className="text-[11px] text-slate-600">
+                    <span className="text-xs text-slate-600">
                       Algorithms, multi-language sandbox, deterministic test suite.
                     </span>
                   </div>
@@ -541,7 +541,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                               <span className="font-mono text-sm font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
                                 {cand.candidateAlias}
                               </span>
-                              <span className="text-[10px] font-semibold text-slate-500 uppercase">
+                              <span className="text-xs font-semibold text-slate-500 uppercase">
                                 Anonymous Profile
                               </span>
                             </div>
@@ -562,7 +562,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                         {/* Readiness & Evidence Strength Gauges */}
                         <div className="flex items-center gap-4 shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-3 self-start">
                           <div className="text-center">
-                            <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                            <span className="text-xs uppercase font-bold text-slate-500 block">
                               Day-1 Readiness
                             </span>
                             <span className="text-lg font-black text-emerald-600 font-mono">
@@ -571,7 +571,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                           </div>
                           <div className="w-px h-8 bg-slate-200" />
                           <div className="text-center">
-                            <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                            <span className="text-xs uppercase font-bold text-slate-500 block">
                               Evidence Strength
                             </span>
                             <span className="text-lg font-black text-indigo-600 font-mono">
@@ -587,7 +587,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                         {cand.observedProjects?.map((proj, pIdx) => (
                           <span
                             key={pIdx}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200"
+                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200"
                           >
                             <FileCheck className="w-3 h-3 text-emerald-600" />
                             {proj}
@@ -597,7 +597,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                         {cand.verifiedEvidence?.map((ver, vIdx) => (
                           <span
                             key={vIdx}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200"
+                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200"
                           >
                             <ShieldCheck className="w-3 h-3 text-blue-600" />
                             Verified: {ver}
@@ -607,7 +607,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                         {cand.inferredCapabilities?.map((inf, iIdx) => (
                           <span
                             key={iIdx}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200"
+                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200"
                           >
                             Inferred: {inf}
                           </span>
@@ -617,7 +617,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                       {/* Outreach Draft Preview & Edit */}
                       <div className="mt-4 bg-slate-50/80 rounded-xl p-3 border border-slate-200">
                         <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                          <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <Send className="w-3 h-3 text-slate-500" />
                             <span>Personalized Outreach Invitation Note</span>
                           </span>
@@ -629,7 +629,7 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
                                 [cand.candidateAlias]: !prev[cand.candidateAlias],
                               }))
                             }
-                            className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
                           >
                             <Edit3 className="w-3 h-3" />
                             <span>{isEditingNote ? 'Done' : 'Edit Note'}</span>

@@ -149,7 +149,7 @@ export const RecruiterDashboardView = ({
               Standardized skills across taxonomy
             </p>
           </div>
-          <span className="text-[11px] text-slate-400 font-mono mt-4 pt-3 border-t border-slate-100">
+          <span className="text-xs text-slate-400 font-mono mt-4 pt-3 border-t border-slate-100">
             Deterministic Evidence Matcher
           </span>
         </div>
