@@ -40,6 +40,7 @@ export const ActionDetailModal = ({ actionId, onClose, onActionUpdated }) => {
       if (onActionUpdated) onActionUpdated();
     } catch (err) {
       console.error('Failed to start action', err);
+      setError(err.response?.data?.message || 'Failed to start action. Please try again.');
     }
   };
 
@@ -61,6 +62,7 @@ export const ActionDetailModal = ({ actionId, onClose, onActionUpdated }) => {
       }, 1400);
     } catch (err) {
       console.error('Failed to submit feedback', err);
+      setError(err.response?.data?.message || 'Failed to submit feedback. Please try again.');
     } finally {
       setSubmittingFeedback(false);
     }

@@ -46,6 +46,7 @@ export const NextMoveCard = ({ onActionUpdated }) => {
       if (onActionUpdated) onActionUpdated();
     } catch (err) {
       console.error('Failed to skip action', err);
+      setError('Unable to skip action. Please try again.');
     } finally {
       setSkipping(false);
     }

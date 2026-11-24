@@ -29,10 +29,12 @@ export const ConnectionConsentModal = ({
   const [shareBio, setShareBio] = useState(false);
   const [customMessage, setCustomMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setError(null);
       setSubmitting(true);
       await onConfirm({
         shareFullName,
@@ -45,6 +47,7 @@ export const ConnectionConsentModal = ({
       onClose();
     } catch (err) {
       console.error('Failed to submit connection consent:', err);
+      setError(err.response?.data?.message || 'Failed to submit connection consent. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -79,6 +82,19 @@ export const ConnectionConsentModal = ({
 
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 overflow-y-auto space-y-5">
+          {error && (
+            <div className="bg-rose-950/40 border border-rose-800/40 rounded-xl p-3 text-xs text-rose-300 flex items-center justify-between">
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="ml-3 underline font-semibold text-rose-200 hover:text-white"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {/* Principle explanation banner */}
           <div className="bg-teal-950/40 border border-teal-800/40 rounded-xl p-3.5 text-xs text-slate-300 space-y-1">
             <p className="font-semibold text-teal-300 flex items-center gap-1.5">

@@ -63,7 +63,7 @@ export const CandidateAssessmentModal = ({
       }
     } catch (err) {
       console.error('Failed to record recruiter decision:', err);
-      setActionMessage('Failed to record decision.');
+      setActionMessage(err.response?.data?.message || 'Failed to record decision. Please retry.');
     } finally {
       setSavingDecision(false);
     }

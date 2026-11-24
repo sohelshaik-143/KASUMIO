@@ -123,6 +123,7 @@ export const DashboardPage = () => {
       setOutcomeData(fresh);
     } catch (err) {
       console.error('Error recalculating outcome intelligence:', err);
+      setError('Unable to recalculate capability impact. Please try again.');
     }
   };
 

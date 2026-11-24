@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { KasumoLayout } from './components/layout/KasumoLayout';
+import { ServerWakeupBanner } from './components/common/ServerWakeupBanner';
 
 // Dynamic lazy imports for route-based chunking
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -29,245 +30,66 @@ const LeaderboardPage = React.lazy(() => import('./pages/common/LeaderboardPage'
 
 const PageLoader = () => (
   <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-    <div className="h-9 w-9 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+    <div className="h-9 w-9 animate-spin rounded-full border-2 border-slate-900 border-t-transparent" />
   </div>
 );
 
 export function App() {
   return (
     <Router>
+      <ServerWakeupBanner />
       <AuthProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Routes without sidebar */}
+            {/* Public Routes without layout */}
             <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected Common Dashboard */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <KasumoLayout>
-                  <DashboardPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Authenticated Layout Route */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <KasumoLayout />
+                </ProtectedRoute>
+              }
+            >
+              {/* Shared Protected Routes */}
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
 
-          {/* Student-only routes */}
-          <Route
-            path="/student/discover"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <OpportunityDiscoveryPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/discover/:id"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <StudentDiscoveryDetailPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/intelligence"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <CareerIntelligencePage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/career-intelligence"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <CareerIntelligencePage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/gaps"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <GapAnalysisPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/opportunities"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <StudentOpportunitiesPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/connections"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <StudentConnectionsPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <ProfilePage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/career-goals"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <CareerGoalsPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/evidence"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <EvidencePage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
+              {/* Student Protected Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
+                <Route path="/student/discover" element={<OpportunityDiscoveryPage />} />
+                <Route path="/student/discover/:id" element={<StudentDiscoveryDetailPage />} />
+                <Route path="/student/intelligence" element={<CareerIntelligencePage />} />
+                <Route path="/student/gaps" element={<GapAnalysisPage />} />
+                <Route path="/student/opportunities" element={<StudentOpportunitiesPage />} />
+                <Route path="/student/connections" element={<StudentConnectionsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/career-goals" element={<CareerGoalsPage />} />
+                <Route path="/evidence" element={<EvidencePage />} />
+                <Route path="/student/assessments" element={<AssessmentsListPage />} />
+                <Route path="/student/assessments/:assessmentId/attempts/:attemptId" element={<AssessmentTakingPage />} />
+                <Route path="/student/assessments/attempts/:attemptId/result" element={<AssessmentResultPage />} />
+              </Route>
 
-          {/* Technical Assessments (Round-1 Screening Engine) */}
-          <Route
-            path="/student/assessments"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <AssessmentsListPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/assessments/:assessmentId/attempts/:attemptId"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <AssessmentTakingPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/assessments/attempts/:attemptId/result"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <KasumoLayout>
-                  <AssessmentResultPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
+              {/* Recruiter / Admin Protected Routes */}
+              <Route element={<ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']} />}>
+                <Route path="/recruiter/opportunities" element={<OpportunitiesPage />} />
+                <Route path="/recruiter/connections" element={<RecruiterConnectionsPage />} />
+                <Route path="/recruiter/opportunities/new" element={<CreateOpportunityPage />} />
+                <Route path="/recruiter/opportunities/:id" element={<OpportunityDetailPage />} />
+                <Route path="/recruiter/verifications" element={<VerificationPage />} />
+              </Route>
+            </Route>
 
-          {/* Real-Data Capability Leaderboard */}
-          <Route
-            path="/leaderboard"
-            element={
-              <ProtectedRoute>
-                <KasumoLayout>
-                  <LeaderboardPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Duplicate / Legacy Routes with Clean Redirects */}
+            <Route path="/student/career-intelligence" element={<Navigate to="/student/intelligence" replace />} />
+            <Route path="/verifications" element={<Navigate to="/recruiter/verifications" replace />} />
 
-          {/* Recruiter / Admin opportunity and connection management */}
-          <Route
-            path="/recruiter/opportunities"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <OpportunitiesPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/recruiter/connections"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <RecruiterConnectionsPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/recruiter/opportunities/new"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <CreateOpportunityPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/recruiter/opportunities/:id"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <OpportunityDetailPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Recruiter / Admin verification queue */}
-          <Route
-            path="/recruiter/verifications"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <VerificationPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/verifications"
-            element={
-              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                <KasumoLayout>
-                  <VerificationPage />
-                </KasumoLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Catch-all redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </Suspense>
       </AuthProvider>
     </Router>

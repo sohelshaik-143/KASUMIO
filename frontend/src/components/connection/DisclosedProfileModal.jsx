@@ -24,12 +24,14 @@ export const DisclosedProfileModal = ({
 
   const profile = connection.disclosedProfile;
   const [revoking, setRevoking] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleRevoke = async () => {
     if (!window.confirm('Are you sure you want to disconnect? Identity disclosure will terminate immediately.')) {
       return;
     }
     try {
+      setError(null);
       setRevoking(true);
       if (onCancelConnection) {
         await onCancelConnection(connection.id);
@@ -37,6 +39,7 @@ export const DisclosedProfileModal = ({
       onClose();
     } catch (err) {
       console.error('Failed to cancel connection:', err);
+      setError(err.response?.data?.message || 'Failed to cancel connection. Please try again.');
     } finally {
       setRevoking(false);
     }

@@ -89,6 +89,7 @@ export const CareerIntelligencePage = () => {
       setOutcomeData(fresh);
     } catch (err) {
       console.error('Error recalculating outcome intelligence:', err);
+      setAlert({ type: 'error', message: 'Unable to recalculate career action impact. Please retry.' });
     }
   };
 

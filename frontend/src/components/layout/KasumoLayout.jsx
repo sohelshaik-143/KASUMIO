@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { KasumoSidebar } from './KasumoSidebar';
 import { KasumoHeader } from './KasumoHeader';
 import { KasumoMobileNav } from './KasumoMobileNav';
@@ -31,7 +32,7 @@ export const KasumoLayout = ({ children }) => {
 
         {/* Dynamic Page Content (with pb-16 for mobile bottom nav padding) */}
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
-          {children}
+          {children || <Outlet />}
         </main>
       </div>
 

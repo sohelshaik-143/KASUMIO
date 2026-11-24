@@ -52,6 +52,7 @@ export const OpportunityDiscoveryPage = () => {
       setTechnologies(data || []);
     } catch (err) {
       console.error('Failed to load technology catalog:', err);
+      setAlert({ type: 'error', message: 'Unable to load full technology catalog. Search is still available.' });
     }
   };
 

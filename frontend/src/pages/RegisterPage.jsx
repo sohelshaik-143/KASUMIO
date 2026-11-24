@@ -27,6 +27,7 @@ export const RegisterPage = () => {
         setOrganizations(orgs);
       } catch (err) {
         console.error('Failed to load organizations:', err);
+        setError('Unable to load organizations list. You may type your company name manually.');
       }
     };
     loadOrgs();
