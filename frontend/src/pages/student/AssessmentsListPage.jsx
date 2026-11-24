@@ -100,12 +100,12 @@ export const AssessmentsListPage = () => {
       setAgentRunningId(assessmentId);
       setAlert({
         type: 'info',
-        message: '🤖 AI Agent is autonomously solving technical & LeetCode DSA questions...'
+        message: 'Automated verification runner is evaluating screening test cases...'
       });
       const result = await assessmentApi.agentTakeAssessment(assessmentId);
       setAlert({
         type: 'success',
-        message: `🤖 AI Agent completed screening! Scored ${result.score}% (${result.status}). Capability verified and evidence minted!`
+        message: `Automated run complete! Scored ${result.score}% (${result.status}). Capability verified and evidence recorded.`
       });
       setTimeout(() => {
         if (result.attemptId) {
@@ -235,19 +235,21 @@ export const AssessmentsListPage = () => {
 
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => handleAgentTakeAssessment(assm.id)}
                       disabled={agentRunningId === assm.id || startingId === assm.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50"
-                      title="Run autonomous AI Agent to solve Round-1 technical & LeetCode problems"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-paper-subtle hover:bg-paper-border text-ink border border-paper-border text-xs font-semibold rounded-lg shadow-xs transition disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
+                      title="Run automated test suite simulation to verify screening questions"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-purple-200" />
-                      <span>{agentRunningId === assm.id ? 'Solving...' : '🤖 AI Agent Take'}</span>
+                      <Sparkles className="w-3.5 h-3.5 text-verified" aria-hidden="true" />
+                      <span>{agentRunningId === assm.id ? 'Evaluating...' : 'Simulate Run'}</span>
                     </button>
 
                     <button
+                      type="button"
                       onClick={() => handleInitiateStart(assm)}
                       disabled={startingId === assm.id || agentRunningId === assm.id}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-verified hover:bg-verified-hover text-white text-xs font-semibold rounded-lg shadow-xs transition disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified focus-visible:ring-offset-2"
                     >
                       {startingId === assm.id ? (
                         <span>Initializing...</span>

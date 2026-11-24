@@ -151,21 +151,19 @@ export const RecruiterAgentConsole = ({ onSwitchToManual }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in-50 duration-200">
-      {/* Agent Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 p-6 sm:p-8 text-white shadow-lg">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Rule-Based Operations Hero Banner */}
+      <div className="kasumo-card p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
-              <span>KASUMO Autonomous Recruiter Operations</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-verified-light border border-verified-border text-verified text-xs font-semibold uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-verified" aria-hidden="true" />
+              <span>KASUMIO Structured Role Parser & Matcher</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
-              From Plain Intent to Approved Outreach in Minutes
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink font-serif mb-2">
+              Structured Requirement Parsing & Verifiable Matching
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Describe your role requirements in plain English. KASUMO investigates demonstrable code artifacts, scores Day-1 readiness deterministically, drafts respectful outreach, and executes upon your approval.
+            <p className="text-sm text-ink-muted leading-relaxed">
+              Describe your role requirements in plain English. KASUMIO uses rule-based parsing against our skill taxonomy, scores Day-1 readiness deterministically from verified evidence, drafts respectful outreach, and executes upon your approval.
             </p>
           </div>
 

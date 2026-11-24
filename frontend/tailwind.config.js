@@ -8,48 +8,47 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+        paper: {
+          DEFAULT: '#faf9f6',
+          surface: '#ffffff',
+          subtle: '#f5f4ef',
+          border: '#e4e2db',
         },
-        slate: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          850: '#172033',
-          900: '#0f172a',
-          950: '#020617',
-        }
+        ink: {
+          DEFAULT: '#18181b',
+          muted: '#52525b',
+          subtle: '#71717a',
+        },
+        verified: {
+          DEFAULT: '#0f766e', // deep teal
+          hover: '#115e59',
+          light: '#f0fdfa',
+          border: '#99f6e4',
+          badge: '#ccfbf1',
+        },
+        unverified: {
+          DEFAULT: '#b45309', // warm amber
+          hover: '#92400e',
+          light: '#fffbeb',
+          border: '#fde68a',
+        },
+        gap: {
+          DEFAULT: '#b91c1c', // brick red
+          hover: '#991b1b',
+          light: '#fef2f2',
+          border: '#fecaca',
+        },
       },
       fontFamily: {
+        serif: ['Newsreader', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace', 'Consolas'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       boxShadow: {
         'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06)',
         'md': '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)',
-        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03)',
-        'glow-indigo': '0 0 20px -5px rgba(79, 70, 229, 0.15)',
       },
-      animation: {
-        'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      }
     },
   },
   plugins: [],

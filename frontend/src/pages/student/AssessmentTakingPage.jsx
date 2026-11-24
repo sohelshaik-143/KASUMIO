@@ -242,12 +242,12 @@ export const AssessmentTakingPage = () => {
       setAgentRunning(true);
       setAlert({
         type: 'info',
-        message: '🤖 AI Agent is autonomously completing all technical & LeetCode DSA questions...'
+        message: 'Automated runner is evaluating technical screening test cases...'
       });
       const result = await assessmentApi.agentTakeAssessment(assessmentId);
       setAlert({
         type: 'success',
-        message: `Assessment successfully solved! Final Score: ${result.score}% (${result.status}). Redirecting to results...`
+        message: `Evaluation completed! Final Score: ${result.score}% (${result.status}). Redirecting to results...`
       });
       setTimeout(() => {
         navigate(`/student/assessments/attempts/${result.attemptId || attemptId}/result`);
@@ -303,13 +303,14 @@ export const AssessmentTakingPage = () => {
 
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={handleAgentAutoSolve}
             disabled={agentRunning || submitting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50"
-            title="Auto-solve technical screening using AI agent"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-paper-subtle hover:bg-paper-border text-ink border border-paper-border text-xs font-semibold rounded-lg shadow-xs transition disabled:opacity-50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
+            title="Auto-run test suite simulation"
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-200" />
-            <span>{agentRunning ? 'Solving...' : '🤖 AI Agent Solve'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-verified" aria-hidden="true" />
+            <span>{agentRunning ? 'Evaluating...' : 'Simulate Run'}</span>
           </button>
           <div className="text-right">
             <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Score</span>

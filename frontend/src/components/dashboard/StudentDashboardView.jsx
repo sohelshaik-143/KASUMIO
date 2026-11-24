@@ -9,10 +9,6 @@ import { StudentDashboardMetrics } from './StudentDashboardMetrics';
 import { CapabilitySnapshotCard } from './CapabilitySnapshotCard';
 import { RecommendedOpportunitiesList } from './RecommendedOpportunitiesList';
 
-/**
- * Student Dashboard View
- * Displays personalized career intelligence, next best action, evidence portfolio, and recommended roles.
- */
 export const StudentDashboardView = ({
   user,
   metrics,
@@ -52,59 +48,63 @@ export const StudentDashboardView = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-200">
-      {/* 1. Personalized Greeting Banner & Global Search */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-5">
+      {/* 1. Header Banner & Quick Actions */}
+      <div className="kasumo-card p-6 space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                Career Intelligence Active
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-verified-light text-verified border border-verified-border">
+                Proof-Based Profile
               </span>
-              <span className="text-xs text-slate-400 font-mono">
-                {verifiedEv} / {totalEv} Proof Verified
+              <span className="text-xs text-ink-muted font-mono tabular-nums">
+                {verifiedEv} / {totalEv} Verified
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight font-serif">
               {greeting}, {user?.fullName || user?.email?.split('@')[0]}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
-              Your career roadmap is connected to real evidence. Explore opportunities, track capability states, and unlock next moves.
+            <p className="text-xs sm:text-sm text-ink-muted mt-1 max-w-xl">
+              Your career roadmap is grounded in verifiable evidence. Track demonstration states, explore opportunities, and take your next move.
             </p>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
             <button
+              type="button"
               onClick={onOpenTemplatePicker}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer"
+              className="min-h-[40px] inline-flex items-center gap-2 px-3.5 py-2 bg-paper-subtle hover:bg-paper-border text-ink text-xs font-semibold rounded-lg border border-paper-border transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
             >
-              <FileCode2 className="w-4 h-4 text-indigo-600" />
+              <FileCode2 className="w-4 h-4 text-verified" aria-hidden="true" />
               <span>Use Template</span>
             </button>
 
             <button
+              type="button"
               onClick={onOpenDirectForm}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-xs transition active:scale-98 cursor-pointer"
+              className="min-h-[40px] inline-flex items-center gap-2 px-4 py-2 bg-verified hover:bg-verified-hover text-white text-xs font-semibold rounded-lg shadow-xs transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified focus-visible:ring-offset-2"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4" aria-hidden="true" />
               <span>Add Evidence</span>
             </button>
           </div>
         </div>
 
-        {/* Global Opportunity / Skill / Company Search Input */}
+        {/* Search */}
         <form onSubmit={handleSearchSubmit} className="relative">
-          <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <label htmlFor="dashboard-search-input" className="sr-only">Search roles, skills, or organizations</label>
+          <Search className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
           <input
-            type="text"
+            id="dashboard-search-input"
+            type="search"
             value={dashboardQuery}
             onChange={(e) => setDashboardQuery(e.target.value)}
-            placeholder="Global search across opportunities, taxonomy skills, or target companies..."
-            className="w-full pl-10 pr-24 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+            placeholder="Search roles, skills, or organizations across the market..."
+            className="w-full pl-10 pr-24 py-2.5 bg-paper-subtle border border-paper-border rounded-lg text-xs text-ink placeholder-ink-subtle focus:outline-hidden focus:ring-2 focus:ring-verified focus:bg-white transition"
           />
           <button
             type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition cursor-pointer"
+            className="absolute right-2 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-ink text-white hover:bg-slate-800 text-xs font-semibold rounded-md transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
           >
             Search
           </button>
@@ -114,31 +114,31 @@ export const StudentDashboardView = ({
       {/* 2. Today's Focus & Next Move Engine */}
       <NextMoveCard onActionUpdated={onActionUpdated} />
 
-      {/* Feature 05: Evidence -> Outcome Intelligence & Graphical Progression */}
+      {/* Outcome Intelligence Section */}
       <OutcomeIntelligenceSection outcomeData={outcomeData} onRecalculate={onRecalculateOutcome} />
 
       {/* Incoming Connection Alert */}
       {pendingRequests > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="bg-unverified-light border border-unverified-border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-start sm:items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0">
-              <Clock className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-white border border-unverified-border text-unverified shrink-0">
+              <Clock className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-bold text-amber-900">
+              <h2 className="text-sm font-bold text-ink">
                 You have {pendingRequests} incoming recruiter connection request{pendingRequests > 1 ? 's' : ''}
-              </p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Recruiters discovered your proof footprint and requested to connect. You choose what information to disclose.
+              </h2>
+              <p className="text-xs text-ink-muted mt-0.5">
+                Recruiters discovered your verifiable proof. You control what information to disclose.
               </p>
             </div>
           </div>
           <Link
             to="/student/connections"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl shrink-0 transition shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-unverified hover:bg-unverified-hover text-white text-xs font-semibold rounded-lg shrink-0 transition shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-unverified"
           >
             <span>Review Requests</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </Link>
         </div>
       )}
@@ -165,15 +165,15 @@ export const StudentDashboardView = ({
       {/* 6. Recent Evidence Footprint Submissions */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+          <h2 className="text-base sm:text-lg font-bold text-ink tracking-tight font-serif">
             Recent Evidence Footprint
           </h2>
           <Link
             to="/evidence"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+            className="text-xs font-semibold text-verified hover:text-verified-hover flex items-center gap-1 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified rounded"
           >
             <span>View Portfolio</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </Link>
         </div>
 
@@ -196,3 +196,5 @@ export const StudentDashboardView = ({
     </div>
   );
 };
+
+export default StudentDashboardView;

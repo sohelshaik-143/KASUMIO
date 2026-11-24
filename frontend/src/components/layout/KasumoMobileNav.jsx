@@ -4,12 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Layers,
   Compass,
-  Sparkles,
-  TrendingUp,
-  User,
   Briefcase,
   Users,
-  ShieldCheck
+  ShieldCheck,
+  Code
 } from 'lucide-react';
 
 export const KasumoMobileNav = () => {
@@ -25,25 +23,28 @@ export const KasumoMobileNav = () => {
   };
 
   const studentItems = [
-    { name: 'Home', path: '/', icon: Layers },
-    { name: 'Opportunities', path: '/student/discover', icon: Compass },
-    { name: 'Capability', path: '/student/intelligence', icon: Sparkles },
-    { name: 'Learn', path: '/student/gaps', icon: TrendingUp },
-    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Dashboard', path: '/', icon: Layers },
+    { name: 'Evidence', path: '/evidence', icon: ShieldCheck },
+    { name: 'Roles', path: '/student/discover', icon: Compass },
+    { name: 'Assessments', path: '/student/assessments', icon: Code },
+    { name: 'Connections', path: '/student/connections', icon: Users },
   ];
 
   const recruiterItems = [
-    { name: 'Home', path: '/', icon: Layers },
+    { name: 'Dashboard', path: '/', icon: Layers },
     { name: 'Opportunities', path: '/recruiter/opportunities', icon: Briefcase },
-    { name: 'Connections', path: '/recruiter/connections', icon: Users },
-    { name: 'Audit Queue', path: '/recruiter/verifications', icon: ShieldCheck },
+    { name: 'Candidates', path: '/recruiter/connections', icon: Users },
+    { name: 'Verification', path: '/recruiter/verifications', icon: ShieldCheck },
   ];
 
   const navItems = isStudent ? studentItems : (isRecruiter || isAdmin) ? recruiterItems : [];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 shadow-lg">
-      <nav className="flex items-center justify-around">
+    <nav
+      aria-label="Mobile Navigation Bar"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-paper-border px-1 py-1 shadow-md"
+    >
+      <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -51,20 +52,22 @@ export const KasumoMobileNav = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-xs font-medium transition-all ${
+              className={`min-h-[48px] min-w-[48px] flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-lg text-xs font-medium transition ${
                 active
-                  ? 'text-indigo-600 font-bold'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
+                  ? 'text-verified font-bold'
+                  : 'text-ink-muted hover:text-ink'
+              } focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified`}
             >
-              <div className={`p-1 rounded-md ${active ? 'bg-indigo-50 text-indigo-600' : ''}`}>
-                <Icon className="w-4 h-4" />
+              <div className={`p-1 rounded-md ${active ? 'bg-verified-light text-verified' : ''}`}>
+                <Icon className="w-4 h-4" aria-hidden="true" />
               </div>
               <span className="truncate max-w-[64px]">{item.name}</span>
             </NavLink>
           );
         })}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
+
+export default KasumoMobileNav;
