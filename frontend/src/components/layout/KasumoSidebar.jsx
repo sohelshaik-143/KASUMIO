@@ -2,24 +2,23 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Layers,
-  Compass,
+  LayoutDashboard,
+  Dna,
+  FolderGit2,
+  CheckSquare,
   Briefcase,
-  Users,
-  ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
+  Users2,
+  User,
+  Settings,
+  ChevronDown,
   LogOut,
-  X,
-  Building,
-  GraduationCap,
-  Code
+  ArrowRight
 } from 'lucide-react';
 
 export const KasumoSidebar = ({
-  collapsed,
+  collapsed = false,
   setCollapsed,
-  mobileOpen,
+  mobileOpen = false,
   setMobileOpen
 }) => {
   const { user, logout, isStudent, isRecruiter, isAdmin } = useAuth();
@@ -37,173 +36,165 @@ export const KasumoSidebar = ({
     return false;
   };
 
-  // Student nav: ~5 items as specified in Step 5
-  const studentNavItems = [
-    { name: 'Dashboard', path: '/', icon: Layers },
-    { name: 'Evidence Portfolio', path: '/evidence', icon: ShieldCheck },
-    { name: 'Roles & Gaps', path: '/student/discover', icon: Compass },
-    { name: 'Technical Assessments', path: '/student/assessments', icon: Code },
-    { name: 'Connections', path: '/student/connections', icon: Users },
+  // 8 Exact Navigation Items matching the Reference Image
+  const navItems = [
+    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Skill DNA', path: '/student/intelligence', icon: Dna },
+    { name: 'My Projects', path: '/evidence', icon: FolderGit2 },
+    { name: 'Assessments', path: '/student/assessments', icon: CheckSquare },
+    { name: 'Opportunities', path: isRecruiter ? '/recruiter/opportunities' : '/student/discover', icon: Briefcase },
+    { name: 'Connections', path: isRecruiter ? '/recruiter/connections' : '/student/connections', icon: Users2 },
+    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Settings', path: '/profile', icon: Settings },
   ];
 
-  // Recruiter nav: ~5 items as specified in Step 5
-  const recruiterNavItems = [
-    { name: 'Dashboard', path: '/', icon: Layers },
-    { name: 'Opportunities', path: '/recruiter/opportunities', icon: Briefcase },
-    { name: 'Candidates & Connections', path: '/recruiter/connections', icon: Users },
-    { name: 'Verification Queue', path: '/recruiter/verifications', icon: ShieldCheck },
-  ];
-
-  const navItems = isStudent ? studentNavItems : (isRecruiter || isAdmin) ? recruiterNavItems : [];
-
-  const navItemContent = (item) => {
-    const active = isActive(item.path);
-    const Icon = item.icon;
-
-    return (
-      <NavLink
-        key={item.path}
-        to={item.path}
-        onClick={() => setMobileOpen(false)}
-        title={collapsed ? item.name : undefined}
-        className={`group relative flex items-center gap-3 px-3 min-h-[44px] rounded-lg text-xs font-medium transition duration-150 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified ${
-          active
-            ? 'bg-verified-light text-verified font-semibold border border-verified-border'
-            : 'text-ink-muted hover:text-ink hover:bg-paper-subtle'
-        }`}
-      >
-        {active && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-verified rounded-r-full" />
-        )}
-        
-        <Icon className={`w-4 h-4 shrink-0 transition ${active ? 'text-verified' : 'text-ink-subtle group-hover:text-ink'}`} aria-hidden="true" />
-
-        {!collapsed && (
-          <span className="truncate">{item.name}</span>
-        )}
-      </NavLink>
-    );
-  };
-
-  const sidebarBody = (
-    <div className="flex flex-col h-full bg-white border-r border-paper-border select-none">
-      {/* Brand Header */}
-      <div className={`flex items-center justify-between h-16 px-4 border-b border-paper-border shrink-0 ${collapsed ? 'justify-center' : ''}`}>
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-lg bg-verified flex items-center justify-center text-white font-bold text-base tracking-wider shrink-0 shadow-xs">
-            K
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-bold text-sm text-ink tracking-tight font-serif">KASUMIO</span>
-              <span className="text-xs text-ink-subtle truncate">
-                Proof, Not Profile
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile close button */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen(false)}
-          aria-label="Close sidebar navigation"
-          className="md:hidden p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-paper-subtle transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
-        >
-          <X className="w-5 h-5" aria-hidden="true" />
-        </button>
-      </div>
-
-      {/* Navigation Items */}
-      <nav aria-label="Sidebar Navigation" className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5">
-        {!collapsed && (
-          <div className="px-3 text-xs font-bold text-ink-subtle uppercase tracking-wider mb-2">
-            Navigation
-          </div>
-        )}
-        <div className="space-y-1">
-          {navItems.map((item) => navItemContent(item))}
-        </div>
-      </nav>
-
-      {/* User Footer Profile & Collapse Toggle */}
-      <div className="p-3 border-t border-paper-border bg-paper-subtle shrink-0 space-y-2">
-        {user && (
-          <div className={`flex items-center gap-2.5 p-2 rounded-lg bg-white border border-paper-border shadow-xs ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-lg bg-verified-light border border-verified-border text-verified flex items-center justify-center font-bold text-xs shrink-0">
-              {isStudent ? <GraduationCap className="w-4 h-4" aria-hidden="true" /> : <Building className="w-4 h-4" aria-hidden="true" />}
-            </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-ink truncate">
-                  {user.fullName || user.email.split('@')[0]}
-                </p>
-                <p className="text-xs text-verified font-medium truncate">
-                  {user.role} {user.organizationName ? `• ${user.organizationName}` : ''}
-                </p>
-              </div>
-            )}
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                aria-label="Sign out"
-                className="p-1.5 text-ink-muted hover:text-gap hover:bg-paper-subtle rounded-md transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gap"
-              >
-                <LogOut className="w-4 h-4" aria-hidden="true" />
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Desktop Collapse / Expand Toggle */}
-        <div className="hidden md:flex items-center justify-end">
-          <button
-            type="button"
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="w-full min-h-[36px] flex items-center justify-center gap-2 py-1.5 px-2 rounded-md text-ink-muted hover:text-ink hover:bg-white text-xs transition font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-verified"
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4" aria-hidden="true" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-                <span className="text-xs text-ink-muted">Collapse navigation</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const displayName = user?.fullName || (isStudent ? 'Shaik Sohel' : 'Sarah Jenkins');
+  const displayRole = isStudent ? 'Student • E3 • EEE' : isRecruiter ? 'Lead Technical Recruiter' : 'System Administrator';
 
   return (
     <>
-      {/* Desktop Fixed Left Sidebar */}
+      {/* Mobile Backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Container */}
       <aside
-        aria-label="Main Navigation"
-        className={`hidden md:block fixed top-0 left-0 bottom-0 z-30 transition-all duration-200 ease-in-out ${
-          collapsed ? 'w-18' : 'w-64'
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col w-[252px] bg-[#090f1e] border-r border-[#152037] text-white transition-transform duration-200 select-none ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {sidebarBody}
-      </aside>
-
-      {/* Mobile Drawer Backdrop & Overlay */}
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="relative w-64 max-w-[80vw] h-full shadow-xl z-10">
-            {sidebarBody}
+        {/* Brand Header */}
+        <div className="flex items-center gap-3 px-5 pt-6 pb-5 shrink-0">
+          {/* Folded Origami K Logo */}
+          <div className="shrink-0">
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="4" width="8" height="28" rx="2" fill="#2563EB" />
+              <path d="M13 18L26 5C26.8 4.2 28.2 4.6 28.5 5.7L29 7.5C29.4 8.6 29 9.8 28.1 10.6L19 19L28.5 28.5C29.4 29.4 29.2 31 28 31.8L26 33C25.2 33.5 24.2 33.3 23.6 32.6L13 20" fill="#38BDF8" />
+              <path d="M13 15L23 5.5C23.8 4.7 25.1 4.9 25.5 6L26 7.5C26.4 8.6 26 9.8 25.1 10.6L17.5 18L13 15Z" fill="#60A5FA" />
+            </svg>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-extrabold text-base tracking-wider text-white font-sans">
+              KASUMO
+            </span>
+            <span className="text-[11px] text-slate-400 font-medium leading-none mt-0.5">
+              Truth-First Talent Intelligence
+            </span>
           </div>
         </div>
-      )}
+
+        {/* Navigation List */}
+        <nav className="flex-1 px-3.5 py-2 space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const active = isActive(item.path);
+            const Icon = item.icon;
+
+            return (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className={`group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 ${
+                  active
+                    ? 'bg-[#2563eb] text-white shadow-md shadow-blue-600/30 font-bold'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Icon
+                  className={`w-[18px] h-[18px] shrink-0 transition-colors ${
+                    active ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                  }`}
+                />
+                <span className="truncate">{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* Promo Mountain Card ("Prove. Grow. Get Hired.") */}
+        <div className="px-3.5 mb-3 shrink-0">
+          <div className="relative rounded-2xl p-4 bg-gradient-to-b from-[#132347] via-[#0d1831] to-[#0a1122] border border-blue-500/20 overflow-hidden shadow-lg">
+            {/* Mountain & starry summit illustration */}
+            <div className="absolute right-0 bottom-0 w-28 h-24 pointer-events-none opacity-80">
+              <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Mountain polygon */}
+                <path d="M40 80L75 25L95 80H40Z" fill="url(#mountGrad)" />
+                <path d="M10 80L50 40L75 80H10Z" fill="url(#mountDark)" />
+                {/* Summit flag */}
+                <line x1="75" y1="25" x2="75" y2="15" stroke="#FFFFFF" strokeWidth="1.5" />
+                <polygon points="75,15 85,18 75,21" fill="#60A5FA" />
+                {/* Stars/glow */}
+                <circle cx="20" cy="20" r="1" fill="#FFFFFF" opacity="0.6" />
+                <circle cx="85" cy="10" r="1.5" fill="#60A5FA" opacity="0.8" />
+                <circle cx="60" cy="15" r="1" fill="#FFFFFF" opacity="0.7" />
+                <defs>
+                  <linearGradient id="mountGrad" x1="75" y1="25" x2="75" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#2563EB" />
+                    <stop offset="1" stopColor="#0B132B" />
+                  </linearGradient>
+                  <linearGradient id="mountDark" x1="50" y1="40" x2="50" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#1E3A8A" />
+                    <stop offset="1" stopColor="#0A0F1D" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            <div className="relative z-10 space-y-1">
+              <h4 className="text-[13px] font-bold text-white tracking-tight leading-tight">
+                Prove. Grow.<br />Get Hired.
+              </h4>
+              <p className="text-[11px] text-slate-300 leading-snug">
+                With KASUMO, your skills speak louder.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/evidence')}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-bold rounded-full transition shadow-xs"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* User Profile Footer */}
+        <div className="px-3.5 py-3 border-t border-[#152037] bg-[#070c18] shrink-0">
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-white/20">
+                  {displayName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                </div>
+                {/* Active green status dot */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#090f1e]" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-white truncate leading-tight">
+                  {displayName}
+                </span>
+                <span className="text-[11px] text-slate-400 truncate leading-tight mt-0.5">
+                  {displayRole}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sign out"
+              className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/10 transition shrink-0"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
     </>
   );
 };
-
-export default KasumoSidebar;
