@@ -126,7 +126,9 @@ public class AssessmentSubmissionService {
                 List<TestCase> allTestCases = testCaseRepository.findByCodingProblemOrderByOrderIndexAsc(problem);
                 outcome = evaluationService.evaluateCoding(problem, allTestCases, request.getLanguage(), request.getCode());
             } else {
-                outcome = new DeterministicEvaluationService.EvaluationOutcome(SubmissionStatus.PASSED, 1, 1, 0, 0, "", Collections.emptyList());
+                outcome = new DeterministicEvaluationService.EvaluationOutcome(
+                        SubmissionStatus.PASSED, 1, 1, 0L, 0L, "", Collections.emptyList(), null
+                );
             }
         } else if (question.getQuestionType().isChoiceBased()) {
             if (request.getSelectedOptionId() != null) {
@@ -138,7 +140,7 @@ public class AssessmentSubmissionService {
             boolean hasContent = request.getCode() != null && !request.getCode().trim().isEmpty();
             outcome = new DeterministicEvaluationService.EvaluationOutcome(
                     hasContent ? SubmissionStatus.PASSED : SubmissionStatus.FAILED,
-                    hasContent ? 1 : 0, 1, 0, 0, "", Collections.emptyList()
+                    hasContent ? 1 : 0, 1, 0L, 0L, "", Collections.emptyList(), null
             );
         }
 

@@ -39,6 +39,7 @@ public class AssessmentAttemptService {
     private final AssessmentReviewService reviewService;
     private final AssessmentQuestionMapper questionMapper;
     private final AssessmentSubmissionService submissionService;
+    private final com.kasumio.assessment.evaluation.EvaluationPipelineService pipelineService;
     private final ObjectMapper objectMapper;
 
     public AssessmentAttemptService(AssessmentRepository assessmentRepository,
@@ -56,6 +57,7 @@ public class AssessmentAttemptService {
                                   AssessmentReviewService reviewService,
                                   AssessmentQuestionMapper questionMapper,
                                   AssessmentSubmissionService submissionService,
+                                  com.kasumio.assessment.evaluation.EvaluationPipelineService pipelineService,
                                   ObjectMapper objectMapper) {
         this.assessmentRepository = assessmentRepository;
         this.questionRepository = questionRepository;
@@ -72,6 +74,7 @@ public class AssessmentAttemptService {
         this.reviewService = reviewService;
         this.questionMapper = questionMapper;
         this.submissionService = submissionService;
+        this.pipelineService = pipelineService;
         this.objectMapper = objectMapper;
     }
 
@@ -242,6 +245,9 @@ public class AssessmentAttemptService {
         try {
             attempt.setEvidenceGraphJson(objectMapper.writeValueAsString(evidenceProfile));
         } catch (Exception ignored) {}
+
+        // Run 4-Layer AI Evaluation Pipeline across submissions
+        pipelineService.evaluateEntireAttempt(attempt);
 
         String capabilityLevel = adaptiveEngine.computeDemonstratedCapability(
                 attempt.getScore(), attempt.getMaxScore(), codingPassed, totalCoding

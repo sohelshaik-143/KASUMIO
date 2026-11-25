@@ -30,6 +30,15 @@ export const QuestionDiagnosticAccordionItem = ({ item, isExpanded, onToggle }) 
     }
   } catch (e) {}
 
+  let evalLayers = null;
+  try {
+    if (item.evaluationLayersJson) {
+      evalLayers = typeof item.evaluationLayersJson === 'string'
+        ? JSON.parse(item.evaluationLayersJson)
+        : item.evaluationLayersJson;
+    }
+  } catch (e) {}
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition">
       {/* Header */}
@@ -139,6 +148,59 @@ export const QuestionDiagnosticAccordionItem = ({ item, isExpanded, onToggle }) 
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* 4-Layer Auditable Evaluation Breakdown */}
+          {evalLayers && (
+            <div className="p-4 bg-white border border-slate-200 rounded-xl space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="font-bold text-slate-800 uppercase tracking-wider text-xs flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>4-Layer Auditable Evaluation Evidence</span>
+                </span>
+                {evalLayers.layer4Review?.reviewedScore != null ? (
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">
+                    Recruiter Verified ({evalLayers.layer4Review.reviewedScore} pts)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-full">
+                    Deterministic Marks ({evalLayers.layer2Marks?.pointsEarned || item.pointsEarned} pts)
+                  </span>
+                )}
+              </div>
+
+              {/* Layer 3: AI Strengths & Weaknesses */}
+              {evalLayers.layer3AiSuggestions && (
+                <div className="space-y-2">
+                  <p className="text-slate-700 leading-relaxed font-medium">
+                    {evalLayers.layer3AiSuggestions.explanation}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {evalLayers.layer3AiSuggestions.strengths?.length > 0 && (
+                      <div className="p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-lg space-y-1">
+                        <span className="font-bold text-emerald-900 text-xs block">Demonstrated Strengths:</span>
+                        <ul className="list-disc list-inside space-y-0.5 text-emerald-800">
+                          {evalLayers.layer3AiSuggestions.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {evalLayers.layer3AiSuggestions.weaknesses?.length > 0 && (
+                      <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-lg space-y-1">
+                        <span className="font-bold text-amber-900 text-xs block">Areas for Refinement:</span>
+                        <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+                          {evalLayers.layer3AiSuggestions.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  {evalLayers.layer3AiSuggestions.recommendedConcepts && (
+                    <p className="text-slate-500 text-[11px] font-mono pt-1">
+                      Targeted Practice: <strong>{evalLayers.layer3AiSuggestions.recommendedConcepts}</strong>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

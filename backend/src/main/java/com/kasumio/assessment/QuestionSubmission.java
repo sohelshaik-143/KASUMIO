@@ -57,6 +57,18 @@ public class QuestionSubmission {
     @Column(name = "similarity_score")
     private Double similarityScore = 0.0;
 
+    @Column(name = "evaluated_score")
+    private Integer evaluatedScore;
+
+    @Column(name = "reviewed_score")
+    private Integer reviewedScore;
+
+    @Column(name = "review_reason", columnDefinition = "TEXT")
+    private String reviewReason;
+
+    @Column(name = "evaluation_layers_json", columnDefinition = "TEXT")
+    private String evaluationLayersJson;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -124,6 +136,18 @@ public class QuestionSubmission {
 
     public Double getSimilarityScore() { return similarityScore; }
     public void setSimilarityScore(Double similarityScore) { this.similarityScore = similarityScore; }
+
+    public Integer getEvaluatedScore() { return evaluatedScore; }
+    public void setEvaluatedScore(Integer evaluatedScore) { this.evaluatedScore = evaluatedScore; }
+
+    public Integer getReviewedScore() { return reviewedScore; }
+    public void setReviewedScore(Integer reviewedScore) { this.reviewedScore = reviewedScore; }
+
+    public String getReviewReason() { return reviewReason; }
+    public void setReviewReason(String reviewReason) { this.reviewReason = reviewReason; }
+
+    public String getEvaluationLayersJson() { return evaluationLayersJson; }
+    public void setEvaluationLayersJson(String evaluationLayersJson) { this.evaluationLayersJson = evaluationLayersJson; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

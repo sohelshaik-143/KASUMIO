@@ -43,6 +43,14 @@ export const assessmentApi = {
     return response.data;
   },
 
+  // Recruiter overrides individual question evaluation score with reasoning
+  overrideScore: async (attemptId, submissionId, overrideScore, reason) => {
+    const response = await api.post(
+      `/assessments/attempts/${attemptId}/submissions/${submissionId}/override?overrideScore=${overrideScore}&reason=${encodeURIComponent(reason)}`
+    );
+    return response.data;
+  },
+
   // Agent autonomously solves assessment questions & mints verified capability
   agentTakeAssessment: async (assessmentId) => {
     const response = await api.post(`/assessments/${assessmentId}/agent-take`);

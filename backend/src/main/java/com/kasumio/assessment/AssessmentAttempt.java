@@ -62,6 +62,15 @@ public class AssessmentAttempt {
     @Column(name = "recruiter_notes", columnDefinition = "TEXT")
     private String recruiterNotes;
 
+    @Column(name = "final_score")
+    private Integer finalScore;
+
+    @Column(name = "release_policy", nullable = false)
+    private String releasePolicy = "IMMEDIATE";
+
+    @Column(name = "release_status", nullable = false)
+    private String releaseStatus = "RELEASED";
+
     @Column(name = "started_at")
     private Instant startedAt;
 
@@ -131,6 +140,15 @@ public class AssessmentAttempt {
 
     public String getRecruiterNotes() { return recruiterNotes; }
     public void setRecruiterNotes(String recruiterNotes) { this.recruiterNotes = recruiterNotes; }
+
+    public Integer getFinalScore() { return finalScore; }
+    public void setFinalScore(Integer finalScore) { this.finalScore = finalScore; }
+
+    public String getReleasePolicy() { return releasePolicy; }
+    public void setReleasePolicy(String releasePolicy) { this.releasePolicy = releasePolicy; }
+
+    public String getReleaseStatus() { return releaseStatus; }
+    public void setReleaseStatus(String releaseStatus) { this.releaseStatus = releaseStatus; }
 
     public Instant getStartedAt() { return startedAt; }
     public void setStartedAt(Instant startedAt) { this.startedAt = startedAt; }

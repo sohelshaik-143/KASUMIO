@@ -156,6 +156,15 @@ export const CandidateAssessmentModal = ({
                   }
                 } catch (_) {}
 
+                let evalLayers = null;
+                try {
+                  if (qr.evaluationLayersJson) {
+                    evalLayers = typeof qr.evaluationLayersJson === 'string'
+                      ? JSON.parse(qr.evaluationLayersJson)
+                      : qr.evaluationLayersJson;
+                  }
+                } catch (_) {}
+
                 return (
                   <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 text-xs">
                     <div className="flex items-center justify-between border-b border-slate-200 pb-2">
@@ -170,6 +179,19 @@ export const CandidateAssessmentModal = ({
                         {qr.pointsEarned} / {qr.maxPoints} pts
                       </span>
                     </div>
+
+                    {/* AI Advisory Layer Insights */}
+                    {evalLayers?.layer3AiSuggestions && (
+                      <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-2">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                          <span>AI Advisory Evaluation:</span>
+                          <span className="text-teal-800 font-mono">Suggested: {evalLayers.layer3AiSuggestions.suggestedScore} pts</span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed text-[11px]">
+                          {evalLayers.layer3AiSuggestions.explanation}
+                        </p>
+                      </div>
+                    )}
 
                     {analysis && (
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-xs">

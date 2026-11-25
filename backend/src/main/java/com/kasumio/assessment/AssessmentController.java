@@ -20,13 +20,16 @@ import java.util.List;
 public class AssessmentController {
 
     private final AssessmentService assessmentService;
+    private final com.kasumio.assessment.evaluation.EvaluationPipelineService pipelineService;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
 
     public AssessmentController(AssessmentService assessmentService,
+                                com.kasumio.assessment.evaluation.EvaluationPipelineService pipelineService,
                                 StudentRepository studentRepository,
                                 UserRepository userRepository) {
         this.assessmentService = assessmentService;
+        this.pipelineService = pipelineService;
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
     }
@@ -85,6 +88,18 @@ public class AssessmentController {
                                                                        @RequestBody RecruiterDecisionRequest request) {
         User recruiter = SecurityUtils.getCurrentUser(userRepository);
         return ResponseEntity.ok(assessmentService.recordRecruiterDecision(attemptId, request, recruiter));
+    }
+
+    @PostMapping("/attempts/{attemptId}/submissions/{submissionId}/override")
+    @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN')")
+    @Operation(summary = "Recruiter overrides evaluation score for a question with audit reasoning")
+    public ResponseEntity<com.kasumio.assessment.evaluation.EvaluationLayers> overrideScore(
+            @PathVariable Long attemptId,
+            @PathVariable Long submissionId,
+            @RequestParam int overrideScore,
+            @RequestParam String reason) {
+        User recruiter = SecurityUtils.getCurrentUser(userRepository);
+        return ResponseEntity.ok(pipelineService.overrideSubmissionScore(attemptId, submissionId, overrideScore, reason, recruiter));
     }
 
     @GetMapping("/attempts/{attemptId}/next-question")

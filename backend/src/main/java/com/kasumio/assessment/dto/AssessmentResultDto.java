@@ -28,6 +28,8 @@ public class AssessmentResultDto {
     private String evidenceGraphJson;
     private String recruiterDecision;
     private String recruiterNotes;
+    private String releasePolicy;
+    private String releaseStatus;
     private Instant completedAt;
     private Long verifiedEvidenceId;
     private List<QuestionResultItemDto> questionResults;
@@ -94,6 +96,10 @@ public class AssessmentResultDto {
     public void setRecruiterDecision(String recruiterDecision) { this.recruiterDecision = recruiterDecision; }
     public String getRecruiterNotes() { return recruiterNotes; }
     public void setRecruiterNotes(String recruiterNotes) { this.recruiterNotes = recruiterNotes; }
+    public String getReleasePolicy() { return releasePolicy; }
+    public void setReleasePolicy(String releasePolicy) { this.releasePolicy = releasePolicy; }
+    public String getReleaseStatus() { return releaseStatus; }
+    public void setReleaseStatus(String releaseStatus) { this.releaseStatus = releaseStatus; }
     public Instant getCompletedAt() { return completedAt; }
     public void setCompletedAt(Instant completedAt) { this.completedAt = completedAt; }
     public Long getVerifiedEvidenceId() { return verifiedEvidenceId; }
@@ -120,6 +126,7 @@ public class AssessmentResultDto {
         private String telemetryJson;
         private String codeAnalysisJson;
         private Double similarityScore;
+        private String evaluationLayersJson;
 
         public QuestionResultItemDto() {}
 
@@ -182,5 +189,7 @@ public class AssessmentResultDto {
         public void setCodeAnalysisJson(String codeAnalysisJson) { this.codeAnalysisJson = codeAnalysisJson; }
         public Double getSimilarityScore() { return similarityScore; }
         public void setSimilarityScore(Double similarityScore) { this.similarityScore = similarityScore; }
+        public String getEvaluationLayersJson() { return evaluationLayersJson; }
+        public void setEvaluationLayersJson(String evaluationLayersJson) { this.evaluationLayersJson = evaluationLayersJson; }
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,7 +69,7 @@ public class AssessmentReviewService {
             throw new AccessDeniedException("Access denied to attempt results.");
         }
 
-        return mapToResultDto(attempt, null);
+        return mapToResultDto(attempt, null, false);
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +86,7 @@ public class AssessmentReviewService {
             throw new IllegalArgumentException("No assessment attempts completed by this candidate for opportunity " + opportunityId);
         }
 
-        return mapToResultDto(attempts.get(0), null);
+        return mapToResultDto(attempts.get(0), null, true);
     }
 
     @Transactional(readOnly = true)
@@ -105,10 +106,14 @@ public class AssessmentReviewService {
             throw new IllegalArgumentException("No assessment attempts completed by candidate " + candidateAlias + " for opportunity " + opportunityId);
         }
 
-        return mapToResultDto(attempts.get(0), null);
+        return mapToResultDto(attempts.get(0), null, true);
     }
 
     public AssessmentResultDto mapToResultDto(AssessmentAttempt attempt, Long verifiedEvidenceId) {
+        return mapToResultDto(attempt, verifiedEvidenceId, true);
+    }
+
+    public AssessmentResultDto mapToResultDto(AssessmentAttempt attempt, Long verifiedEvidenceId, boolean isRecruiter) {
         List<QuestionSubmission> submissions = submissionRepository.findByAttemptOrderByCreatedAtAsc(attempt);
         List<AssessmentResultDto.QuestionResultItemDto> items = new ArrayList<>();
 
@@ -120,7 +125,11 @@ public class AssessmentReviewService {
 
             int maxPoints = s.getQuestion().getPoints();
             int pointsEarned = 0;
-            if (s.getQuestion().getQuestionType() == QuestionType.CODING) {
+            if (s.getReviewedScore() != null) {
+                pointsEarned = s.getReviewedScore();
+            } else if (s.getEvaluatedScore() != null) {
+                pointsEarned = s.getEvaluatedScore();
+            } else if (s.getQuestion().getQuestionType().isCodeBased()) {
                 if (s.getTotalTestCases() > 0) {
                     pointsEarned = (int) Math.round(((double) s.getTestCasesPassed() / s.getTotalTestCases()) * maxPoints);
                 }
@@ -148,11 +157,26 @@ public class AssessmentReviewService {
             item.setTelemetryJson(s.getTelemetryJson());
             item.setCodeAnalysisJson(s.getCodeAnalysisJson());
             item.setSimilarityScore(s.getSimilarityScore());
+            item.setEvaluationLayersJson(s.getEvaluationLayersJson());
             items.add(item);
         }
 
-        double pct = attempt.getMaxScore() > 0 ? ((double) attempt.getScore() / attempt.getMaxScore()) * 100.0 : 0.0;
+        int totalScore = attempt.getFinalScore() != null ? attempt.getFinalScore() : attempt.getScore();
+        double pct = attempt.getMaxScore() > 0 ? ((double) totalScore / attempt.getMaxScore()) * 100.0 : 0.0;
         boolean passed = pct >= attempt.getAssessment().getPassingScore();
+
+        // Release policy gating for candidates
+        boolean isGatedForStudent = !isRecruiter
+                && "REVIEW_REQUIRED".equalsIgnoreCase(attempt.getReleasePolicy())
+                && !"RELEASED".equalsIgnoreCase(attempt.getReleaseStatus());
+
+        List<AssessmentResultDto.QuestionResultItemDto> deliveredItems = isGatedForStudent
+                ? Collections.emptyList()
+                : items;
+
+        String feedback = isGatedForStudent
+                ? "Your assessment submission has been securely recorded. Detailed evaluation results will be published once reviewed by the technical hiring team."
+                : attempt.getFeedbackSummary();
 
         AssessmentResultDto result = new AssessmentResultDto(
                 attempt.getId(),
@@ -160,16 +184,16 @@ public class AssessmentReviewService {
                 attempt.getAssessment().getTitle(),
                 attempt.getAssessment().getOpportunity().getId(),
                 attempt.getAssessment().getOpportunity().getTitle(),
-                attempt.getScore(),
+                totalScore,
                 attempt.getMaxScore(),
                 pct,
                 passed,
                 attempt.getAssessment().getPassingScore(),
                 attempt.getAdaptiveDifficulty().name(),
-                attempt.getFeedbackSummary(),
+                feedback,
                 attempt.getCompletedAt(),
                 verifiedEvidenceId,
-                items
+                deliveredItems
         );
         result.setSelfAssessmentLevel(attempt.getSelfAssessmentLevel() != null ? attempt.getSelfAssessmentLevel().name() : "MEDIUM");
         result.setDemonstratedLevel(attempt.getDemonstratedLevel() != null ? attempt.getDemonstratedLevel().name() : "MEDIUM");
@@ -177,7 +201,15 @@ public class AssessmentReviewService {
         result.setIntegritySignalsJson(attempt.getIntegritySignalsJson());
         result.setEvidenceGraphJson(attempt.getEvidenceGraphJson());
         result.setRecruiterDecision(attempt.getRecruiterDecision() != null ? attempt.getRecruiterDecision().name() : null);
-        result.setRecruiterNotes(attempt.getRecruiterNotes());
+        result.setReleasePolicy(attempt.getReleasePolicy());
+        result.setReleaseStatus(attempt.getReleaseStatus());
+
+        // Strict confidential recruiter notes protection: never leak to candidates
+        if (isRecruiter) {
+            result.setRecruiterNotes(attempt.getRecruiterNotes());
+        } else {
+            result.setRecruiterNotes(null);
+        }
 
         return result;
     }
