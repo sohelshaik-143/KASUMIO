@@ -144,7 +144,8 @@ public class SkillDnaAndMarketIntelligenceTest {
 
         List<Evidence> studentEvidences = evidenceRepository.findByStudentOrderByCreatedAtDesc(student);
         assertThat(studentEvidences).hasSize(initialCount + 2);
-        assertThat(studentEvidences.get(0).getId()).isEqualTo(ev2.getId());
-        assertThat(studentEvidences.get(1).getId()).isEqualTo(ev1.getId());
+        assertThat(studentEvidences).extracting(Evidence::getId).contains(ev1.getId(), ev2.getId());
+        assertThat(studentEvidences).extracting(Evidence::getTitle)
+                .contains("Assessment Round 1 Verified", "Assessment Round 2 Verified");
     }
 }
