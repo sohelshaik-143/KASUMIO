@@ -53,6 +53,7 @@ public class TestCase {
     public void setExpectedOutput(String expectedOutput) { this.expectedOutput = expectedOutput; }
 
     public Boolean getIsHidden() { return isHidden; }
+    public Boolean isHidden() { return isHidden; }
     public void setIsHidden(Boolean isHidden) { this.isHidden = isHidden; }
 
     public String getExplanation() { return explanation; }

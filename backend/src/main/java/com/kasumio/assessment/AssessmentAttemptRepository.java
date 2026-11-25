@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface AssessmentAttemptRepository extends JpaRepository<AssessmentAttempt, Long> {
     List<AssessmentAttempt> findByStudentOrderByCreatedAtDesc(Student student);
     List<AssessmentAttempt> findByStudentIdOrderByCreatedAtDesc(Long studentId);
+    List<AssessmentAttempt> findByAssessmentAndStudent(Assessment assessment, Student student);
     Optional<AssessmentAttempt> findFirstByAssessmentIdAndStudentIdOrderByCreatedAtDesc(Long assessmentId, Long studentId);
     List<AssessmentAttempt> findByAssessmentIdOrderByScoreDesc(Long assessmentId);
 

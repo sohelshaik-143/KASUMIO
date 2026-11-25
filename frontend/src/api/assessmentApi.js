@@ -100,4 +100,59 @@ export const assessmentApi = {
     );
     return response.data;
   },
+
+  // Recruiter Assessment Builder endpoints
+  getOrCreateBuilder: async (opportunityId) => {
+    const response = await api.get(`/assessments/builder/opportunity/${opportunityId}`);
+    return response.data;
+  },
+
+  getAssessmentBuilder: async (assessmentId) => {
+    const response = await api.get(`/assessments/builder/${assessmentId}`);
+    return response.data;
+  },
+
+  addQuestion: async (assessmentId, questionData) => {
+    const response = await api.post(`/assessments/builder/${assessmentId}/questions`, questionData);
+    return response.data;
+  },
+
+  updateQuestion: async (assessmentId, questionId, questionData) => {
+    const response = await api.put(`/assessments/builder/${assessmentId}/questions/${questionId}`, questionData);
+    return response.data;
+  },
+
+  deleteQuestion: async (assessmentId, questionId) => {
+    const response = await api.delete(`/assessments/builder/${assessmentId}/questions/${questionId}`);
+    return response.data;
+  },
+
+  validateAssessment: async (assessmentId) => {
+    const response = await api.post(`/assessments/builder/${assessmentId}/validate`);
+    return response.data;
+  },
+
+  publishAssessment: async (assessmentId) => {
+    const response = await api.post(`/assessments/builder/${assessmentId}/publish`);
+    return response.data;
+  },
+
+  cloneAssessment: async (assessmentId, targetOpportunityId) => {
+    const response = await api.post(`/assessments/builder/${assessmentId}/clone/${targetOpportunityId}`);
+    return response.data;
+  },
+
+  uploadQuestionImage: async (assessmentId, questionId, formData) => {
+    const response = await api.post(
+      `/assessments/builder/${assessmentId}/questions/${questionId}/image`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data;
+  },
+
+  deleteQuestionImage: async (assessmentId, questionId) => {
+    const response = await api.delete(`/assessments/builder/${assessmentId}/questions/${questionId}/image`);
+    return response.data;
+  },
 };

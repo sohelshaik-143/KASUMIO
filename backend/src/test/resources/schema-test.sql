@@ -245,6 +245,11 @@ CREATE TABLE IF NOT EXISTS assessments (
     time_limit_minutes INT NOT NULL DEFAULT 45,
     passing_score INT NOT NULL DEFAULT 70,
     blueprint_json TEXT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'DRAFT',
+    version_number INT NOT NULL DEFAULT 1,
+    total_marks INT NOT NULL DEFAULT 0,
+    skill_weightings_json TEXT NULL,
+    passing_criteria VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_assessment_opportunity FOREIGN KEY (opportunity_id) REFERENCES opportunities(id) ON DELETE CASCADE
 );
@@ -261,6 +266,13 @@ CREATE TABLE IF NOT EXISTS assessment_questions (
     order_index INT NOT NULL DEFAULT 0,
     validation_status VARCHAR(50) NOT NULL DEFAULT 'VALIDATED',
     competency_area VARCHAR(100) NULL,
+    rubric_json TEXT NULL,
+    time_limit_minutes INT NULL,
+    expected_skills_json TEXT NULL,
+    image_url VARCHAR(1024) NULL,
+    image_alt_text VARCHAR(500) NULL,
+    image_caption VARCHAR(500) NULL,
+    image_storage_key VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_question_assessment FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
     CONSTRAINT fk_question_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL

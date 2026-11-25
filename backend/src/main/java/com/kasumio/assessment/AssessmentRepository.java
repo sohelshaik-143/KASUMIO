@@ -11,5 +11,9 @@ import java.util.Optional;
 public interface AssessmentRepository extends JpaRepository<Assessment, Long> {
     Optional<Assessment> findByOpportunity(Opportunity opportunity);
     Optional<Assessment> findByOpportunityId(Long opportunityId);
+    Optional<Assessment> findFirstByOpportunityOrderByVersionNumberDesc(Opportunity opportunity);
+    Optional<Assessment> findFirstByOpportunityIdOrderByVersionNumberDesc(Long opportunityId);
+    Optional<Assessment> findFirstByOpportunityAndStatus(Opportunity opportunity, AssessmentStatus status);
+    List<Assessment> findAllByOpportunityOrderByVersionNumberDesc(Opportunity opportunity);
     List<Assessment> findAllByOrderByCreatedAtDesc();
 }

@@ -46,6 +46,27 @@ public class AssessmentQuestion {
     @Column(name = "competency_area")
     private String competencyArea;
 
+    @Column(name = "rubric_json", columnDefinition = "TEXT")
+    private String rubricJson;
+
+    @Column(name = "time_limit_minutes")
+    private Integer timeLimitMinutes;
+
+    @Column(name = "expected_skills_json", columnDefinition = "TEXT")
+    private String expectedSkillsJson;
+
+    @Column(name = "image_url", length = 1024)
+    private String imageUrl;
+
+    @Column(name = "image_alt_text", length = 500)
+    private String imageAltText;
+
+    @Column(name = "image_caption", length = 500)
+    private String imageCaption;
+
+    @Column(name = "image_storage_key")
+    private String imageStorageKey;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -97,6 +118,27 @@ public class AssessmentQuestion {
 
     public String getCompetencyArea() { return competencyArea; }
     public void setCompetencyArea(String competencyArea) { this.competencyArea = competencyArea; }
+
+    public String getRubricJson() { return rubricJson; }
+    public void setRubricJson(String rubricJson) { this.rubricJson = rubricJson; }
+
+    public Integer getTimeLimitMinutes() { return timeLimitMinutes; }
+    public void setTimeLimitMinutes(Integer timeLimitMinutes) { this.timeLimitMinutes = timeLimitMinutes; }
+
+    public String getExpectedSkillsJson() { return expectedSkillsJson; }
+    public void setExpectedSkillsJson(String expectedSkillsJson) { this.expectedSkillsJson = expectedSkillsJson; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getImageAltText() { return imageAltText; }
+    public void setImageAltText(String imageAltText) { this.imageAltText = imageAltText; }
+
+    public String getImageCaption() { return imageCaption; }
+    public void setImageCaption(String imageCaption) { this.imageCaption = imageCaption; }
+
+    public String getImageStorageKey() { return imageStorageKey; }
+    public void setImageStorageKey(String imageStorageKey) { this.imageStorageKey = imageStorageKey; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

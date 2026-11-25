@@ -49,7 +49,7 @@ public class AssessmentService {
         Opportunity opportunity = opportunityRepository.findById(opportunityId)
                 .orElseThrow(() -> new IllegalArgumentException("Opportunity not found: " + opportunityId));
 
-        Assessment assessment = assessmentRepository.findByOpportunity(opportunity)
+        Assessment assessment = assessmentRepository.findFirstByOpportunityOrderByVersionNumberDesc(opportunity)
                 .orElseGet(() -> {
                     AssessmentGenerationService.BlueprintTemplate blueprint = generationService.generateBlueprint(opportunity);
                     return generationService.instantiateAssessment(opportunity, blueprint);

@@ -31,6 +31,22 @@ public class Assessment {
     @Column(name = "blueprint_json", columnDefinition = "TEXT")
     private String blueprintJson;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AssessmentStatus status = AssessmentStatus.DRAFT;
+
+    @Column(name = "version_number", nullable = false)
+    private Integer versionNumber = 1;
+
+    @Column(name = "total_marks", nullable = false)
+    private Integer totalMarks = 0;
+
+    @Column(name = "skill_weightings_json", columnDefinition = "TEXT")
+    private String skillWeightingsJson;
+
+    @Column(name = "passing_criteria")
+    private String passingCriteria;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -43,6 +59,9 @@ public class Assessment {
         this.timeLimitMinutes = timeLimitMinutes != null ? timeLimitMinutes : 45;
         this.passingScore = passingScore != null ? passingScore : 70;
         this.blueprintJson = blueprintJson;
+        this.status = AssessmentStatus.DRAFT;
+        this.versionNumber = 1;
+        this.totalMarks = 0;
         this.createdAt = Instant.now();
     }
 
@@ -66,6 +85,21 @@ public class Assessment {
 
     public String getBlueprintJson() { return blueprintJson; }
     public void setBlueprintJson(String blueprintJson) { this.blueprintJson = blueprintJson; }
+
+    public AssessmentStatus getStatus() { return status; }
+    public void setStatus(AssessmentStatus status) { this.status = status; }
+
+    public Integer getVersionNumber() { return versionNumber; }
+    public void setVersionNumber(Integer versionNumber) { this.versionNumber = versionNumber; }
+
+    public Integer getTotalMarks() { return totalMarks; }
+    public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
+
+    public String getSkillWeightingsJson() { return skillWeightingsJson; }
+    public void setSkillWeightingsJson(String skillWeightingsJson) { this.skillWeightingsJson = skillWeightingsJson; }
+
+    public String getPassingCriteria() { return passingCriteria; }
+    public void setPassingCriteria(String passingCriteria) { this.passingCriteria = passingCriteria; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

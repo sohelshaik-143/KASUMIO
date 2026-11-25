@@ -10,4 +10,5 @@ public interface AssessmentQuestionRepository extends JpaRepository<AssessmentQu
     List<AssessmentQuestion> findByAssessmentOrderByOrderIndexAsc(Assessment assessment);
     List<AssessmentQuestion> findByAssessmentIdOrderByOrderIndexAsc(Long assessmentId);
     List<AssessmentQuestion> findByAssessmentIdAndDifficulty(Long assessmentId, DifficultyLevel difficulty);
+    java.util.Optional<AssessmentQuestion> findByImageStorageKey(String imageStorageKey);
 }

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckSquare, Plus, Clock, Users, Award, ExternalLink, Code } from 'lucide-react';
+import { CheckSquare, Plus, Clock, Users, Award, ExternalLink, Code, Settings } from 'lucide-react';
 import { Alert } from '../../components/common/Alert';
 import { assessmentApi } from '../../api/assessmentApi';
+import { RecruiterAssessmentBuilderModal } from '../../components/recruiter/RecruiterAssessmentBuilderModal';
 
 export const RecruiterAssessmentsPage = () => {
   const navigate = useNavigate();
   const [alert, setAlert] = useState({ type: null, message: null });
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [builderModal, setBuilderModal] = useState({ isOpen: false, assessmentId: null, opportunityId: null });
 
   useEffect(() => {
     loadAssessments();
@@ -25,6 +27,10 @@ export const RecruiterAssessmentsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenBuilder = (assm) => {
+    setBuilderModal({ isOpen: true, assessmentId: assm.id, opportunityId: assm.opportunityId });
   };
 
   return (
@@ -112,9 +118,30 @@ export const RecruiterAssessmentsPage = () => {
                   </span>
                 </div>
               </div>
+
+              <div className="pt-2 flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => handleOpenBuilder(assm)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-xl transition"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Custom Assessment Builder</span>
+                </button>
+              </div>
             </div>
           ))}
         </div>
+      )}
+
+      {builderModal.isOpen && (
+        <RecruiterAssessmentBuilderModal
+          isOpen={builderModal.isOpen}
+          onClose={() => setBuilderModal({ isOpen: false, assessmentId: null, opportunityId: null })}
+          opportunityId={builderModal.opportunityId}
+          initialAssessmentId={builderModal.assessmentId}
+          onAssessmentUpdated={loadAssessments}
+        />
       )}
     </div>
   );
