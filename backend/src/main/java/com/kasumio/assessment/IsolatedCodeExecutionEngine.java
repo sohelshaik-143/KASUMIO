@@ -23,11 +23,17 @@ public class IsolatedCodeExecutionEngine {
     private static final Logger log = LoggerFactory.getLogger(IsolatedCodeExecutionEngine.class);
     private static final long DEFAULT_TIMEOUT_MS = 4000; // 4 seconds max execution per test case
 
+    private final com.kasumio.assessment.judge.CodeJudge codeJudge;
+
     @org.springframework.beans.factory.annotation.Value("${kasumio.assessment.code-execution.enabled:false}")
     private boolean enabled;
 
+    public IsolatedCodeExecutionEngine(com.kasumio.assessment.judge.CodeJudge codeJudge) {
+        this.codeJudge = codeJudge;
+    }
+
     public boolean isEnabled() {
-        return enabled;
+        return enabled || (codeJudge != null && codeJudge.isAvailable());
     }
 
     public static class ExecutionResult {
@@ -67,6 +73,28 @@ public class IsolatedCodeExecutionEngine {
     }
 
     public ExecutionResult execute(String language, String code, String stdin, long timeoutMs) {
+        if (codeJudge != null && codeJudge.isAvailable()) {
+            com.kasumio.assessment.judge.JudgeVerdict verdict = codeJudge.execute(
+                    new com.kasumio.assessment.judge.JudgeSubmissionRequest(language, code, stdin, null, timeoutMs, 256 * 1024, 32 * 1024)
+            );
+            boolean isCompile = verdict.getStatus() == com.kasumio.assessment.judge.JudgeStatus.COMPILATION_ERROR;
+            boolean isTimeout = verdict.getStatus() == com.kasumio.assessment.judge.JudgeStatus.TIME_LIMIT_EXCEEDED;
+            boolean success = verdict.getStatus() != com.kasumio.assessment.judge.JudgeStatus.COMPILATION_ERROR 
+                           && verdict.getStatus() != com.kasumio.assessment.judge.JudgeStatus.SYSTEM_ERROR 
+                           && verdict.getStatus() != com.kasumio.assessment.judge.JudgeStatus.DISABLED;
+            return new ExecutionResult(
+                    success,
+                    isCompile,
+                    verdict.getCompileOutput() != null ? verdict.getCompileOutput() : "",
+                    verdict.getStdout() != null ? verdict.getStdout() : "",
+                    verdict.getStderr() != null ? verdict.getStderr() : "",
+                    verdict.getExecutionTimeMs(),
+                    verdict.getMemoryUsedKb(),
+                    isTimeout,
+                    isCompile ? 1 : 0
+            );
+        }
+
         if (!enabled) {
             log.info("Code execution engine is disabled by configuration");
             return new ExecutionResult(false, true, "Code execution engine is disabled in this environment.", "", "Code execution is currently unavailable in this environment.", 0, 0, false, 503);
