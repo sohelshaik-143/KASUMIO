@@ -30,6 +30,8 @@ public class AssessmentBuilderService {
     private final QuestionOptionRepository optionRepository;
     private final CodingProblemRepository codingProblemRepository;
     private final TestCaseRepository testCaseRepository;
+    private final QuestionSubmissionRepository submissionRepository;
+    private final CandidateQuestionHistoryRepository candidateQuestionHistoryRepository;
     private final OpportunityRepository opportunityRepository;
     private final SkillRepository skillRepository;
     private final StorageService storageService;
@@ -41,6 +43,8 @@ public class AssessmentBuilderService {
                                     QuestionOptionRepository optionRepository,
                                     CodingProblemRepository codingProblemRepository,
                                     TestCaseRepository testCaseRepository,
+                                    QuestionSubmissionRepository submissionRepository,
+                                    CandidateQuestionHistoryRepository candidateQuestionHistoryRepository,
                                     OpportunityRepository opportunityRepository,
                                     SkillRepository skillRepository,
                                     StorageService storageService,
@@ -51,6 +55,8 @@ public class AssessmentBuilderService {
         this.optionRepository = optionRepository;
         this.codingProblemRepository = codingProblemRepository;
         this.testCaseRepository = testCaseRepository;
+        this.submissionRepository = submissionRepository;
+        this.candidateQuestionHistoryRepository = candidateQuestionHistoryRepository;
         this.opportunityRepository = opportunityRepository;
         this.skillRepository = skillRepository;
         this.storageService = storageService;
@@ -73,6 +79,10 @@ public class AssessmentBuilderService {
                     return assessmentRepository.save(draft);
                 });
 
+        if (assessment.getTotalMarks() == null || assessment.getTotalMarks() == 0) {
+            recalculateTotalMarks(assessment);
+        }
+
         return buildAssessmentDto(assessment);
     }
 
@@ -81,6 +91,11 @@ public class AssessmentBuilderService {
         Assessment assessment = assessmentRepository.findById(assessmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assessment not found: " + assessmentId));
         checkRecruiterAccess(assessment.getOpportunity(), recruiter);
+
+        if (assessment.getTotalMarks() == null || assessment.getTotalMarks() == 0) {
+            recalculateTotalMarks(assessment);
+        }
+
         return buildAssessmentDto(assessment);
     }
 
@@ -216,8 +231,29 @@ public class AssessmentBuilderService {
                 .orElseThrow(() -> new IllegalArgumentException("Question not found: " + questionId));
 
         if (question.getImageStorageKey() != null) {
-            storageService.delete(question.getImageStorageKey());
+            try {
+                storageService.delete(question.getImageStorageKey());
+            } catch (Exception ignored) {}
         }
+
+        // Clean up child coding problems and test cases
+        codingProblemRepository.findByQuestion(question).ifPresent(cp -> {
+            testCaseRepository.deleteByCodingProblem(cp);
+            codingProblemRepository.delete(cp);
+        });
+
+        // Clean up question options
+        optionRepository.deleteByQuestion(question);
+
+        // Clean up any candidate submissions or history referencing this question
+        try {
+            submissionRepository.deleteByQuestion(question);
+        } catch (Exception ignored) {}
+
+        try {
+            candidateQuestionHistoryRepository.deleteByQuestion(question);
+        } catch (Exception ignored) {}
+
         questionRepository.delete(question);
         recalculateTotalMarks(assessment);
     }

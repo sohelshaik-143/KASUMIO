@@ -18,4 +18,6 @@ public interface CandidateQuestionHistoryRepository extends JpaRepository<Candid
     List<CandidateQuestionHistory> findByStudentOrderByAttemptedAtDesc(Student student);
 
     boolean existsByStudentAndQuestion(Student student, AssessmentQuestion question);
+
+    void deleteByQuestion(AssessmentQuestion question);
 }

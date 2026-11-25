@@ -210,6 +210,10 @@ public class AssessmentGenerationService {
             }
         }
 
+        int totalMarks = blueprint.questions.stream().mapToInt(q -> q.points).sum();
+        assessment.setTotalMarks(totalMarks);
+        assessment = assessmentRepository.save(assessment);
+
         return assessment;
     }
 

@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-import { Camera, Monitor, CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert } from 'lucide-react';
+import React from 'react';
+import { Camera, Monitor, CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 /**
  * ProctoredDevicePermissionCard
  * Handles webcam and screen-recording permission requests, denials, and unavailable devices.
+ * Gracefully supports Browser Telemetry Proctoring fallback when screen recording is unsupported.
  */
 export const ProctoredDevicePermissionCard = ({
   webcamStatus, // 'pending' | 'granted' | 'denied' | 'unavailable'
   screenStatus, // 'pending' | 'granted' | 'denied' | 'unavailable'
   onRequestPermissions,
+  onRequestScreenOnly,
+  onRequestWebcamOnly,
   onEnableDevBypass,
+  onEnableTelemetryOnly,
   isRequesting,
   errorDetail,
+  telemetryMode = false,
 }) => {
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
@@ -19,10 +24,10 @@ export const ProctoredDevicePermissionCard = ({
         <div className="space-y-0.5">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
             <ShieldAlert className="w-4 h-4 text-indigo-600" />
-            <span>Interview Proctoring Permissions (Mandatory)</span>
+            <span>Interview Proctoring Permissions</span>
           </h4>
           <p className="text-[11px] text-slate-500">
-            Both webcam and full screen-recording permissions are required before beginning.
+            Hardware verification monitors candidate integrity. If screen capture is unsupported in your environment, browser telemetry is enforced.
           </p>
         </div>
       </div>
@@ -56,9 +61,13 @@ export const ProctoredDevicePermissionCard = ({
           {webcamStatus === 'granted' ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           ) : (
-            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-              {webcamStatus}
-            </span>
+            <button
+              type="button"
+              onClick={onRequestWebcamOnly || onRequestPermissions}
+              className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+            >
+              {webcamStatus === 'pending' ? 'Grant' : 'Retry'}
+            </button>
           )}
         </div>
 
@@ -82,29 +91,55 @@ export const ProctoredDevicePermissionCard = ({
                 {screenStatus === 'granted' && 'Display capture active'}
                 {screenStatus === 'pending' && 'Permission required'}
                 {screenStatus === 'denied' && 'Screen share cancelled'}
-                {screenStatus === 'unavailable' && 'Display media unavailable'}
+                {screenStatus === 'unavailable' && (telemetryMode ? 'Telemetry Proctoring Active' : 'Display media unavailable')}
               </span>
             </div>
           </div>
           {screenStatus === 'granted' ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           ) : (
-            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-              {screenStatus}
-            </span>
+            <button
+              type="button"
+              onClick={onRequestScreenOnly || onRequestPermissions}
+              className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+            >
+              {screenStatus === 'pending' ? 'Grant' : 'Retry'}
+            </button>
           )}
         </div>
       </div>
 
+      {/* Telemetry Proctoring Notice if Screen is Unavailable */}
+      {screenStatus === 'unavailable' && (
+        <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-[11px] flex items-start gap-2">
+          <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold">Standard Browser Telemetry Active</p>
+            <p className="text-[10px] text-blue-800">
+              Screen recording API is unavailable in this environment. Your attempt will be monitored via server-verified browser telemetry (tab switches, window blur, and copy-paste detection).
+            </p>
+            {onEnableTelemetryOnly && !telemetryMode && (
+              <button
+                type="button"
+                onClick={onEnableTelemetryOnly}
+                className="mt-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded shadow-xs transition"
+              >
+                Proceed with Telemetry Proctoring
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Error or Denial Guidance */}
-      {errorDetail && (
+      {errorDetail && screenStatus !== 'unavailable' && (
         <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-[11px] flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold">Device Permission Required</p>
             <p>{errorDetail}</p>
             <p className="text-[10px] text-rose-700">
-              Please click the lock/camera icon in your browser URL bar, grant permissions, and click "Retry Device Permissions".
+              Please click the lock/camera icon in your browser URL bar, grant permissions, and click "Retry".
             </p>
           </div>
         </div>
@@ -123,7 +158,7 @@ export const ProctoredDevicePermissionCard = ({
             {webcamStatus === 'granted' && screenStatus === 'granted'
               ? 'Permissions Granted ✓'
               : isRequesting
-              ? 'Requesting System Permissions...'
+              ? 'Requesting Permissions...'
               : 'Grant Camera & Screen Permissions'}
           </span>
         </button>
@@ -133,7 +168,7 @@ export const ProctoredDevicePermissionCard = ({
           <button
             type="button"
             onClick={onEnableDevBypass}
-            className="text-[11px] text-slate-600 hover:text-indigo-600 underline font-medium transition"
+            className="text-[11px] text-slate-600 hover:text-indigo-600 underline font-medium transition cursor-pointer"
           >
             Use Simulated Test Devices (Dev Mode)
           </button>

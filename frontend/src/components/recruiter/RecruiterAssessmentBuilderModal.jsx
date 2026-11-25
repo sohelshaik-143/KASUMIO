@@ -74,10 +74,12 @@ export const RecruiterAssessmentBuilderModal = ({
   const handleDeleteQuestion = async (qId) => {
     if (!window.confirm('Are you sure you want to delete this question?')) return;
     try {
+      setActionError(null);
       await assessmentApi.deleteQuestion(assessment.id, qId);
+      setActionSuccess('Question deleted successfully.');
       loadAssessment();
     } catch (err) {
-      setActionError('Failed to delete question.');
+      setActionError(err.response?.data?.message || 'Failed to delete question.');
     }
   };
 

@@ -222,4 +222,38 @@ class AssessmentBuilderTest {
         assertThatThrownBy(() -> ImageSecurityValidator.validateAndDetect(spoofedSvgBytes, "schema.png", spoofedSvgBytes.length))
                 .isInstanceOf(StorageException.class).hasMessageContaining("SVG image content detected and rejected");
     }
+
+    @Test
+    @DisplayName("Deleting a question with coding problem and test cases deletes cascade safely and updates total marks")
+    void testDeleteQuestionCascade() {
+        AssessmentBuilderDto draft = builderService.getOrCreateDraftAssessment(testOpportunity.getId(), recruiterUser);
+
+        AssessmentQuestionRequest req = new AssessmentQuestionRequest();
+        req.setTitle("Delete target with tests");
+        req.setPrompt("Sample coding question to be deleted");
+        req.setQuestionType(QuestionType.DSA_CODING);
+        req.setPoints(35);
+        req.setDifficulty(DifficultyLevel.MEDIUM);
+        req.setCodingProblem(new QuestionBuilderDto.CodingProblemSpec(
+                "Statement",
+                "1 <= N <= 100",
+                "java,python",
+                Map.of("java", "class Solution {}"),
+                List.of(new QuestionBuilderDto.TestCaseSpec(null, "1", "1", false, "Sample tc"))
+        ));
+
+        QuestionBuilderDto added = builderService.addQuestion(draft.id(), req, recruiterUser);
+        assertThat(added.id()).isNotNull();
+
+        AssessmentBuilderDto updatedDraft = builderService.getAssessmentBuilder(draft.id(), recruiterUser);
+        int initialMarks = updatedDraft.totalMarks();
+        assertThat(initialMarks).isGreaterThanOrEqualTo(35);
+
+        // Delete question
+        builderService.deleteQuestion(draft.id(), added.id(), recruiterUser);
+
+        AssessmentBuilderDto afterDelete = builderService.getAssessmentBuilder(draft.id(), recruiterUser);
+        assertThat(afterDelete.questions()).noneMatch(q -> q.id().equals(added.id()));
+        assertThat(afterDelete.totalMarks()).isEqualTo(initialMarks - 35);
+    }
 }

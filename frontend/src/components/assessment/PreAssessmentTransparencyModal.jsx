@@ -28,16 +28,13 @@ export const PreAssessmentTransparencyModal = ({
   // Proctored hardware permission states
   const [webcamStatus, setWebcamStatus] = useState('pending');
   const [screenStatus, setScreenStatus] = useState('pending');
+  const [telemetryMode, setTelemetryMode] = useState(false);
   const [isRequestingPermissions, setIsRequestingPermissions] = useState(false);
   const [permissionErrorDetail, setPermissionErrorDetail] = useState(null);
 
   if (!isOpen) return null;
 
-  const handleRequestPermissions = async () => {
-    setIsRequestingPermissions(true);
-    setPermissionErrorDetail(null);
-
-    // 1. Request Webcam
+  const handleRequestWebcam = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -45,22 +42,45 @@ export const PreAssessmentTransparencyModal = ({
         window.__proctorWebcamStream = camStream;
       } else {
         setWebcamStatus('unavailable');
-        setPermissionErrorDetail('MediaDevices API not supported in this browser.');
       }
     } catch (err) {
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setWebcamStatus('denied');
-        setPermissionErrorDetail('Webcam permission was denied. Please allow camera access in browser settings.');
-      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setWebcamStatus('unavailable');
-        setPermissionErrorDetail('No webcam hardware found on this machine.');
+        setPermissionErrorDetail('Webcam permission was denied. Please allow camera access.');
       } else {
         setWebcamStatus('unavailable');
-        setPermissionErrorDetail(err.message || 'Unable to access webcam.');
+        setPermissionErrorDetail('Webcam hardware unavailable.');
       }
     }
+  };
 
-    // 2. Request Screen Recording
+  const handleRequestScreen = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        setScreenStatus('granted');
+        window.__proctorScreenStream = screenStream;
+        setPermissionErrorDetail(null);
+      } else {
+        setScreenStatus('unavailable');
+        setTelemetryMode(true);
+      }
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setScreenStatus('denied');
+        setPermissionErrorDetail('Screen recording was cancelled or denied.');
+      } else {
+        setScreenStatus('unavailable');
+        setTelemetryMode(true);
+      }
+    }
+  };
+
+  const handleRequestPermissions = async () => {
+    setIsRequestingPermissions(true);
+    setPermissionErrorDetail(null);
+
+    // 1. Request Screen first (requires fresh user activation click)
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
@@ -68,14 +88,32 @@ export const PreAssessmentTransparencyModal = ({
         window.__proctorScreenStream = screenStream;
       } else {
         setScreenStatus('unavailable');
+        setTelemetryMode(true);
       }
     } catch (err) {
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setScreenStatus('denied');
-        setPermissionErrorDetail((prev) => prev ? `${prev} Screen recording was cancelled or denied.` : 'Screen recording permission was denied.');
+        setPermissionErrorDetail('Screen recording was cancelled or denied.');
       } else {
         setScreenStatus('unavailable');
-        setPermissionErrorDetail((prev) => prev ? `${prev} Screen recording is unavailable.` : 'Screen capture not supported in this environment.');
+        setTelemetryMode(true);
+      }
+    }
+
+    // 2. Request Webcam
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setWebcamStatus('granted');
+        window.__proctorWebcamStream = camStream;
+      } else {
+        setWebcamStatus('unavailable');
+      }
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setWebcamStatus('denied');
+      } else {
+        setWebcamStatus('unavailable');
       }
     }
 
@@ -85,12 +123,22 @@ export const PreAssessmentTransparencyModal = ({
   const handleDevBypass = () => {
     setWebcamStatus('granted');
     setScreenStatus('granted');
+    setTelemetryMode(false);
     setPermissionErrorDetail(null);
   };
 
+  const handleEnableTelemetryOnly = () => {
+    setTelemetryMode(true);
+    setPermissionErrorDetail(null);
+    setErrorMsg(null);
+  };
+
   const handleStart = () => {
-    if (webcamStatus !== 'granted' || screenStatus !== 'granted') {
-      setErrorMsg('Mandatory webcam and screen-recording permissions must be granted to initiate proctored screening.');
+    const hasFullHardware = webcamStatus === 'granted' && screenStatus === 'granted';
+    const canProceedWithTelemetry = telemetryMode || screenStatus === 'unavailable' || screenStatus === 'denied';
+
+    if (!hasFullHardware && !canProceedWithTelemetry && webcamStatus === 'pending') {
+      setErrorMsg('Please grant permissions or proceed with browser telemetry proctoring.');
       return;
     }
     if (!acknowledged) {
@@ -101,7 +149,8 @@ export const PreAssessmentTransparencyModal = ({
     onConfirmStart({
       selfAssessmentLevel: selfLevel,
       acknowledgedTransparency: true,
-      hasProctoringPermissions: true,
+      hasProctoringPermissions: hasFullHardware,
+      telemetryProctoringOnly: !hasFullHardware,
     });
   };
 
@@ -151,14 +200,18 @@ export const PreAssessmentTransparencyModal = ({
           </div>
         </div>
 
-        {/* Step 2: Mandatory Device Permissions */}
+        {/* Step 2: Device Permissions & Telemetry */}
         <ProctoredDevicePermissionCard
           webcamStatus={webcamStatus}
           screenStatus={screenStatus}
           onRequestPermissions={handleRequestPermissions}
+          onRequestScreenOnly={handleRequestScreen}
+          onRequestWebcamOnly={handleRequestWebcam}
           onEnableDevBypass={handleDevBypass}
+          onEnableTelemetryOnly={handleEnableTelemetryOnly}
           isRequesting={isRequestingPermissions}
           errorDetail={permissionErrorDetail}
+          telemetryMode={telemetryMode}
         />
 
         {/* Step 3: Candidate Integrity Notice */}
@@ -170,7 +223,9 @@ export const PreAssessmentTransparencyModal = ({
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs leading-relaxed text-slate-700 space-y-2">
             <p>
-              By proceeding, your active session will be proctored using your permitted webcam and screen recording. Code originality, complexity, and problem-solving reasoning are evaluated automatically.
+              {telemetryMode || screenStatus === 'unavailable'
+                ? 'Your active assessment session will be verified via real-time browser telemetry (tab switches, window focus, and code complexity reasoning). Violations trigger warning banners and session lock.'
+                : 'By proceeding, your active session will be proctored using your permitted webcam and screen recording. Code originality, complexity, and problem-solving reasoning are evaluated automatically.'}
             </p>
             <label className="flex items-start gap-2.5 cursor-pointer select-none pt-1">
               <input
@@ -184,7 +239,9 @@ export const PreAssessmentTransparencyModal = ({
                 className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
               />
               <span className="text-xs text-slate-700 font-medium">
-                I understand the proctored interview conditions, and I agree to proceed with active webcam and screen recording.
+                {telemetryMode || screenStatus === 'unavailable'
+                  ? 'I understand the assessment integrity conditions and agree to proceed under verified browser telemetry.'
+                  : 'I understand the proctored interview conditions, and I agree to proceed with active proctoring.'}
               </span>
             </label>
           </div>

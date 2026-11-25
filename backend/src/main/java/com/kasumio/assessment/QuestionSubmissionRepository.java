@@ -12,4 +12,5 @@ public interface QuestionSubmissionRepository extends JpaRepository<QuestionSubm
     List<QuestionSubmission> findByAttemptIdOrderByCreatedAtAsc(Long attemptId);
     Optional<QuestionSubmission> findFirstByAttemptIdAndQuestionIdOrderByCreatedAtDesc(Long attemptId, Long questionId);
     Optional<QuestionSubmission> findByAttemptIdAndQuestionId(Long attemptId, Long questionId);
+    void deleteByQuestion(AssessmentQuestion question);
 }
