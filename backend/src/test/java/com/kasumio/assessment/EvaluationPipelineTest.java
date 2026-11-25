@@ -51,8 +51,9 @@ class EvaluationPipelineTest {
     @BeforeEach
     void setUp() {
         Organization org = organizationRepository.save(new Organization("AlphaOrg", OrganizationType.COMPANY, "https://alpha.io"));
+        Organization otherOrg = organizationRepository.save(new Organization("OtherBetaOrg", OrganizationType.COMPANY, "https://beta.io"));
         recruiter = userRepository.save(new User("pipeline-recruiter@test.com", "pass12345678", Role.RECRUITER, org));
-        otherRecruiter = userRepository.save(new User("other-recruiter2@test.com", "pass12345678", Role.RECRUITER, org));
+        otherRecruiter = userRepository.save(new User("other-recruiter2@test.com", "pass12345678", Role.RECRUITER, otherOrg));
 
         User studentUser = userRepository.save(new User("pipeline-student@test.com", "pass12345678", Role.STUDENT, org));
         student = studentRepository.save(new Student(studentUser, "Student Pipeline Candidate", "Bio", "MIT", 2026));

@@ -16,7 +16,7 @@ public class CandidateAliasService {
         this.candidateAliasRepository = candidateAliasRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public String getOrCreateAlias(Student student) {
         return candidateAliasRepository.findByStudentId(student.getId())
                 .map(CandidateAlias::getPublicAlias)

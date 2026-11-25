@@ -111,8 +111,11 @@ public class EvaluationPipelineService {
 
         if (recruiter.getRole() != Role.ADMIN) {
             User oppRecruiter = attempt.getAssessment().getOpportunity().getRecruiter();
-            if (oppRecruiter == null || !oppRecruiter.getId().equals(recruiter.getId())) {
-                throw new AccessDeniedException("Only the opportunity's recruiter can override assessment marks.");
+            Long oppOrgId = oppRecruiter != null && oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+            boolean isCreator = oppRecruiter != null && oppRecruiter.getId().equals(recruiter.getId());
+            boolean isSameOrg = recruiter.getOrganization() != null && oppOrgId != null && recruiter.getOrganization().getId().equals(oppOrgId);
+            if (!isCreator && !isSameOrg) {
+                throw new AccessDeniedException("Only the opportunity's organization recruiters can override assessment marks.");
             }
         }
 

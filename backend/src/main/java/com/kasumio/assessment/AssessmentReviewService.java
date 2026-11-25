@@ -49,6 +49,16 @@ public class AssessmentReviewService {
         AssessmentAttempt attempt = attemptRepository.findById(attemptId)
                 .orElseThrow(() -> new IllegalArgumentException("Attempt not found: " + attemptId));
 
+        if (recruiter.getRole() != Role.ADMIN) {
+            User oppRecruiter = attempt.getAssessment().getOpportunity().getRecruiter();
+            Long oppOrgId = oppRecruiter != null && oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+            boolean isCreator = oppRecruiter != null && oppRecruiter.getId().equals(recruiter.getId());
+            boolean isSameOrg = recruiter.getOrganization() != null && oppOrgId != null && recruiter.getOrganization().getId().equals(oppOrgId);
+            if (!isCreator && !isSameOrg) {
+                throw new AccessDeniedException("Recruiter cannot record decisions for another organization's opportunity.");
+            }
+        }
+
         if (request.getDecision() != null) {
             attempt.setRecruiterDecision(request.getDecision());
         }
@@ -77,8 +87,14 @@ public class AssessmentReviewService {
         Opportunity opp = opportunityRepository.findById(opportunityId)
                 .orElseThrow(() -> new IllegalArgumentException("Opportunity not found: " + opportunityId));
 
-        if (recruiter.getRole() != Role.ADMIN && (opp.getRecruiter() == null || !opp.getRecruiter().getId().equals(recruiter.getId()))) {
-            throw new AccessDeniedException("Only the opportunity recruiter can inspect candidate screening submissions.");
+        if (recruiter.getRole() != Role.ADMIN) {
+            User oppRecruiter = opp.getRecruiter();
+            Long oppOrgId = oppRecruiter != null && oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+            boolean isCreator = oppRecruiter != null && oppRecruiter.getId().equals(recruiter.getId());
+            boolean isSameOrg = recruiter.getOrganization() != null && oppOrgId != null && recruiter.getOrganization().getId().equals(oppOrgId);
+            if (!isCreator && !isSameOrg) {
+                throw new AccessDeniedException("Only the opportunity's organization recruiters can inspect candidate screening submissions.");
+            }
         }
 
         List<AssessmentAttempt> attempts = attemptRepository.findByOpportunityIdAndStudentId(opportunityId, studentId);
@@ -94,8 +110,14 @@ public class AssessmentReviewService {
         Opportunity opp = opportunityRepository.findById(opportunityId)
                 .orElseThrow(() -> new IllegalArgumentException("Opportunity not found: " + opportunityId));
 
-        if (recruiter.getRole() != Role.ADMIN && (opp.getRecruiter() == null || !opp.getRecruiter().getId().equals(recruiter.getId()))) {
-            throw new AccessDeniedException("Only the opportunity recruiter can inspect candidate screening submissions.");
+        if (recruiter.getRole() != Role.ADMIN) {
+            User oppRecruiter = opp.getRecruiter();
+            Long oppOrgId = oppRecruiter != null && oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+            boolean isCreator = oppRecruiter != null && oppRecruiter.getId().equals(recruiter.getId());
+            boolean isSameOrg = recruiter.getOrganization() != null && oppOrgId != null && recruiter.getOrganization().getId().equals(oppOrgId);
+            if (!isCreator && !isSameOrg) {
+                throw new AccessDeniedException("Only the opportunity's organization recruiters can inspect candidate screening submissions.");
+            }
         }
 
         Student student = candidateAliasService.findStudentByAlias(candidateAlias)
@@ -203,6 +225,7 @@ public class AssessmentReviewService {
         result.setRecruiterDecision(attempt.getRecruiterDecision() != null ? attempt.getRecruiterDecision().name() : null);
         result.setReleasePolicy(attempt.getReleasePolicy());
         result.setReleaseStatus(attempt.getReleaseStatus());
+        result.setCandidateAlias(candidateAliasService.getOrCreateAlias(attempt.getStudent()));
 
         // Strict confidential recruiter notes protection: never leak to candidates
         if (isRecruiter) {

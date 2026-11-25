@@ -28,6 +28,7 @@ public class AssessmentResultDto {
     private String evidenceGraphJson;
     private String recruiterDecision;
     private String recruiterNotes;
+    private String candidateAlias;
     private String releasePolicy;
     private String releaseStatus;
     private Instant completedAt;
@@ -96,6 +97,8 @@ public class AssessmentResultDto {
     public void setRecruiterDecision(String recruiterDecision) { this.recruiterDecision = recruiterDecision; }
     public String getRecruiterNotes() { return recruiterNotes; }
     public void setRecruiterNotes(String recruiterNotes) { this.recruiterNotes = recruiterNotes; }
+    public String getCandidateAlias() { return candidateAlias; }
+    public void setCandidateAlias(String candidateAlias) { this.candidateAlias = candidateAlias; }
     public String getReleasePolicy() { return releasePolicy; }
     public void setReleasePolicy(String releasePolicy) { this.releasePolicy = releasePolicy; }
     public String getReleaseStatus() { return releaseStatus; }
