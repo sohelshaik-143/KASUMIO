@@ -16,6 +16,13 @@ public class TechnologySkillEvaluationDto {
     private boolean isVerified;
     private String explanation;
 
+    // 5 distinct metrics
+    private Integer assessmentMarks = 0;
+    private String skillProficiency = "FOUNDATIONAL";
+    private Double evidenceConfidence = 0.0;
+    private Double marketReadiness = 0.0;
+    private Double opportunityMatch = 0.0;
+
     public TechnologySkillEvaluationDto() {}
 
     public TechnologySkillEvaluationDto(
@@ -46,4 +53,15 @@ public class TechnologySkillEvaluationDto {
     public int getEvidenceCount() { return evidenceCount; }
     public boolean isVerified() { return isVerified; }
     public String getExplanation() { return explanation; }
+
+    public Integer getAssessmentMarks() { return assessmentMarks != null ? assessmentMarks : 0; }
+    public void setAssessmentMarks(Integer assessmentMarks) { this.assessmentMarks = assessmentMarks; }
+    public String getSkillProficiency() { return skillProficiency != null ? skillProficiency : "FOUNDATIONAL"; }
+    public void setSkillProficiency(String skillProficiency) { this.skillProficiency = skillProficiency; }
+    public Double getEvidenceConfidence() { return evidenceConfidence != null ? evidenceConfidence : 0.0; }
+    public void setEvidenceConfidence(Double evidenceConfidence) { this.evidenceConfidence = evidenceConfidence; }
+    public Double getMarketReadiness() { return marketReadiness != null ? marketReadiness : 0.0; }
+    public void setMarketReadiness(Double marketReadiness) { this.marketReadiness = marketReadiness; }
+    public Double getOpportunityMatch() { return opportunityMatch != null ? opportunityMatch : 0.0; }
+    public void setOpportunityMatch(Double opportunityMatch) { this.opportunityMatch = opportunityMatch; }
 }

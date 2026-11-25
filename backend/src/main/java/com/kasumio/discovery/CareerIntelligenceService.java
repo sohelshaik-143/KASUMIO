@@ -164,10 +164,11 @@ public class CareerIntelligenceService {
                 .orElseThrow(() -> new IllegalArgumentException("Opportunity not found: " + opportunityId));
 
         DeterministicMatchScorer.MatchResult match = matchScorer.calculateMatch(student, opp);
+        Map<Long, EvidenceCapabilityAnalyzer.TechnologyCapability> studentCaps = capabilityAnalyzer.analyzeStudentCapabilities(student);
 
         List<TechnologySkillEvaluationDto> evaluations = new ArrayList<>();
         for (DeterministicMatchScorer.TechnologyMatchDetail m : match.getMatchedSkills()) {
-            evaluations.add(new TechnologySkillEvaluationDto(
+            TechnologySkillEvaluationDto dto = new TechnologySkillEvaluationDto(
                     m.getSkill().getId(),
                     m.getSkill().getName(),
                     m.getSkill().getCategory(),
@@ -179,10 +180,19 @@ public class CareerIntelligenceService {
                     0,
                     m.getEvidenceLevel() == EvidenceLevel.VERIFIED,
                     m.getExplanation()
-            ));
+            );
+            EvidenceCapabilityAnalyzer.TechnologyCapability cap = studentCaps.get(m.getSkill().getId());
+            if (cap != null) {
+                dto.setAssessmentMarks(cap.getAssessmentMarks());
+                dto.setSkillProficiency(cap.getSkillProficiency());
+                dto.setEvidenceConfidence(cap.getEvidenceConfidence());
+                dto.setMarketReadiness(cap.getMarketReadiness());
+                dto.setOpportunityMatch((double) match.getOverallScore());
+            }
+            evaluations.add(dto);
         }
         for (DeterministicMatchScorer.TechnologyMatchDetail p : match.getPartialSkills()) {
-            evaluations.add(new TechnologySkillEvaluationDto(
+            TechnologySkillEvaluationDto dto = new TechnologySkillEvaluationDto(
                     p.getSkill().getId(),
                     p.getSkill().getName(),
                     p.getSkill().getCategory(),
@@ -194,10 +204,19 @@ public class CareerIntelligenceService {
                     0,
                     p.getEvidenceLevel() == EvidenceLevel.VERIFIED,
                     p.getExplanation()
-            ));
+            );
+            EvidenceCapabilityAnalyzer.TechnologyCapability cap = studentCaps.get(p.getSkill().getId());
+            if (cap != null) {
+                dto.setAssessmentMarks(cap.getAssessmentMarks());
+                dto.setSkillProficiency(cap.getSkillProficiency());
+                dto.setEvidenceConfidence(cap.getEvidenceConfidence());
+                dto.setMarketReadiness(cap.getMarketReadiness());
+                dto.setOpportunityMatch((double) match.getOverallScore());
+            }
+            evaluations.add(dto);
         }
         for (DeterministicMatchScorer.TechnologyMatchDetail miss : match.getMissingSkills()) {
-            evaluations.add(new TechnologySkillEvaluationDto(
+            TechnologySkillEvaluationDto dto = new TechnologySkillEvaluationDto(
                     miss.getSkill().getId(),
                     miss.getSkill().getName(),
                     miss.getSkill().getCategory(),
@@ -209,7 +228,9 @@ public class CareerIntelligenceService {
                     0,
                     false,
                     miss.getExplanation()
-            ));
+            );
+            dto.setOpportunityMatch((double) match.getOverallScore());
+            evaluations.add(dto);
         }
 
         List<PrioritizedGapDto> gaps = new ArrayList<>();

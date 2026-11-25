@@ -46,8 +46,27 @@ public class EvidenceCapabilityAnalyzer {
         private final boolean isRecent;
         private final String explanation;
 
+        // 5 distinct Skill DNA & Market Intelligence metrics
+        private final int assessmentMarks; // 0-100%
+        private final String skillProficiency; // FOUNDATIONAL, PROFICIENT, ADVANCED
+        private final double evidenceConfidence; // 0.0-1.0
+        private final double marketReadiness; // 0.0-100.0%
+        private final double opportunityMatch; // 0.0-100.0%
+
         public TechnologyCapability(Skill skill, EvidenceLevel evidenceLevel, double confidenceScore, 
                                     int evidenceCount, boolean isVerified, boolean isRecent, String explanation) {
+            this(skill, evidenceLevel, confidenceScore, evidenceCount, isVerified, isRecent, explanation,
+                 (int) Math.round(confidenceScore * 100),
+                 confidenceScore >= 0.80 ? "ADVANCED" : confidenceScore >= 0.55 ? "PROFICIENT" : "FOUNDATIONAL",
+                 confidenceScore,
+                 Math.round(confidenceScore * 100.0),
+                 Math.round(confidenceScore * 100.0));
+        }
+
+        public TechnologyCapability(Skill skill, EvidenceLevel evidenceLevel, double confidenceScore, 
+                                    int evidenceCount, boolean isVerified, boolean isRecent, String explanation,
+                                    int assessmentMarks, String skillProficiency, double evidenceConfidence,
+                                    double marketReadiness, double opportunityMatch) {
             this.skill = skill;
             this.evidenceLevel = evidenceLevel;
             this.confidenceScore = confidenceScore;
@@ -55,6 +74,11 @@ public class EvidenceCapabilityAnalyzer {
             this.isVerified = isVerified;
             this.isRecent = isRecent;
             this.explanation = explanation;
+            this.assessmentMarks = assessmentMarks;
+            this.skillProficiency = skillProficiency;
+            this.evidenceConfidence = evidenceConfidence;
+            this.marketReadiness = marketReadiness;
+            this.opportunityMatch = opportunityMatch;
         }
 
         public Skill getSkill() { return skill; }
@@ -64,6 +88,11 @@ public class EvidenceCapabilityAnalyzer {
         public boolean isVerified() { return isVerified; }
         public boolean isRecent() { return isRecent; }
         public String getExplanation() { return explanation; }
+        public int getAssessmentMarks() { return assessmentMarks; }
+        public String getSkillProficiency() { return skillProficiency; }
+        public double getEvidenceConfidence() { return evidenceConfidence; }
+        public double getMarketReadiness() { return marketReadiness; }
+        public double getOpportunityMatch() { return opportunityMatch; }
     }
 
     /**
