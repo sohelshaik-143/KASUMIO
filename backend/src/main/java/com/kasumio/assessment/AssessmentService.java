@@ -117,8 +117,16 @@ public class AssessmentService {
         attemptService.saveDraft(attemptId, request, student);
     }
 
-    public void recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
-        attemptService.recordTelemetry(attemptId, req, student);
+    public TelemetryResponse recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
+        return attemptService.recordTelemetry(attemptId, req, student);
+    }
+
+    public AssessmentAttemptDto overturnIntegrityLock(Long attemptId, String reason, User recruiter) {
+        return attemptService.overturnIntegrityLock(attemptId, reason, recruiter);
+    }
+
+    public AttemptIntegrityDetailsDto getAttemptIntegrity(Long attemptId, User user) {
+        return attemptService.getAttemptIntegrityDetails(attemptId, user);
     }
 
     public AssessmentResultDto completeAttempt(Long attemptId, Student student) {

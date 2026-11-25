@@ -25,6 +25,7 @@ public class AssessmentSubmissionService {
     private final DeterministicEvaluationService evaluationService;
     private final AdaptiveAssessmentEngine adaptiveEngine;
     private final CodeQualityAndComplexityAnalyzer codeAnalyzer;
+    private final FairIntegrityAnalysisService integrityService;
     private final ObjectMapper objectMapper;
 
     public AssessmentSubmissionService(AssessmentQuestionRepository questionRepository,
@@ -36,6 +37,7 @@ public class AssessmentSubmissionService {
                                        DeterministicEvaluationService evaluationService,
                                        AdaptiveAssessmentEngine adaptiveEngine,
                                        CodeQualityAndComplexityAnalyzer codeAnalyzer,
+                                       FairIntegrityAnalysisService integrityService,
                                        ObjectMapper objectMapper) {
         this.questionRepository = questionRepository;
         this.optionRepository = optionRepository;
@@ -46,6 +48,7 @@ public class AssessmentSubmissionService {
         this.evaluationService = evaluationService;
         this.adaptiveEngine = adaptiveEngine;
         this.codeAnalyzer = codeAnalyzer;
+        this.integrityService = integrityService;
         this.objectMapper = objectMapper;
     }
 
@@ -101,6 +104,10 @@ public class AssessmentSubmissionService {
 
         if (attempt.getStatus() == AttemptStatus.COMPLETED) {
             throw new IllegalStateException("Assessment attempt is already completed.");
+        }
+
+        if (attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW) {
+            throw new IllegalStateException("Assessment attempt is locked pending integrity review. All answers have been preserved.");
         }
 
         if (attempt.getStartedAt() != null && attempt.getAssessment().getTimeLimitMinutes() != null) {
@@ -236,7 +243,7 @@ public class AssessmentSubmissionService {
             throw new AccessDeniedException("Access denied to attempt.");
         }
 
-        if (attempt.getStatus() == AttemptStatus.COMPLETED) {
+        if (attempt.getStatus() == AttemptStatus.COMPLETED || attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW) {
             return;
         }
 
@@ -265,13 +272,24 @@ public class AssessmentSubmissionService {
     }
 
     @Transactional
-    public void recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
+    public TelemetryResponse recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
         AssessmentAttempt attempt = attemptRepository.findById(attemptId)
                 .orElseThrow(() -> new IllegalArgumentException("Attempt not found: " + attemptId));
 
         if (!attempt.getStudent().getId().equals(student.getId())) {
             throw new AccessDeniedException("Access denied to attempt.");
         }
+
+        if (attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW) {
+            return new TelemetryResponse(
+                    attempt.getViolationCount(),
+                    "TERMINATED_LOCKED",
+                    "Assessment is locked pending integrity review. All progress has been preserved.",
+                    true
+            );
+        }
+
+        FairIntegrityAnalysisService.SignalClassificationResult classification = integrityService.classifySignal(req);
 
         try {
             Map<String, Object> current = new HashMap<>();
@@ -287,7 +305,59 @@ public class AssessmentSubmissionService {
             current.put("largeChanges", ((Number) current.getOrDefault("largeChanges", 0)).intValue() + (req.getLargeChangesCount() != null ? req.getLargeChangesCount() : 0));
             current.put("timeSpentSeconds", ((Number) current.getOrDefault("timeSpentSeconds", 0L)).longValue() + (req.getTimeSpentSeconds() != null ? req.getTimeSpentSeconds() : 0L));
             attempt.setIntegritySignalsJson(objectMapper.writeValueAsString(current));
-            attemptRepository.save(attempt);
+        } catch (Exception ignored) {}
+
+        appendIntegrityEvent(attempt, classification.classification().name(), classification.explanation());
+
+        if (classification.isConfirmedViolation()) {
+            int currentViolations = attempt.getViolationCount() + 1;
+            attempt.setViolationCount(currentViolations);
+
+            if (currentViolations >= 2) {
+                attempt.setStatus(AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW);
+                attempt.setIntegrityStatus(AssessmentIntegrityStatus.STRONG_ANOMALY_PATTERN);
+                attemptRepository.save(attempt);
+                return new TelemetryResponse(
+                        currentViolations,
+                        "TERMINATED_LOCKED",
+                        "Assessment Locked: Two integrity policy violations detected. Your progress has been preserved and submitted for manual recruiter review.",
+                        true
+                );
+            } else {
+                attempt.setIntegrityStatus(AssessmentIntegrityStatus.MINOR_ANOMALY);
+                attemptRepository.save(attempt);
+                return new TelemetryResponse(
+                        currentViolations,
+                        "WARNING_1",
+                        "Warning (1 of 2): Confirmed external navigation or anomalous block insertion detected. Please maintain tab focus. A second violation will lock your assessment.",
+                        false
+                );
+            }
+        }
+
+        attemptRepository.save(attempt);
+        return new TelemetryResponse(
+                attempt.getViolationCount(),
+                attempt.getViolationCount() == 1 ? "WARNING_1" : "NORMAL",
+                attempt.getViolationCount() == 1 ? "Warning (1 of 2): Please remain focused on the assessment tab." : null,
+                false
+        );
+    }
+
+    public void appendIntegrityEvent(AssessmentAttempt attempt, String type, String detail) {
+        try {
+            List<Map<String, Object>> events = new ArrayList<>();
+            if (attempt.getIntegrityEventsJson() != null && !attempt.getIntegrityEventsJson().isBlank()) {
+                try {
+                    events = objectMapper.readValue(attempt.getIntegrityEventsJson(), List.class);
+                } catch (Exception ignored) {}
+            }
+            Map<String, Object> ev = new HashMap<>();
+            ev.put("timestamp", java.time.Instant.now().toString());
+            ev.put("type", type);
+            ev.put("detail", detail);
+            events.add(ev);
+            attempt.setIntegrityEventsJson(objectMapper.writeValueAsString(events));
         } catch (Exception ignored) {}
     }
 }

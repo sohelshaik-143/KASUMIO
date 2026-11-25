@@ -27,10 +27,34 @@ export const CandidateAssessmentModal = ({
   const [savingDecision, setSavingDecision] = useState(false);
   const [activeDecision, setActiveDecision] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
+  const [overturnReasonText, setOverturnReasonText] = useState('');
+  const [overturningLock, setOverturningLock] = useState(false);
 
   if (!isOpen) return null;
 
   const currentData = activeDecision ? { ...assessmentData, ...activeDecision } : assessmentData;
+
+  const handleOverturnLock = async () => {
+    if (!currentData?.attemptId) return;
+    try {
+      setOverturningLock(true);
+      setActionMessage(null);
+      const updated = await assessmentApi.overturnIntegrityLock(
+        currentData.attemptId,
+        overturnReasonText || 'Recruiter verified authentic session execution'
+      );
+      setActiveDecision(updated);
+      setActionMessage('Integrity lock overturned. Candidate attempt restored.');
+      if (onDecisionUpdated) {
+        onDecisionUpdated(updated);
+      }
+    } catch (err) {
+      console.error('Failed to overturn integrity lock:', err);
+      setActionMessage(err.response?.data?.message || 'Failed to overturn integrity lock.');
+    } finally {
+      setOverturningLock(false);
+    }
+  };
 
   const handleRecordDecision = async (decisionType) => {
     if (!currentData?.attemptId) return;
@@ -109,6 +133,48 @@ export const CandidateAssessmentModal = ({
               <span className="font-mono font-bold text-teal-800">{Math.round(currentData.percentage || 0)}%</span>
             </div>
           </div>
+
+          {/* Attempt Integrity Lock and Overturn Banner */}
+          {currentData?.status === 'TERMINATED_INTEGRITY_PENDING_REVIEW' && (
+            <div className="p-4 rounded-xl border border-rose-300 bg-rose-50 text-rose-950 text-xs space-y-2">
+              <div className="flex items-center gap-2 font-bold text-rose-900">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <span>ATTEMPT LOCKED: Two Confirmed Integrity Policy Violations</span>
+              </div>
+              <p className="leading-relaxed">
+                Candidate session was automatically locked after 2 confirmed off-tab or anomalous code insertion events. All candidate progress has been saved.
+              </p>
+              {currentData?.overturnedByRecruiter ? (
+                <div className="p-2 bg-emerald-100 text-emerald-900 rounded font-medium">
+                  ✓ Lock Overturned: {currentData.overturnReason}
+                </div>
+              ) : (
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Reason for overturning lock (e.g. system notification verified)..."
+                    value={overturnReasonText}
+                    onChange={(e) => setOverturnReasonText(e.target.value)}
+                    className="flex-1 px-3 py-1.5 border border-slate-300 rounded text-xs bg-white text-slate-800"
+                  />
+                  <button
+                    onClick={handleOverturnLock}
+                    disabled={overturningLock}
+                    className="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white rounded font-medium text-xs whitespace-nowrap"
+                  >
+                    {overturningLock ? 'Overturning...' : 'Overturn & Restore Attempt'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentData?.overturnedByRecruiter && currentData?.status !== 'TERMINATED_INTEGRITY_PENDING_REVIEW' && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span><strong>Integrity Lock Overturned:</strong> {currentData.overturnReason || 'Recruiter verified authentic execution.'}</span>
+            </div>
+          )}
 
           {/* Assessment Integrity Notice */}
           <div className={`p-4 rounded-xl border text-xs flex items-start gap-3 ${

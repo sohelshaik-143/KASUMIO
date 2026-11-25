@@ -21,6 +21,10 @@ public class AssessmentAttemptDto {
     private String selfAssessmentLevel;
     private String demonstratedLevel;
     private String integrityStatus;
+    private Integer violationCount = 0;
+    private Boolean overturnedByRecruiter = false;
+    private String overturnReason;
+    private Instant consentGivenAt;
     private Instant startedAt;
     private Instant completedAt;
 
@@ -77,6 +81,14 @@ public class AssessmentAttemptDto {
     public void setDemonstratedLevel(String demonstratedLevel) { this.demonstratedLevel = demonstratedLevel; }
     public String getIntegrityStatus() { return integrityStatus; }
     public void setIntegrityStatus(String integrityStatus) { this.integrityStatus = integrityStatus; }
+    public Integer getViolationCount() { return violationCount != null ? violationCount : 0; }
+    public void setViolationCount(Integer violationCount) { this.violationCount = violationCount; }
+    public Boolean getOverturnedByRecruiter() { return overturnedByRecruiter != null ? overturnedByRecruiter : false; }
+    public void setOverturnedByRecruiter(Boolean overturnedByRecruiter) { this.overturnedByRecruiter = overturnedByRecruiter; }
+    public String getOverturnReason() { return overturnReason; }
+    public void setOverturnReason(String overturnReason) { this.overturnReason = overturnReason; }
+    public Instant getConsentGivenAt() { return consentGivenAt; }
+    public void setConsentGivenAt(Instant consentGivenAt) { this.consentGivenAt = consentGivenAt; }
     public Instant getStartedAt() { return startedAt; }
     public void setStartedAt(Instant startedAt) { this.startedAt = startedAt; }
     public Instant getCompletedAt() { return completedAt; }

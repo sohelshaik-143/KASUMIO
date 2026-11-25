@@ -40,6 +40,78 @@ public class FairIntegrityAnalysisService {
         public boolean requiresHumanReview = false;
     }
 
+    public enum IntegritySignalClassification {
+        HARMLESS,
+        TECHNICAL_INTERRUPTION,
+        CONFIRMED_VIOLATION
+    }
+
+    public record SignalClassificationResult(
+            IntegritySignalClassification classification,
+            String explanation,
+            boolean isConfirmedViolation
+    ) {}
+
+    /**
+     * Server-side classification of real-time telemetry events.
+     * Separates harmless notifications and technical interruptions from confirmed violations.
+     */
+    public SignalClassificationResult classifySignal(com.kasumio.assessment.dto.TelemetryIngestRequest req) {
+        if (req == null) {
+            return new SignalClassificationResult(IntegritySignalClassification.HARMLESS, "No telemetry signal received", false);
+        }
+
+        // Technical interruption handling
+        if ("RECONNECT".equalsIgnoreCase(req.getEventType()) || "NETWORK_INTERRUPT".equalsIgnoreCase(req.getEventType())) {
+            return new SignalClassificationResult(
+                    IntegritySignalClassification.TECHNICAL_INTERRUPTION,
+                    "Client network or environment reconnection detected; preserved state non-punitively.",
+                    false
+            );
+        }
+
+        // Confirmed violation rule 1: Prolonged off-tab absence (> 20 seconds) or explicitly sustained blur
+        if ("SUSTAINED_BLUR".equalsIgnoreCase(req.getEventType()) ||
+                (req.getBlurDurationMs() != null && req.getBlurDurationMs() > 20000L)) {
+            long secs = req.getBlurDurationMs() != null ? req.getBlurDurationMs() / 1000 : 20;
+            return new SignalClassificationResult(
+                    IntegritySignalClassification.CONFIRMED_VIOLATION,
+                    String.format("Confirmed extended off-tab navigation detected (sustained blur for %d seconds).", secs),
+                    true
+            );
+        }
+
+        // Confirmed violation rule 2: Excessive tab switching during question solving (> 8 blurs)
+        if (req.getFocusChangeCount() != null && req.getFocusChangeCount() > 8) {
+            return new SignalClassificationResult(
+                    IntegritySignalClassification.CONFIRMED_VIOLATION,
+                    String.format("Excessive tab switching detected (%d window changes during active problem solving).", req.getFocusChangeCount()),
+                    true
+            );
+        }
+
+        // Confirmed violation rule 3: Bulk external code replacement with near-zero keystrokes
+        if (req.getLargeChangesCount() != null && req.getLargeChangesCount() >= 2 &&
+                (req.getKeystrokeCount() == null || req.getKeystrokeCount() < 8)) {
+            return new SignalClassificationResult(
+                    IntegritySignalClassification.CONFIRMED_VIOLATION,
+                    "Massive external block insertion detected with minimal incremental typing rhythm.",
+                    true
+            );
+        }
+
+        // Harmless notifications / normal blurs
+        if (req.getFocusChangeCount() != null && req.getFocusChangeCount() > 0) {
+            return new SignalClassificationResult(
+                    IntegritySignalClassification.HARMLESS,
+                    String.format("Minor window switch (%d event(s)); consistent with OS system notification or accidental blur.", req.getFocusChangeCount()),
+                    false
+            );
+        }
+
+        return new SignalClassificationResult(IntegritySignalClassification.HARMLESS, "Standard typing and execution telemetry.", false);
+    }
+
     /**
      * Synthesizes assessment telemetry signals into an evidence-backed integrity report.
      */

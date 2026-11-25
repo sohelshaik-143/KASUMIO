@@ -49,6 +49,10 @@ public class AssessmentQuestionMapper {
         dto.setSelfAssessmentLevel(a.getSelfAssessmentLevel() != null ? a.getSelfAssessmentLevel().name() : "MEDIUM");
         dto.setDemonstratedLevel(a.getDemonstratedLevel() != null ? a.getDemonstratedLevel().name() : "MEDIUM");
         dto.setIntegrityStatus(a.getIntegrityStatus() != null ? a.getIntegrityStatus().name() : "NORMAL");
+        dto.setViolationCount(a.getViolationCount());
+        dto.setOverturnedByRecruiter(a.getOverturnedByRecruiter());
+        dto.setOverturnReason(a.getOverturnReason());
+        dto.setConsentGivenAt(a.getConsentGivenAt());
         return dto;
     }
 

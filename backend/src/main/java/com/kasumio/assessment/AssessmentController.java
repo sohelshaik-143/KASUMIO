@@ -74,11 +74,27 @@ public class AssessmentController {
     @PostMapping("/attempts/{attemptId}/telemetry")
     @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Ingests real-time non-punitive assessment signals telemetry")
-    public ResponseEntity<Void> recordTelemetry(@PathVariable Long attemptId,
-                                                @RequestBody TelemetryIngestRequest request) {
+    public ResponseEntity<TelemetryResponse> recordTelemetry(@PathVariable Long attemptId,
+                                                             @RequestBody TelemetryIngestRequest request) {
         Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
-        assessmentService.recordTelemetry(attemptId, request, student);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(assessmentService.recordTelemetry(attemptId, request, student));
+    }
+
+    @PostMapping("/attempts/{attemptId}/integrity/overturn")
+    @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN')")
+    @Operation(summary = "Recruiter overturns integrity violation lock with audit reason")
+    public ResponseEntity<AssessmentAttemptDto> overturnIntegrityLock(@PathVariable Long attemptId,
+                                                                     @RequestParam(defaultValue = "Recruiter verified authentic session") String reason) {
+        User recruiter = SecurityUtils.getCurrentUser(userRepository);
+        return ResponseEntity.ok(assessmentService.overturnIntegrityLock(attemptId, reason, recruiter));
+    }
+
+    @GetMapping("/attempts/{attemptId}/integrity")
+    @PreAuthorize("hasAnyRole('STUDENT', 'RECRUITER', 'ADMIN')")
+    @Operation(summary = "Retrieves live integrity telemetry event trail and status")
+    public ResponseEntity<AttemptIntegrityDetailsDto> getAttemptIntegrity(@PathVariable Long attemptId) {
+        User user = SecurityUtils.getCurrentUser(userRepository);
+        return ResponseEntity.ok(assessmentService.getAttemptIntegrity(attemptId, user));
     }
 
     @PostMapping("/attempts/{attemptId}/recruiter-decision")

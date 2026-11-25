@@ -51,6 +51,20 @@ export const assessmentApi = {
     return response.data;
   },
 
+  // Recruiter overturns integrity violation lock with audit reasoning
+  overturnIntegrityLock: async (attemptId, reason) => {
+    const response = await api.post(
+      `/assessments/attempts/${attemptId}/integrity/overturn?reason=${encodeURIComponent(reason)}`
+    );
+    return response.data;
+  },
+
+  // Get live assessment integrity event trail and telemetry
+  getAttemptIntegrity: async (attemptId) => {
+    const response = await api.get(`/assessments/attempts/${attemptId}/integrity`);
+    return response.data;
+  },
+
   // Agent autonomously solves assessment questions & mints verified capability
   agentTakeAssessment: async (assessmentId) => {
     const response = await api.post(`/assessments/${assessmentId}/agent-take`);

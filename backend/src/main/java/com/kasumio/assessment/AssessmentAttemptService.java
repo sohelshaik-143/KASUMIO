@@ -10,6 +10,7 @@ import com.kasumio.opportunity.Opportunity;
 import com.kasumio.skill.Skill;
 import com.kasumio.skill.SkillRepository;
 import com.kasumio.student.Student;
+import com.kasumio.user.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,6 +101,9 @@ public class AssessmentAttemptService {
         if (request != null && request.getSelfAssessmentLevel() != null) {
             attempt.setSelfAssessmentLevel(request.getSelfAssessmentLevel());
         }
+        if (request != null && Boolean.TRUE.equals(request.getAcknowledgedTransparency())) {
+            attempt.setConsentGivenAt(Instant.now());
+        }
         attempt = attemptRepository.save(attempt);
         return questionMapper.mapAttemptToDto(attempt);
     }
@@ -113,7 +117,7 @@ public class AssessmentAttemptService {
             throw new AccessDeniedException("Cannot access attempt belonging to another candidate.");
         }
 
-        if (attempt.getStatus() == AttemptStatus.COMPLETED) {
+        if (attempt.getStatus() == AttemptStatus.COMPLETED || attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW) {
             return Optional.empty();
         }
 
@@ -159,8 +163,8 @@ public class AssessmentAttemptService {
         submissionService.saveDraft(attemptId, request, student);
     }
 
-    public void recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
-        submissionService.recordTelemetry(attemptId, req, student);
+    public TelemetryResponse recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
+        return submissionService.recordTelemetry(attemptId, req, student);
     }
 
     @Transactional
@@ -372,5 +376,64 @@ public class AssessmentAttemptService {
         attemptRepository.save(attempt);
 
         return completeAttempt(attemptId, student);
+    }
+
+    @Transactional
+    public AssessmentAttemptDto overturnIntegrityLock(Long attemptId, String reason, User recruiter) {
+        AssessmentAttempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new IllegalArgumentException("Attempt not found: " + attemptId));
+
+        boolean isAdmin = recruiter.getRole() == com.kasumio.user.Role.ADMIN;
+        if (!isAdmin) {
+            User oppRecruiter = attempt.getAssessment().getOpportunity().getRecruiter();
+            Long oppOrgId = oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+            boolean isCreator = oppRecruiter.getId().equals(recruiter.getId());
+            boolean isSameOrg = recruiter.getOrganization() != null && oppOrgId != null && recruiter.getOrganization().getId().equals(oppOrgId);
+            if (!isCreator && !isSameOrg) {
+                throw new AccessDeniedException("Recruiter cannot manage assessment attempts for another organization.");
+            }
+        }
+
+        attempt.setOverturnedByRecruiter(true);
+        attempt.setOverturnReason(reason != null ? reason : "Recruiter verified authentic session");
+        if (attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW) {
+            attempt.setStatus(AttemptStatus.IN_PROGRESS);
+        }
+        attempt.setViolationCount(0);
+        attempt.setIntegrityStatus(AssessmentIntegrityStatus.NORMAL);
+
+        submissionService.appendIntegrityEvent(attempt, "OVERTURNED", "Integrity lock overturned by recruiter: " + reason);
+        attempt = attemptRepository.save(attempt);
+        return questionMapper.mapAttemptToDto(attempt);
+    }
+
+    @Transactional(readOnly = true)
+    public AttemptIntegrityDetailsDto getAttemptIntegrityDetails(Long attemptId, User user) {
+        AssessmentAttempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new IllegalArgumentException("Attempt not found: " + attemptId));
+
+        boolean isAdmin = user.getRole() == com.kasumio.user.Role.ADMIN;
+        boolean isStudent = attempt.getStudent().getUser().getId().equals(user.getId());
+        User oppRecruiter = attempt.getAssessment().getOpportunity().getRecruiter();
+        Long oppOrgId = oppRecruiter.getOrganization() != null ? oppRecruiter.getOrganization().getId() : null;
+        boolean isCreator = oppRecruiter.getId().equals(user.getId());
+        boolean isSameOrg = user.getOrganization() != null && oppOrgId != null && user.getOrganization().getId().equals(oppOrgId);
+
+        if (!isAdmin && !isStudent && !isCreator && !isSameOrg) {
+            throw new AccessDeniedException("Access denied to attempt integrity records.");
+        }
+
+        return new AttemptIntegrityDetailsDto(
+                attempt.getId(),
+                attempt.getStatus(),
+                attempt.getIntegrityStatus(),
+                attempt.getViolationCount(),
+                attempt.getStatus() == AttemptStatus.TERMINATED_INTEGRITY_PENDING_REVIEW,
+                attempt.getOverturnedByRecruiter(),
+                attempt.getOverturnReason(),
+                attempt.getConsentGivenAt(),
+                attempt.getIntegritySignalsJson(),
+                attempt.getIntegrityEventsJson()
+        );
     }
 }

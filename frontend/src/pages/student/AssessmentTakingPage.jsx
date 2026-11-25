@@ -19,7 +19,10 @@ import {
   Maximize2,
   FileCode,
   Check,
-  RotateCcw
+  RotateCcw,
+  ShieldCheck,
+  Lock,
+  AlertTriangle
 } from 'lucide-react';
 
 export const AssessmentTakingPage = () => {
@@ -113,6 +116,59 @@ export const AssessmentTakingPage = () => {
     const s = secs % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
+
+  // Two-Confirmed-Violation Integrity Policy State
+  const [violationCount, setViolationCount] = useState(0);
+  const [isAttemptLocked, setIsAttemptLocked] = useState(false);
+  const [warningBanner, setWarningBanner] = useState(null);
+  const [lockMessage, setLockMessage] = useState(null);
+  const blurStartTimeRef = React.useRef(null);
+
+  const sendTelemetrySignal = async (eventType, eventDetail = '', extra = {}) => {
+    if (!attemptId || isAttemptLocked) return;
+    try {
+      const res = await assessmentApi.recordTelemetry(attemptId, {
+        questionId: question?.id,
+        focusChangeCount: 1,
+        pasteCount: 0,
+        keystrokeCount: keystrokeCount,
+        largeChangesCount: largeChangesCount,
+        timeSpentSeconds: Math.max(1, Math.round((Date.now() - questionStartTime) / 1000)),
+        eventType: eventType,
+        eventDetail: eventDetail,
+        blurDurationMs: extra.blurDurationMs
+      });
+      if (res?.attemptLocked) {
+        setIsAttemptLocked(true);
+        setLockMessage(res.warningMessage || 'Assessment Locked: Two integrity policy violations detected. Your work is preserved for recruiter review.');
+      } else if (res?.violationCount === 1) {
+        setViolationCount(1);
+        setWarningBanner(res.warningMessage || 'Warning (1 of 2): Confirmed off-tab navigation detected. Please remain on this tab. A second violation will lock your assessment.');
+      }
+    } catch (err) {
+      console.warn('Telemetry sync error:', err);
+    }
+  };
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        blurStartTimeRef.current = Date.now();
+      } else {
+        if (blurStartTimeRef.current) {
+          const elapsed = Date.now() - blurStartTimeRef.current;
+          blurStartTimeRef.current = null;
+          if (elapsed > 5000) {
+            sendTelemetrySignal('SUSTAINED_BLUR', 'Candidate navigated away from active tab', { blurDurationMs: elapsed });
+          } else {
+            sendTelemetrySignal('BLUR', 'Brief window focus switch', { blurDurationMs: elapsed });
+          }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [attemptId, question, isAttemptLocked]);
 
   useEffect(() => {
     const handleBlur = () => {
@@ -350,6 +406,37 @@ export const AssessmentTakingPage = () => {
     }
   };
 
+  if (isAttemptLocked) {
+    return (
+      <div className="min-h-[500px] flex items-center justify-center p-6 animate-in fade-in-50 duration-200">
+        <div className="max-w-md w-full bg-slate-900 border border-rose-500/30 rounded-2xl p-6 text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto text-rose-400">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h2 className="text-base font-bold text-white">Assessment Attempt Locked</h2>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            {lockMessage || 'Two confirmed integrity policy violations were detected. All your saved code, answers, and progress have been preserved.'}
+          </p>
+          <div className="p-3 bg-slate-800/60 rounded-xl text-left text-xs text-slate-300 space-y-1.5 border border-slate-700/60">
+            <p className="flex items-center gap-1.5 text-emerald-400">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>All answers and draft progress safely preserved.</span>
+            </p>
+            <p className="text-slate-400">
+              Your authorized recruiter can review the integrity signal log and overturn this lock if justified.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/student/assessments')}
+            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-xl shadow-xs transition"
+          >
+            Return to Assessments
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loadingQuestion) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
@@ -389,6 +476,12 @@ export const AssessmentTakingPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Persistent Integrity Indicator */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span className="hidden sm:inline">Active Tab Monitored</span>
+          </div>
+
           {/* Active Assessment Countdown Timer */}
           <div className="flex items-center gap-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 shadow-inner">
             <Clock className="w-4 h-4 text-amber-400" />
@@ -410,6 +503,22 @@ export const AssessmentTakingPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Two-Violation Integrity Policy: Warning 1 Banner */}
+      {violationCount === 1 && warningBanner && (
+        <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3 px-4 flex items-center justify-between text-amber-200 text-xs shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+            <span><strong>{warningBanner}</strong></span>
+          </div>
+          <button
+            onClick={() => setWarningBanner(null)}
+            className="text-amber-400 hover:text-amber-300 font-bold ml-2 underline text-xs"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <Alert
         type={alert.type}

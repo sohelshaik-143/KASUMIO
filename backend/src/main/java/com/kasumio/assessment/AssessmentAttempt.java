@@ -49,8 +49,23 @@ public class AssessmentAttempt {
     @Column(name = "integrity_status", nullable = false)
     private AssessmentIntegrityStatus integrityStatus = AssessmentIntegrityStatus.NORMAL;
 
+    @Column(name = "violation_count", nullable = false)
+    private Integer violationCount = 0;
+
     @Column(name = "integrity_signals_json", columnDefinition = "TEXT")
     private String integritySignalsJson;
+
+    @Column(name = "integrity_events_json", columnDefinition = "TEXT")
+    private String integrityEventsJson;
+
+    @Column(name = "consent_given_at")
+    private Instant consentGivenAt;
+
+    @Column(name = "overturned_by_recruiter", nullable = false)
+    private Boolean overturnedByRecruiter = false;
+
+    @Column(name = "overturn_reason", columnDefinition = "TEXT")
+    private String overturnReason;
 
     @Column(name = "evidence_graph_json", columnDefinition = "TEXT")
     private String evidenceGraphJson;
@@ -129,8 +144,23 @@ public class AssessmentAttempt {
     public AssessmentIntegrityStatus getIntegrityStatus() { return integrityStatus; }
     public void setIntegrityStatus(AssessmentIntegrityStatus integrityStatus) { this.integrityStatus = integrityStatus; }
 
+    public Integer getViolationCount() { return violationCount != null ? violationCount : 0; }
+    public void setViolationCount(Integer violationCount) { this.violationCount = violationCount; }
+
     public String getIntegritySignalsJson() { return integritySignalsJson; }
     public void setIntegritySignalsJson(String integritySignalsJson) { this.integritySignalsJson = integritySignalsJson; }
+
+    public String getIntegrityEventsJson() { return integrityEventsJson; }
+    public void setIntegrityEventsJson(String integrityEventsJson) { this.integrityEventsJson = integrityEventsJson; }
+
+    public Instant getConsentGivenAt() { return consentGivenAt; }
+    public void setConsentGivenAt(Instant consentGivenAt) { this.consentGivenAt = consentGivenAt; }
+
+    public Boolean getOverturnedByRecruiter() { return overturnedByRecruiter != null ? overturnedByRecruiter : false; }
+    public void setOverturnedByRecruiter(Boolean overturnedByRecruiter) { this.overturnedByRecruiter = overturnedByRecruiter; }
+
+    public String getOverturnReason() { return overturnReason; }
+    public void setOverturnReason(String overturnReason) { this.overturnReason = overturnReason; }
 
     public String getEvidenceGraphJson() { return evidenceGraphJson; }
     public void setEvidenceGraphJson(String evidenceGraphJson) { this.evidenceGraphJson = evidenceGraphJson; }

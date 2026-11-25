@@ -11,6 +11,9 @@ public class TelemetryIngestRequest {
     private Integer keystrokeCount = 0;
     private Integer largeChangesCount = 0;
     private Long timeSpentSeconds = 0L;
+    private String eventType; // "BLUR", "FOCUS", "PASTE", "HEARTBEAT", "SUSTAINED_BLUR"
+    private String eventDetail;
+    private Long blurDurationMs;
 
     public TelemetryIngestRequest() {}
 
@@ -31,4 +34,13 @@ public class TelemetryIngestRequest {
 
     public Long getTimeSpentSeconds() { return timeSpentSeconds; }
     public void setTimeSpentSeconds(Long timeSpentSeconds) { this.timeSpentSeconds = timeSpentSeconds; }
+
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+
+    public String getEventDetail() { return eventDetail; }
+    public void setEventDetail(String eventDetail) { this.eventDetail = eventDetail; }
+
+    public Long getBlurDurationMs() { return blurDurationMs; }
+    public void setBlurDurationMs(Long blurDurationMs) { this.blurDurationMs = blurDurationMs; }
 }
