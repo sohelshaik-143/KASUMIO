@@ -116,7 +116,7 @@ export const KasumoSidebar = ({
           </div>
           <div className="flex flex-col cursor-pointer" onClick={() => navigate('/')}>
             <span className="font-extrabold text-base tracking-wider text-white font-sans">
-              KASUMO
+              KASUMIO
             </span>
             <span className="text-[11px] text-slate-400 font-medium leading-none mt-0.5">
               Truth-First Talent Intelligence
@@ -216,7 +216,7 @@ export const KasumoSidebar = ({
                   Prove. Grow.<br />Get Hired.
                 </h4>
                 <p className="text-[11px] text-slate-300 leading-snug">
-                  With KASUMO, your skills speak louder.
+                  With KASUMIO, your skills speak louder.
                 </p>
                 <button
                   type="button"

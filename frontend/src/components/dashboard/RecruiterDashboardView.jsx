@@ -440,10 +440,10 @@ export const RecruiterDashboardView = ({
               <div>
                 <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Views</p>
                 <p className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
-                  {totalPublishedOpportunities > 0 ? `${totalPublishedOpportunities * 12}K` : '0'}
+                  0
                 </p>
                 <span className="text-[10px] font-bold text-slate-400">
-                  {totalPublishedOpportunities > 0 ? '↑ 15%' : '0%'}
+                  0%
                 </span>
               </div>
               <div>
@@ -452,7 +452,7 @@ export const RecruiterDashboardView = ({
                   {totalApplicationsCount}
                 </p>
                 <span className="text-[10px] font-bold text-slate-400">
-                  {totalApplicationsCount > 0 ? '↑ 10%' : '0%'}
+                  0%
                 </span>
               </div>
               <div>
@@ -461,7 +461,7 @@ export const RecruiterDashboardView = ({
                   {shortlistedCount}
                 </p>
                 <span className="text-[10px] font-bold text-slate-400">
-                  {shortlistedCount > 0 ? '↑ 5%' : '0%'}
+                  0%
                 </span>
               </div>
             </div>
@@ -497,41 +497,32 @@ export const RecruiterDashboardView = ({
                 <line x1="0" y1="70" x2="320" y2="70" stroke="#94a3b8" strokeOpacity="0.1" strokeDasharray="3 3" />
                 <line x1="0" y1="110" x2="320" y2="110" stroke="#94a3b8" strokeOpacity="0.1" strokeDasharray="3 3" />
 
-                {/* Blue Area & Curve */}
-                <path
-                  d={totalPublishedOpportunities > 0
-                    ? "M 10 95 C 40 90, 70 60, 110 50 C 150 40, 180 80, 220 55 C 260 30, 290 40, 310 48 L 310 130 L 10 130 Z"
-                    : "M 10 120 L 310 120 L 310 130 L 10 130 Z"
-                  }
-                  fill="url(#blueLineGrad)"
-                />
-                <path
-                  d={totalPublishedOpportunities > 0
-                    ? "M 10 95 C 40 90, 70 60, 110 50 C 150 40, 180 80, 220 55 C 260 30, 290 40, 310 48"
-                    : "M 10 120 L 310 120"
-                  }
-                  fill="none"
-                  stroke="#2563eb"
-                  strokeWidth="2.5"
-                />
-
-                {/* Purple Area & Curve */}
-                <path
-                  d={totalApplicationsCount > 0
-                    ? "M 10 115 C 40 110, 70 95, 110 88 C 150 80, 180 100, 220 80 C 260 65, 290 75, 310 72 L 310 130 L 10 130 Z"
-                    : "M 10 125 L 310 125 L 310 130 L 10 130 Z"
-                  }
-                  fill="url(#purpleLineGrad)"
-                />
-                <path
-                  d={totalApplicationsCount > 0
-                    ? "M 10 115 C 40 110, 70 95, 110 88 C 150 80, 180 100, 220 80 C 260 65, 290 75, 310 72"
-                    : "M 10 125 L 310 125"
-                  }
-                  fill="none"
-                  stroke="#9333ea"
-                  strokeWidth="2.5"
-                />
+                {totalApplicationsCount === 0 ? (
+                  <>
+                    <line x1="10" y1="120" x2="310" y2="120" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="3 3" strokeOpacity="0.5" />
+                    <text x="160" y="65" textAnchor="middle" fill="#64748b" className="dark:fill-slate-400" fontSize="11" fontWeight="700">
+                      No applicant activity recorded yet
+                    </text>
+                    <text x="160" y="82" textAnchor="middle" fill="#94a3b8" className="dark:fill-slate-500" fontSize="9" fontWeight="500">
+                      Real performance trends will display as candidates apply
+                    </text>
+                  </>
+                ) : (
+                  <>
+                    <path
+                      d="M 10 120 L 310 120"
+                      fill="none"
+                      stroke="#2563eb"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M 10 120 L 310 120"
+                      fill="none"
+                      stroke="#9333ea"
+                      strokeWidth="2"
+                    />
+                  </>
+                )}
 
                 {/* X Axis Date Labels */}
                 <text x="10" y="138" fill="#94a3b8" fontSize="9" fontWeight="600">30d ago</text>
@@ -549,7 +540,7 @@ export const RecruiterDashboardView = ({
                 <Sparkles className="w-4 h-4" />
               </div>
               <h4 className="text-sm font-extrabold text-white leading-snug">
-                Find the Right Talent with KASUMO
+                Find the Right Talent with KASUMIO
               </h4>
               <p className="text-[11px] text-slate-400 leading-relaxed">
                 Leverage verified skills and real project evidence to hire the best.

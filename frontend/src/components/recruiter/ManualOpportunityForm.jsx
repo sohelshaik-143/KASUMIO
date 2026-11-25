@@ -348,7 +348,7 @@ export const ManualOpportunityForm = ({
         </div>
 
         <p className="text-xs text-slate-500 leading-relaxed">
-          When enabled, KASUMO constructs an automated multi-language technical screening blueprint tailored to your specified required capabilities.
+          When enabled, KASUMIO constructs an automated multi-language technical screening blueprint tailored to your specified required capabilities.
         </p>
 
         {formData.enableAssessment && (

@@ -6,12 +6,12 @@ export const RecruiterHelpPage = () => {
 
   const faqs = [
     {
-      q: 'How does KASUMO verify student evidence?',
-      a: 'Evidence in KASUMO is verified strictly against demonstrable proof artifacts (such as public Git repositories with commit histories, live production URLs, accredited credentials, or competition submissions) and verified by accredited organizations.'
+      q: 'How does KASUMIO verify student evidence?',
+      a: 'Evidence in KASUMIO is verified strictly against demonstrable proof artifacts (such as public Git repositories with commit histories, live production URLs, accredited credentials, or competition submissions) and verified by accredited organizations.'
     },
     {
       q: 'Are candidate match scores based on arbitrary AI?',
-      a: 'No. Match scores in KASUMO are calculated deterministically from required skill weights, verified repository code artifacts, and practical screening benchmarks. There are zero fabricated scores.'
+      a: 'No. Match scores in KASUMIO are calculated deterministically from required skill weights, verified repository code artifacts, and practical screening benchmarks. There are zero fabricated scores.'
     },
     {
       q: 'How do technical screening blueprints work?',

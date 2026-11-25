@@ -155,7 +155,7 @@ export const AssessmentResultPage = () => {
         )}
       </div>
 
-      {/* KASUMO Evidence Profile & Self-Assessment Comparison (Principle #5, #15, #16) */}
+      {/* KASUMIO Evidence Profile & Self-Assessment Comparison (Principle #5, #15, #16) */}
       <CandidateEvidenceProfileCard
         selfAssessmentLevel={result.selfAssessmentLevel}
         demonstratedLevel={result.demonstratedLevel || result.capabilityLevel}
