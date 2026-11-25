@@ -27,4 +27,4 @@ kasumio:
     expiration-ms: 86400000
   assessment:
     code-execution:
-      enabled: true
+      enabled: false

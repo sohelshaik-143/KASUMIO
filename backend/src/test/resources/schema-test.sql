@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) NOT NULL,
     organization_id BIGINT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    full_name VARCHAR(255) NULL,
+    avatar_url VARCHAR(500) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_users_organization FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
 );
@@ -26,6 +28,7 @@ CREATE TABLE IF NOT EXISTS students (
     university VARCHAR(255) NULL,
     graduation_year INT NULL,
     leaderboard_public BOOLEAN NOT NULL DEFAULT TRUE,
+    avatar_url VARCHAR(500) NULL,
     CONSTRAINT fk_students_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

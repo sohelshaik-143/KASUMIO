@@ -12,7 +12,7 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 10, message = "Password must be at least 10 characters long")
+    @Size(min = 10, max = 128, message = "Password must be between 10 and 128 characters")
     private String password;
 
     private Role role; // Optional, defaults to STUDENT if null

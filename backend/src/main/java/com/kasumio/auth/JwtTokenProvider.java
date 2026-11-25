@@ -15,17 +15,24 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
+    public static final String DEFAULT_DEV_SECRET = "kasumio_super_secure_jwt_secret_key_with_at_least_256_bits_length_123456";
+
     private final SecretKey secretKey;
     private final long expirationMs;
 
     public JwtTokenProvider(
             @Value("${kasumio.jwt.secret:}") String secret,
-            @Value("${kasumio.jwt.expiration-ms}") long expirationMs) {
+            @Value("${kasumio.jwt.expiration-ms}") long expirationMs,
+            @Value("${spring.profiles.active:local}") String activeProfile) {
         if (secret == null || secret.trim().isEmpty()) {
             throw new IllegalStateException("Missing required configuration: 'kasumio.jwt.secret'. Application cannot start without a valid JWT secret.");
         }
         if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
             throw new IllegalStateException("kasumio.jwt.secret must be at least 256 bits (32 bytes) long.");
+        }
+        boolean isDevOrTest = "local".equalsIgnoreCase(activeProfile) || "test".equalsIgnoreCase(activeProfile);
+        if (!isDevOrTest && DEFAULT_DEV_SECRET.equals(secret.trim())) {
+            throw new IllegalStateException("Hardcoded default JWT secret is strictly prohibited outside local/test development environments. Please configure JWT_SECRET.");
         }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;

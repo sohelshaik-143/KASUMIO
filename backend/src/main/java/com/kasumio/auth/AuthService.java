@@ -50,9 +50,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "An account with this email already exists");
         }
 
-        if (request.getPassword() == null || request.getPassword().length() < 10) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 10 characters long");
-        }
+        validatePasswordRequirements(request.getPassword());
 
         Role role = request.getRole() != null ? request.getRole() : Role.STUDENT;
         if (role == Role.ADMIN) {
@@ -213,5 +211,26 @@ public class AuthService {
                 user.getStatus() != null ? user.getStatus().name() : "ACTIVE",
                 user.getCreatedAt()
         );
+    }
+
+    private void validatePasswordRequirements(String password) {
+        if (password == null || password.length() < 10) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 10 characters long");
+        }
+        if (password.length() > 128) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must not exceed 128 characters");
+        }
+        boolean hasLetter = false;
+        boolean hasNonLetter = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isLetter(c)) {
+                hasLetter = true;
+            } else if (!Character.isWhitespace(c)) {
+                hasNonLetter = true;
+            }
+        }
+        if (!hasLetter || !hasNonLetter) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must contain at least one letter and at least one number or special character");
+        }
     }
 }

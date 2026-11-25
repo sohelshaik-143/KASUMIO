@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class StudentController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN')")
     @Operation(summary = "List all registered student candidates for recruiters")
     public ResponseEntity<java.util.List<StudentProfileResponse>> getAllCandidates() {
         return ResponseEntity.ok(studentService.getAllCandidates());

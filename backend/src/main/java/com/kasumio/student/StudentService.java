@@ -42,9 +42,11 @@ public class StudentService {
 
     @Transactional(readOnly = true)
     public java.util.List<StudentProfileResponse> getAllCandidates() {
+        User currentUser = SecurityUtils.getCurrentUser(userRepository);
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
         return studentRepository.findAll().stream()
                 .filter(s -> s.getFullName() != null && !s.getFullName().trim().isEmpty() && !s.getFullName().equalsIgnoreCase("Student") && (s.getBio() != null || s.getUniversity() != null))
-                .map(this::mapToResponse)
+                .map(s -> mapToResponse(s, isAdmin))
                 .collect(java.util.stream.Collectors.toList());
     }
 
@@ -82,7 +84,9 @@ public class StudentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot access another student's private profile");
         }
 
-        return mapToResponse(student);
+        boolean includeEmail = (currentUser.getRole() == Role.ADMIN) 
+                || (student.getUser() != null && student.getUser().getId().equals(currentUser.getId()));
+        return mapToResponse(student, includeEmail);
     }
 
     @Transactional
@@ -98,11 +102,16 @@ public class StudentService {
     }
 
     private StudentProfileResponse mapToResponse(Student student) {
+        return mapToResponse(student, true);
+    }
+
+    private StudentProfileResponse mapToResponse(Student student, boolean includeEmail) {
         String avatar = student.getAvatarUrl() != null ? student.getAvatarUrl() : student.getUser().getAvatarUrl();
+        String email = (includeEmail && student.getUser() != null) ? student.getUser().getEmail() : null;
         return new StudentProfileResponse(
                 student.getId(),
                 student.getUser().getId(),
-                student.getUser().getEmail(),
+                email,
                 student.getFullName(),
                 student.getBio(),
                 student.getUniversity(),

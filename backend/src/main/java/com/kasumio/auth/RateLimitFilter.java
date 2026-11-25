@@ -24,11 +24,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    private static final int AUTH_LIMIT_PER_MINUTE = 15;
+    private static final int LOGIN_LIMIT_PER_MINUTE = 10;
+    private static final int REGISTER_LIMIT_PER_MINUTE = 5;
     private static final int DISCOVERY_LIMIT_PER_MINUTE = 30;
     private static final long WINDOW_MS = 60_000L;
 
     private final Map<String, Deque<Long>> requestLog = new ConcurrentHashMap<>();
+
+    public void resetForTesting() {
+        requestLog.clear();
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,8 +42,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         int limit = -1;
-        if (uri.startsWith("/api/auth/login") || uri.startsWith("/api/auth/register")) {
-            limit = AUTH_LIMIT_PER_MINUTE;
+        if (uri.startsWith("/api/auth/register")) {
+            limit = REGISTER_LIMIT_PER_MINUTE;
+        } else if (uri.startsWith("/api/auth/login")) {
+            limit = LOGIN_LIMIT_PER_MINUTE;
         } else if (uri.startsWith("/api/discovery/candidates/discover") && "POST".equalsIgnoreCase(method)) {
             limit = DISCOVERY_LIMIT_PER_MINUTE;
         }
@@ -55,6 +62,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 if (timestamps.size() >= limit) {
                     response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setHeader("Retry-After", "60");
                     response.getWriter().write("{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"Rate limit exceeded. Please wait before retrying.\"}");
                     return;
                 }
