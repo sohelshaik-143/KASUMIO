@@ -57,6 +57,42 @@ export const AssessmentTakingPage = () => {
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const previousCodeLengthRef = React.useRef(0);
   const textareaRef = React.useRef(null);
+  const writtenTextareaRef = React.useRef(null);
+
+  // Autosave tracking with monotonic sequence number
+  const saveSeqRef = React.useRef(0);
+  const [autosaveStatus, setAutosaveStatus] = useState('idle'); // 'saving', 'saved', 'error', 'idle'
+
+  const triggerAutosave = async () => {
+    if (!question || !attemptId) return;
+    const currentSeq = ++saveSeqRef.current;
+    setAutosaveStatus('saving');
+    try {
+      await assessmentApi.saveDraft(attemptId, {
+        questionId: question.id,
+        language: selectedLanguage,
+        code: codeContent,
+        selectedOptionId: selectedOptionId
+      });
+      if (currentSeq === saveSeqRef.current) {
+        setAutosaveStatus('saved');
+      }
+    } catch (e) {
+      if (currentSeq === saveSeqRef.current) {
+        setAutosaveStatus('error');
+      }
+    }
+  };
+
+  // Periodic autosave every 15 seconds
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      if (codeContent && codeContent.trim()) {
+        triggerAutosave();
+      }
+    }, 15000);
+    return () => clearInterval(autoSaveInterval);
+  }, [codeContent, selectedLanguage, selectedOptionId, question, attemptId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -215,13 +251,21 @@ export const AssessmentTakingPage = () => {
   const handleSubmitAnswer = async () => {
     if (!question) return;
 
-    if (question.questionType === 'CODING' && !codeContent.trim()) {
+    const isCodeBased = ['CODING', 'DEBUGGING', 'DSA_CODING', 'IMPLEMENTATION', 'SQL', 'BACKEND_ENGINEERING'].includes(question.questionType);
+    const isChoiceBased = question.questionType === 'MCQ';
+
+    if (isCodeBased && !codeContent.trim()) {
       setAlert({ type: 'error', message: 'Please provide code before submitting.' });
       return;
     }
 
-    if (question.questionType !== 'CODING' && !selectedOptionId) {
+    if (isChoiceBased && !selectedOptionId) {
       setAlert({ type: 'error', message: 'Please select an option to submit.' });
+      return;
+    }
+
+    if (!isCodeBased && !isChoiceBased && !codeContent.trim()) {
+      setAlert({ type: 'error', message: 'Please enter your written solution before submitting.' });
       return;
     }
 
@@ -389,6 +433,22 @@ export const AssessmentTakingPage = () => {
               {question?.prompt}
             </div>
 
+            {/* Question Diagram / Illustration if uploaded */}
+            {question?.imageUrl && (
+              <div className="rounded-xl border border-slate-200 overflow-hidden bg-slate-50 p-2.5 space-y-1.5 shadow-2xs">
+                <img
+                  src={question.imageUrl}
+                  alt={question.imageAltText || question.title || 'Technical diagram'}
+                  className="w-full max-h-64 object-contain rounded-lg mx-auto bg-white border border-slate-100"
+                />
+                {question.imageCaption && (
+                  <p className="text-[11px] text-center text-slate-500 italic font-medium">
+                    {question.imageCaption}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* If coding problem, show problem statement and constraints */}
             {question?.codingProblem && (
               <div className="space-y-4 pt-2">
@@ -441,9 +501,9 @@ export const AssessmentTakingPage = () => {
           </div>
         </div>
 
-        {/* Right Column: Interactive Code Sandbox OR Multiple-Choice Options */}
+        {/* Right Column: Interactive Code Sandbox OR Multiple-Choice Options OR Written Technical Response */}
         <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl shadow-xs flex flex-col justify-between overflow-hidden">
-          {question?.questionType === 'CODING' ? (
+          {['CODING', 'DEBUGGING', 'DSA_CODING', 'IMPLEMENTATION', 'SQL', 'BACKEND_ENGINEERING'].includes(question?.questionType) ? (
             <div className="flex-1 flex flex-col">
               {/* Editor Header: Language Switcher & Run Button */}
               <div className="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
@@ -495,6 +555,7 @@ export const AssessmentTakingPage = () => {
                   onChange={handleCodeChange}
                   onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
+                  onBlur={triggerAutosave}
                   spellCheck="false"
                   className="flex-1 p-4 bg-transparent text-slate-100 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none selection:bg-indigo-600 selection:text-white"
                   placeholder="// Implement your solution here..."
@@ -558,8 +619,8 @@ export const AssessmentTakingPage = () => {
                 </div>
               )}
             </div>
-          ) : (
-            /* Non-Coding: Multiple Choice / Debugging / Conceptual Options */
+          ) : question?.questionType === 'MCQ' ? (
+            /* MCQ Options */
             <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
               <div className="space-y-3">
                 <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -594,12 +655,41 @@ export const AssessmentTakingPage = () => {
                 </div>
               </div>
             </div>
+          ) : (
+            /* Written Technical Response (Short Answer, Explanation, Scenario, System Design) */
+            <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-3 flex-1 flex flex-col">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Provide your detailed technical response:
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {codeContent.trim().split(/\s+/).filter(Boolean).length} words • {codeContent.length} chars
+                  </span>
+                </div>
+                <textarea
+                  ref={writtenTextareaRef}
+                  value={codeContent}
+                  onChange={(e) => setCodeContent(e.target.value)}
+                  onBlur={triggerAutosave}
+                  rows={14}
+                  className="flex-1 w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs sm:text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  placeholder="Explain your approach, architectural trade-offs, edge case handling, and core principles..."
+                />
+              </div>
+            </div>
           )}
 
           {/* Action Bar */}
           <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-            <div className="text-xs text-slate-500 font-mono">
-              Evaluated deterministically • Evidence-backed
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-mono">
+              <span>Evaluated deterministically • Evidence-backed</span>
+              {autosaveStatus === 'saving' && (
+                <span className="text-amber-500 animate-pulse text-[11px]">Saving draft...</span>
+              )}
+              {autosaveStatus === 'saved' && (
+                <span className="text-emerald-600 text-[11px]">Draft autosaved</span>
+              )}
             </div>
             <button
               onClick={handleSubmitAnswer}

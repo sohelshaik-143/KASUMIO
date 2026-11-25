@@ -116,6 +116,16 @@ public class AssessmentController {
         return ResponseEntity.ok(assessmentService.submitQuestion(attemptId, request, student));
     }
 
+    @PostMapping("/attempts/{attemptId}/save-draft")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "Autosave candidate draft answer during assessment")
+    public ResponseEntity<Void> saveDraft(@PathVariable Long attemptId,
+                                          @RequestBody SubmitQuestionRequest request) {
+        Student student = SecurityUtils.getCurrentStudent(studentRepository, userRepository);
+        assessmentService.saveDraft(attemptId, request, student);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/attempts/{attemptId}/complete")
     @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Finalize assessment attempt, calculate verified score, and mint portfolio evidence")

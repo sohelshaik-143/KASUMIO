@@ -73,6 +73,15 @@ export const assessmentApi = {
     return response.data;
   },
 
+  // Autosave candidate draft without advancing
+  saveDraft: async (attemptId, draftData) => {
+    const response = await api.post(
+      `/assessments/attempts/${attemptId}/save-draft`,
+      draftData
+    );
+    return response.data;
+  },
+
   // Finalize attempt
   completeAttempt: async (attemptId) => {
     const response = await api.post(`/assessments/attempts/${attemptId}/complete`);

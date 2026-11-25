@@ -99,29 +99,58 @@ public class AssessmentSubmissionService {
             throw new AccessDeniedException("Access denied to attempt.");
         }
 
+        if (attempt.getStatus() == AttemptStatus.COMPLETED) {
+            throw new IllegalStateException("Assessment attempt is already completed.");
+        }
+
+        if (attempt.getStartedAt() != null && attempt.getAssessment().getTimeLimitMinutes() != null) {
+            long elapsedMs = java.time.Duration.between(attempt.getStartedAt(), java.time.Instant.now()).toMillis();
+            long allowedMs = (long) attempt.getAssessment().getTimeLimitMinutes() * 60 * 1000 + 30000;
+            if (elapsedMs > allowedMs) {
+                attempt.setStatus(AttemptStatus.COMPLETED);
+                attempt.setCompletedAt(java.time.Instant.now());
+                attemptRepository.save(attempt);
+                throw new IllegalStateException("Assessment time limit has expired.");
+            }
+        }
+
         AssessmentQuestion question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new IllegalArgumentException("Question not found: " + request.getQuestionId()));
 
         DeterministicEvaluationService.EvaluationOutcome outcome;
         QuestionOption selectedOption = null;
 
-        if (question.getQuestionType() == QuestionType.CODING) {
-            CodingProblem problem = codingProblemRepository.findByQuestion(question)
-                    .orElseThrow(() -> new IllegalArgumentException("Problem not found for question: " + question.getId()));
-            List<TestCase> allTestCases = testCaseRepository.findByCodingProblemOrderByOrderIndexAsc(problem);
-            outcome = evaluationService.evaluateCoding(problem, allTestCases, request.getLanguage(), request.getCode());
-        } else {
+        if (question.getQuestionType().isCodeBased()) {
+            CodingProblem problem = codingProblemRepository.findByQuestion(question).orElse(null);
+            if (problem != null) {
+                List<TestCase> allTestCases = testCaseRepository.findByCodingProblemOrderByOrderIndexAsc(problem);
+                outcome = evaluationService.evaluateCoding(problem, allTestCases, request.getLanguage(), request.getCode());
+            } else {
+                outcome = new DeterministicEvaluationService.EvaluationOutcome(SubmissionStatus.PASSED, 1, 1, 0, 0, "", Collections.emptyList());
+            }
+        } else if (question.getQuestionType().isChoiceBased()) {
             if (request.getSelectedOptionId() != null) {
                 selectedOption = optionRepository.findById(request.getSelectedOptionId()).orElse(null);
             }
             outcome = evaluationService.evaluateOption(question, selectedOption);
+        } else {
+            // Text-based: written technical response or explanation
+            boolean hasContent = request.getCode() != null && !request.getCode().trim().isEmpty();
+            outcome = new DeterministicEvaluationService.EvaluationOutcome(
+                    hasContent ? SubmissionStatus.PASSED : SubmissionStatus.FAILED,
+                    hasContent ? 1 : 0, 1, 0, 0, "", Collections.emptyList()
+            );
         }
 
         int pointsEarned = 0;
-        if (question.getQuestionType() == QuestionType.CODING) {
+        if (question.getQuestionType().isCodeBased()) {
             if (outcome.getTotalTestCases() > 0) {
                 double ratio = (double) outcome.getTestCasesPassed() / outcome.getTotalTestCases();
                 pointsEarned = (int) Math.round(ratio * question.getPoints());
+            }
+        } else if (question.getQuestionType().isChoiceBased()) {
+            if (outcome.getStatus() == SubmissionStatus.PASSED) {
+                pointsEarned = question.getPoints();
             }
         } else {
             if (outcome.getStatus() == SubmissionStatus.PASSED) {
@@ -131,7 +160,7 @@ public class AssessmentSubmissionService {
 
         String codeAnalysisJson = null;
         Double similarityScore = 0.0;
-        if (question.getQuestionType() == QuestionType.CODING && request.getCode() != null) {
+        if (question.getQuestionType().isCodeBased() && request.getCode() != null) {
             CodingProblem problem = codingProblemRepository.findByQuestion(question).orElse(null);
             String starterOrRef = problem != null ? problem.getStarterCodeJson() : "";
             CodeQualityAndComplexityAnalyzer.CodeAnalysisResult analysis =
@@ -194,6 +223,43 @@ public class AssessmentSubmissionService {
                 hasNext,
                 outcome.getFeedback()
         );
+    }
+
+    @Transactional
+    public void saveDraft(Long attemptId, SubmitQuestionRequest request, Student student) {
+        AssessmentAttempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new IllegalArgumentException("Attempt not found: " + attemptId));
+
+        if (!attempt.getStudent().getId().equals(student.getId())) {
+            throw new AccessDeniedException("Access denied to attempt.");
+        }
+
+        if (attempt.getStatus() == AttemptStatus.COMPLETED) {
+            return;
+        }
+
+        AssessmentQuestion question = questionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new IllegalArgumentException("Question not found: " + request.getQuestionId()));
+
+        Optional<QuestionSubmission> existing = submissionRepository.findByAttemptIdAndQuestionId(attemptId, question.getId());
+        QuestionOption option = null;
+        if (request.getSelectedOptionId() != null) {
+            option = optionRepository.findById(request.getSelectedOptionId()).orElse(null);
+        }
+
+        if (existing.isPresent()) {
+            QuestionSubmission sub = existing.get();
+            sub.setLanguage(request.getLanguage());
+            sub.setSubmittedCode(request.getCode());
+            sub.setSelectedOption(option);
+            submissionRepository.save(sub);
+        } else {
+            QuestionSubmission sub = new QuestionSubmission(
+                    attempt, question, request.getLanguage(), request.getCode(),
+                    option, SubmissionStatus.PASSED, 0L, 0L, 0, 0, null
+            );
+            submissionRepository.save(sub);
+        }
     }
 
     @Transactional

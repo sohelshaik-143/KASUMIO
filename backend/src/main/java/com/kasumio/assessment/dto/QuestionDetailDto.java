@@ -18,6 +18,9 @@ public class QuestionDetailDto {
     private Integer orderIndex;
     private String competencyArea;
     private String validationStatus;
+    private String imageUrl;
+    private String imageAltText;
+    private String imageCaption;
     private List<CandidateOptionDto> options;
     private CandidateCodingProblemDto codingProblem;
 
@@ -61,6 +64,12 @@ public class QuestionDetailDto {
     public void setCompetencyArea(String competencyArea) { this.competencyArea = competencyArea; }
     public String getValidationStatus() { return validationStatus; }
     public void setValidationStatus(String validationStatus) { this.validationStatus = validationStatus; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getImageAltText() { return imageAltText; }
+    public void setImageAltText(String imageAltText) { this.imageAltText = imageAltText; }
+    public String getImageCaption() { return imageCaption; }
+    public void setImageCaption(String imageCaption) { this.imageCaption = imageCaption; }
     public List<CandidateOptionDto> getOptions() { return options; }
     public void setOptions(List<CandidateOptionDto> options) { this.options = options; }
     public CandidateCodingProblemDto getCodingProblem() { return codingProblem; }

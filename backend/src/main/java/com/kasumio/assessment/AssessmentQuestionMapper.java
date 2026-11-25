@@ -99,6 +99,9 @@ public class AssessmentQuestionMapper {
         );
         dto.setCompetencyArea(q.getCompetencyArea());
         dto.setValidationStatus(q.getValidationStatus());
+        dto.setImageUrl(q.getImageUrl());
+        dto.setImageAltText(q.getImageAltText());
+        dto.setImageCaption(q.getImageCaption());
         return dto;
     }
 }

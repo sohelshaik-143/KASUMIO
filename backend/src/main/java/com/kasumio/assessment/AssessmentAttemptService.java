@@ -152,6 +152,10 @@ public class AssessmentAttemptService {
         return submissionService.submitQuestion(attemptId, request, student);
     }
 
+    public void saveDraft(Long attemptId, SubmitQuestionRequest request, Student student) {
+        submissionService.saveDraft(attemptId, request, student);
+    }
+
     public void recordTelemetry(Long attemptId, TelemetryIngestRequest req, Student student) {
         submissionService.recordTelemetry(attemptId, req, student);
     }
